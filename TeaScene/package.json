@@ -1,0 +1,54 @@
+{
+  "name": "teascene",
+  "author": "thejambi",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-watchface"
+  ],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "TeaScene",
+    "uuid": "cebdac58-6a38-4d84-8333-44bd8fdd7feb",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": true
+    },
+    "capabilities": [
+      "configurable"
+    ],
+    "messageKeys": [
+      "ShowHealth",
+      "DateFormat",
+      "LeadingZero",
+      "ShowBattery",
+      "ShowBT",
+      "BTVibe",
+      "TapInfo",
+      "SceneTime",
+      "WeatherOn",
+      "WeatherLoc",
+      "WeatherUnit",
+      "WeatherTemp"
+    ],
+    "resources": {
+      "media": [
+        {
+          "menuIcon": true,
+          "type": "bitmap",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu_icon.png"
+        },
+        {
+          "type": "raw",
+          "name": "SCENE",
+          "file": "data/scene.bin"
+        }
+      ]
+    }
+  }
+}
