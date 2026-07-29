@@ -22,6 +22,18 @@ module.exports = [
       },
       {
         type: 'select',
+        messageKey: 'DistUnit',
+        defaultValue: '0',
+        label: 'Distance units',
+        description: 'Automatic follows the units set in the Pebble app.',
+        options: [
+          { label: 'Automatic', value: '0' },
+          { label: 'Kilometres', value: '1' },
+          { label: 'Miles', value: '2' }
+        ]
+      },
+      {
+        type: 'select',
         messageKey: 'DateFormat',
         defaultValue: '0',
         label: 'Date',

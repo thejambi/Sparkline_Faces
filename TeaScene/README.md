@@ -54,6 +54,12 @@ art follows, both learned by getting them wrong first:
 evening from 17:00, night from 21:00. Any one of them can be pinned in
 settings.
 
+## Distance
+
+Kilometres, miles, or Automatic — which follows the units already set in the
+Pebble app. Shared with [Sparkline](../Sparkline), since both faces show the
+same band.
+
 ## Health
 
 The sparkline uses the same fetch discipline as Solfarer: the minute history

@@ -33,7 +33,8 @@
       "WeatherOn",
       "WeatherLoc",
       "WeatherUnit",
-      "WeatherTemp"
+      "WeatherTemp",
+      "DistUnit"
     ],
     "resources": {
       "media": [

@@ -60,6 +60,31 @@ static void fmt_thousands(char *buf, size_t cap, int v) {
   else snprintf(buf, cap, "%d", v);
 }
 
+// The Pebble app already carries a units preference, so Automatic follows it
+// and the explicit choices are there for when it is unset or simply wrong.
+static bool use_miles(void) {
+  if (g_cfg.dist_unit == DIST_MI) return true;
+  if (g_cfg.dist_unit == DIST_KM) return false;
+#if defined(PBL_HEALTH)
+  return health_service_get_measurement_system_for_display(
+             HealthMetricWalkedDistanceMeters) == MeasurementSystemImperial;
+#else
+  return false;
+#endif
+}
+
+// Health always reports metres, whichever way this comes out.
+static void fmt_distance(char *buf, size_t cap, int metres) {
+  char n[12];
+  if (use_miles()) {
+    fmt1(n, sizeof n, metres / 1609.344);
+    snprintf(buf, cap, "%s mi", n);
+  } else {
+    fmt1(n, sizeof n, metres / 1000.0);
+    snprintf(buf, cap, "%s km", n);
+  }
+}
+
 //#define DEV_FAKE_HEALTH
 
 #if defined(PBL_HEALTH)
@@ -278,9 +303,7 @@ static void draw_band(GContext *ctx, GRect b) {
     if (ssz.w > num_w - 4)           // tight gap: the comma goes first
       snprintf(v, sizeof v, "%d", steps_today());
     GRID_ROW(v, f18b, r0 - 3);
-    char km[12];
-    fmt1(km, sizeof km, walked_m_today() / 1000.0);
-    snprintf(v, sizeof v, "%s km", km);
+    fmt_distance(v, sizeof v, walked_m_today());
     GRID_ROW(v, f14, r1);
     int ss = sleep_peek() ? sleep_secs() : 0;
     if (ss > 0) {                    // the shake peek rides bpm's row

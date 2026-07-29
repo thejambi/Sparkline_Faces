@@ -88,6 +88,12 @@ design.
 A warning stays a warning: the low-battery and disconnected indicators are red
 in every theme.
 
+## Distance
+
+Kilometres, miles, or Automatic — which follows the units already set in the
+Pebble app, via `health_service_get_measurement_system_for_display()`. Health
+reports metres either way; only the divisor and the tail change.
+
 ## Sleep
 
 ActiveHour's rule, by way of Solfarer: last night's sleep holds the step slot

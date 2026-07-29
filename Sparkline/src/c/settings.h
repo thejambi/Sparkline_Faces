@@ -1,7 +1,8 @@
 #pragma once
 #include <pebble.h>
 
-enum { DATE_DAYNUM, DATE_MONTHDAY, DATE_OFF };          // "FRI 24" / "JUL 24"
+enum { DATE_DAYNUM, DATE_MONTHDAY, DATE_OFF };  // "FRI 24" / "JUL 24"
+enum { DIST_AUTO, DIST_KM, DIST_MI };
 
 // Clock typeface. The first four match ActiveHour's picker; the rest are the
 // remaining system faces big enough to carry a clock. Sizes differ a lot
@@ -31,6 +32,7 @@ typedef struct {
   uint32_t c_bg, c_time, c_health, c_date, c_muted, c_lines, c_spark;
   bool bold_steps;
   uint16_t wake_threshold;       // sleep holds the step slot below this
+  uint8_t dist_unit;             // km, miles, or whatever the watch says
 } Settings;
 
 extern Settings g_cfg;

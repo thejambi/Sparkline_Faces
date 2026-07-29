@@ -11,6 +11,7 @@ static void defaults(void) {
   g_cfg.version = SETTINGS_VERSION;
   g_cfg.show_health = true;
   g_cfg.date_format = DATE_DAYNUM;
+  g_cfg.dist_unit = DIST_AUTO;
   g_cfg.scene_time = SCENE_AUTO;
   g_cfg.show_battery = true;
   g_cfg.show_bt = true;
@@ -30,6 +31,8 @@ static int tup_int(DictionaryIterator *it, uint32_t key, int fallback) {
 static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.show_health  = tup_int(it, MESSAGE_KEY_ShowHealth, g_cfg.show_health);
   g_cfg.date_format  = tup_int(it, MESSAGE_KEY_DateFormat, g_cfg.date_format);
+  g_cfg.dist_unit    = tup_int(it, MESSAGE_KEY_DistUnit, g_cfg.dist_unit);
+  if (g_cfg.dist_unit > DIST_MI) g_cfg.dist_unit = DIST_AUTO;
   g_cfg.scene_time   = tup_int(it, MESSAGE_KEY_SceneTime, g_cfg.scene_time);
   g_cfg.leading_zero = tup_int(it, MESSAGE_KEY_LeadingZero, g_cfg.leading_zero);
   g_cfg.show_battery = tup_int(it, MESSAGE_KEY_ShowBattery, g_cfg.show_battery);
