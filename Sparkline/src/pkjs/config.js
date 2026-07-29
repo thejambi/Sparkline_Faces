@@ -51,10 +51,20 @@ module.exports = [
       },
       {
         type: 'toggle',
-        messageKey: 'TapInfo',
+        messageKey: 'ShowSleep',
         defaultValue: true,
-        label: 'Shake gesture',
-        description: 'A shake swaps the heart rate for hours slept for a few seconds.'
+        label: 'Show sleep time',
+        description: 'Before you get moving, the step slot shows last night\u2019s sleep as 6h 32m instead. Steps take the slot back once you pass the wake threshold.'
+      },
+      {
+        type: 'slider',
+        messageKey: 'WakeThreshold',
+        defaultValue: 500,
+        label: 'Wake threshold',
+        description: 'Show sleep time until this many steps have been taken today.',
+        min: 0,
+        max: 2000,
+        step: 50
       }
     ]
   },
@@ -84,6 +94,13 @@ module.exports = [
         defaultValue: true,
         label: 'Bold clock',
         description: 'Montserrat and Roboto switch to their Light weight; LECO, Bitham and Gothic to their regular one. Roboto (system) and Droid Serif ship in bold only.'
+      },
+      {
+        type: 'toggle',
+        messageKey: 'BoldSteps',
+        defaultValue: true,
+        label: 'Bold step count',
+        description: 'Separate from the clock on purpose: at a third the size, the step count often wants weight where the clock reads better light.'
       },
       {
         type: 'select',

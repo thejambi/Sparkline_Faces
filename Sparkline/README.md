@@ -56,12 +56,19 @@ The two bundled faces are subset to `[0-9:,]` — the clock and the step count
 are the only things they ever draw — which keeps all eight generated sizes
 inside 19KB. Licences travel with them in `resources/fonts/`.
 
-Two things the families disagree about, both handled per-family in `FONTS[]`:
+**The clock and the step count carry their own weights.** At a third the
+size, the step count often wants bold where the clock reads better light —
+LECO in particular. Two toggles, not one.
+
+Three things the families disagree about, all handled per-family in `FONTS[]`:
 
 - **How much of the box is ink.** LECO's digits are 43px inside a 60px box;
   Gothic's nearly fill theirs. A single shared offset cannot centre them all
   against the hairline, so each family carries its own `clock_y`, measured
   against that rule rather than guessed.
+- **Whether the light face is even the same size.** LECO's light numerals are
+  28 where its bold are 32, so the step count jumped when the weight changed.
+  `steps_dy` is therefore per weight, not per family.
 - **Whether a comma exists.** The numeric-only system faces have no thousands
   separator, and asking for one drops a blank. `FONTS[].comma` records it, and
   Bitham renders `8842` rather than a gap.
@@ -80,6 +87,21 @@ design.
 
 A warning stays a warning: the low-battery and disconnected indicators are red
 in every theme.
+
+## Sleep
+
+ActiveHour's rule, by way of Solfarer: last night's sleep holds the step slot
+until you have actually got up and moved. Past the wake threshold — 500 steps
+by default — the step count takes it back for the rest of the day. With no
+sleep recorded there is nothing to hold the slot with, so steps keep it.
+
+This replaces the shake gesture the face used to carry. A shake is a thing you
+have to remember to do; a threshold just knows.
+
+`6h 32m` needs letters, which most of these numeric faces do not have. The two
+bundled ones are subset to include `h` and `m` so they can spell it in their
+own type; LECO and Bitham fall back to Gothic rather than drawing the string
+with two holes in it.
 
 ## The sparkline
 

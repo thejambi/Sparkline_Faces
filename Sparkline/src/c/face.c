@@ -62,23 +62,6 @@ static void draw_left(GContext *ctx, const char *s, GFont f, int x, int y) {
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
-// Health mode's shake: no card — the bpm row swaps to hours slept for a few
-// seconds (sleep is the only figure the face doesn't already show).
-#define SLEEP_PEEK_MS 6000
-static time_t s_sleep_peek_at;
-static AppTimer *s_peek_timer;
-
-static bool sleep_peek(void) {
-  return s_sleep_peek_at != 0 &&
-         time(NULL) - s_sleep_peek_at < SLEEP_PEEK_MS / 1000;
-}
-
-static void peek_expire(void *ctx) {
-  s_peek_timer = NULL;
-  s_sleep_peek_at = 0;
-  face_poke();
-}
-
 // ---------------------------------------------------------------------------
 // Health — the same machinery as Solfarer, including the one deliberate
 // quirk: the minute history is fetched once at boot and then exactly once
@@ -89,6 +72,25 @@ static void peek_expire(void *ctx) {
 static void fmt_thousands(char *buf, size_t cap, int v, bool comma) {
   if (comma && v >= 1000) snprintf(buf, cap, "%d,%03d", v / 1000, v % 1000);
   else snprintf(buf, cap, "%d", v);
+}
+
+// ActiveHour's rule, adopted here as it was in Solfarer: last night's sleep
+// holds the step slot until you have actually got up and moved. Past the wake
+// threshold, steps take it back for the rest of the day. With no sleep
+// recorded there is nothing to hold the slot with, so steps keep it.
+static int steps_today(void);
+static int sleep_secs(void);
+
+static bool sleep_in_step_slot(void) {
+  return g_cfg.show_sleep && steps_today() <= (int)g_cfg.wake_threshold &&
+         sleep_secs() > 0;
+}
+
+// "6h 32m" — the slot says what it is by its shape, so no unit tail is needed
+static void fmt_sleep(char *buf, size_t cap, int secs) {
+  if (secs < 0) secs = 0;
+  snprintf(buf, cap, "%uh %um", ((unsigned)secs / 3600u) % 100u,
+           ((unsigned)secs / 60u) % 60u);
 }
 
 //#define DEV_FAKE_HEALTH
@@ -246,8 +248,13 @@ typedef struct {
   uint32_t clock_res[2];
   const char *steps_sys[2];
   uint32_t steps_res[2];
-  int clock_y, steps_dy;
-  bool comma;
+  // Per weight, because families do not agree on how much of the box is ink
+  // and some only have a light face at a different size — LECO's light
+  // numerals are 28 where its bold are 32, which is why the step count used
+  // to jump when the weight changed.
+  int clock_y[2], steps_dy[2];
+  bool comma;                     // can the step face draw a thousands mark
+  bool letters;                   // ...and can it spell "6h 32m"
 } FontSpec;
 
 static const FontSpec FONTS[CF_COUNT] = {
@@ -255,37 +262,48 @@ static const FontSpec FONTS[CF_COUNT] = {
     .clock_sys = { FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM,
                    FONT_KEY_LECO_60_NUMBERS_AM_PM },
     .steps_sys = { FONT_KEY_LECO_32_BOLD_NUMBERS, FONT_KEY_LECO_28_LIGHT_NUMBERS },
-    .clock_y = -6, .steps_dy = -6, .comma = true },
+    .clock_y = { -6, -6 }, .steps_dy = { -6, 1 },
+    .comma = true, .letters = false },
   [CF_MONT] = {
     .clock_res = { RESOURCE_ID_FONT_MONT_B_58, RESOURCE_ID_FONT_MONT_L_58 },
     .steps_res = { RESOURCE_ID_FONT_MONT_B_34, RESOURCE_ID_FONT_MONT_L_34 },
-    .clock_y = -1, .steps_dy = -4, .comma = true },
+    .clock_y = { -1, -1 }, .steps_dy = { -4, -4 },
+    .comma = true, .letters = true },
   [CF_ROBOTO] = {
     .clock_res = { RESOURCE_ID_FONT_ROBO_B_58, RESOURCE_ID_FONT_ROBO_L_58 },
     .steps_res = { RESOURCE_ID_FONT_ROBO_B_34, RESOURCE_ID_FONT_ROBO_L_34 },
-    .clock_y = 1, .steps_dy = -4, .comma = true },
+    .clock_y = { 1, 1 }, .steps_dy = { -4, -4 },
+    .comma = true, .letters = true },
   [CF_BITHAM] = {
     .clock_sys = { FONT_KEY_BITHAM_42_BOLD, FONT_KEY_BITHAM_42_LIGHT },
     .steps_sys = { FONT_KEY_BITHAM_34_MEDIUM_NUMBERS,
                    FONT_KEY_BITHAM_34_MEDIUM_NUMBERS },
-    .clock_y = 8, .steps_dy = -4, .comma = false },
+    .clock_y = { 8, 8 }, .steps_dy = { -4, -4 },
+    .comma = false, .letters = false },
   [CF_ROBOTO_SYS] = {                      // digits and a colon, nothing else
     .clock_sys = { FONT_KEY_ROBOTO_BOLD_SUBSET_49,
                    FONT_KEY_ROBOTO_BOLD_SUBSET_49 },
     .steps_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
-    .clock_y = 2, .steps_dy = 0, .comma = true },
+    .clock_y = { 2, 2 }, .steps_dy = { 0, 0 },
+    .comma = true, .letters = true },
   [CF_DROID] = {
     .clock_sys = { FONT_KEY_DROID_SERIF_28_BOLD, FONT_KEY_DROID_SERIF_28_BOLD },
     .steps_sys = { FONT_KEY_DROID_SERIF_28_BOLD, FONT_KEY_DROID_SERIF_28_BOLD },
-    .clock_y = 15, .steps_dy = 0, .comma = true },
+    .clock_y = { 15, 15 }, .steps_dy = { 0, 0 },
+    .comma = true, .letters = true },
   [CF_GOTHIC] = {
     .clock_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
     .steps_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
-    .clock_y = 18, .steps_dy = 0, .comma = true },
+    .clock_y = { 18, 18 }, .steps_dy = { 0, 0 },
+    .comma = true, .letters = true },
 };
 
 static const FontSpec *spec(void) { return &FONTS[g_cfg.clock_font]; }
 static int weight(void) { return g_cfg.bold_font ? 0 : 1; }
+// The step count carries its own weight: at a third the clock's size it often
+// wants bold where the clock reads better light.
+static int sweight(void) { return g_cfg.bold_steps ? 0 : 1; }
+static int steps_dy(void) { return spec()->steps_dy[sweight()]; }
 
 // Custom faces are loaded on demand and held until the choice changes; two
 // subset faces cost a few hundred bytes, and reloading on every redraw would
@@ -316,10 +334,19 @@ static GFont clock_face(void) {
 
 static GFont steps_face(void) {
   const FontSpec *f = spec();
-  if (f->steps_sys[weight()])
-    return fonts_get_system_font(f->steps_sys[weight()]);
-  return custom(&s_sf, &s_sf_res, f->steps_res[weight()]);
+  if (f->steps_sys[sweight()])
+    return fonts_get_system_font(f->steps_sys[sweight()]);
+  return custom(&s_sf, &s_sf_res, f->steps_res[sweight()]);
 }
+
+// The sleep string needs letters. Numeric-only faces fall back to Gothic
+// rather than drawing "6 32" with two holes in it.
+static GFont sleep_face(void) {
+  if (spec()->letters) return steps_face();
+  return fonts_get_system_font(g_cfg.bold_steps ? FONT_KEY_GOTHIC_28_BOLD
+                                                : FONT_KEY_GOTHIC_28);
+}
+static int sleep_dy(void) { return spec()->letters ? steps_dy() : 0; }
 
 static void draw_clock(GContext *ctx, GRect b) {
   char t[16];
@@ -327,7 +354,7 @@ static void draw_clock(GContext *ctx, GRect b) {
   GFont f = clock_face();
   GSize sz = text_size(t, f);
   graphics_context_set_text_color(ctx, palette()->time);
-  graphics_draw_text(ctx, t, f, GRect(MARGIN, spec()->clock_y, sz.w + 10,
+  graphics_draw_text(ctx, t, f, GRect(MARGIN, spec()->clock_y[weight()], sz.w + 10,
                                       TIME_BOX_H),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
@@ -378,25 +405,24 @@ static void draw_grid(GContext *ctx, GRect b) {
     graphics_draw_line(ctx, GPoint(SEP_X, r0 + 4), GPoint(SEP_X, GRID_BOT));
 
     graphics_context_set_text_color(ctx, palette()->health);
-    fmt_thousands(v, sizeof v, steps_today(), spec()->comma);
-    draw_right(ctx, v, steps_face(), num_r, r0 + spec()->steps_dy, MARGIN);
+    if (sleep_in_step_slot()) {
+      // "6h 32m" needs letters, which most of the numeric faces do not carry
+      fmt_sleep(v, sizeof v, sleep_secs());
+      draw_right(ctx, v, sleep_face(), num_r, r0 + sleep_dy(), MARGIN);
+    } else {
+      fmt_thousands(v, sizeof v, steps_today(), spec()->comma);
+      draw_right(ctx, v, steps_face(), num_r, r0 + steps_dy(), MARGIN);
+    }
 
     char km[12];
     fmt1(km, sizeof km, walked_m_today() / 1000.0);
     snprintf(v, sizeof v, "%s km", km);
     draw_right(ctx, v, f28, num_r, r1, MARGIN);
 
-    int ss = sleep_peek() ? sleep_secs() : 0;
-    if (ss > 0) {                    // the shake peek rides bpm's row
-      unsigned hh = ((unsigned)ss / 3600u) % 100u, mm = ((unsigned)ss / 60u) % 60u;
-      snprintf(v, sizeof v, "%u:%02u slp", hh, mm);
+    int hr = hr_bpm();
+    if (hr > 0) {
+      snprintf(v, sizeof v, "%d bpm", hr);
       draw_right(ctx, v, f28, num_r, r2, MARGIN);
-    } else {
-      int hr = hr_bpm();
-      if (hr > 0) {
-        snprintf(v, sizeof v, "%d bpm", hr);
-        draw_right(ctx, v, f28, num_r, r2, MARGIN);
-      }
     }
   }
 
@@ -495,14 +521,6 @@ static void tick_handler(struct tm *t, TimeUnits changed) {
   face_poke();
 }
 
-static void tap_handler(AccelAxisType axis, int32_t dir) {
-  if (!g_cfg.tap_info || !health_on()) return;
-  s_sleep_peek_at = time(NULL);
-  if (s_peek_timer) app_timer_cancel(s_peek_timer);
-  s_peek_timer = app_timer_register(SLEEP_PEEK_MS + 300, peek_expire, NULL);
-  face_poke();
-}
-
 static void bt_handler(bool connected) {
   if (!connected && s_bt_ok && g_cfg.bt_vibe && !quiet_time_is_active())
     vibes_short_pulse();
@@ -541,7 +559,6 @@ void face_init(void) {
   window_stack_push(s_win, true);
 
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
-  accel_tap_service_subscribe(tap_handler);
   connection_service_subscribe((ConnectionHandlers){
     .pebble_app_connection_handler = bt_handler });
   battery_state_service_subscribe(batt_handler);
@@ -549,9 +566,7 @@ void face_init(void) {
 }
 
 void face_deinit(void) {
-  if (s_peek_timer) { app_timer_cancel(s_peek_timer); s_peek_timer = NULL; }
   tick_timer_service_unsubscribe();
-  accel_tap_service_unsubscribe();
   connection_service_unsubscribe();
   battery_state_service_unsubscribe();
   health_deinit();

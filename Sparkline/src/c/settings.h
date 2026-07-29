@@ -20,13 +20,17 @@ typedef struct {
   uint8_t show_health;           // the health column and the sparkline
   uint8_t date_format;
   bool leading_zero, show_battery, show_bt;
-  bool bt_vibe, tap_info;
+  // show_sleep took over the retired shake toggle's byte: same default,
+  // same job, no reordering.
+  bool bt_vibe, show_sleep;
   bool weather_on;
   uint8_t clock_font;
   uint8_t theme;
   bool bold_font;
   // Custom theme, packed 0xRRGGBB. Only read when theme == TH_CUSTOM.
   uint32_t c_bg, c_time, c_health, c_date, c_muted, c_lines, c_spark;
+  bool bold_steps;
+  uint16_t wake_threshold;       // sleep holds the step slot below this
 } Settings;
 
 extern Settings g_cfg;
