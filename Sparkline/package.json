@@ -32,7 +32,17 @@
       "WeatherOn",
       "WeatherLoc",
       "WeatherUnit",
-      "WeatherTemp"
+      "WeatherTemp",
+      "ClockFont",
+      "BoldFont",
+      "Theme",
+      "ColBg",
+      "ColTime",
+      "ColHealth",
+      "ColDate",
+      "ColMuted",
+      "ColLines",
+      "ColSpark"
     ],
     "resources": {
       "media": [
@@ -41,6 +51,54 @@
           "type": "bitmap",
           "name": "IMAGE_MENU_ICON",
           "file": "images/menu_icon.png"
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONT_B_58",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONT_B_34",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONT_L_58",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_MONT_L_34",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_58",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_34",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_L_58",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_L_34",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:,]"
         }
       ]
     }

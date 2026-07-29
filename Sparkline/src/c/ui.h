@@ -7,12 +7,11 @@
 // The face is Solfarer's info band with the walls taken away — same
 // grammar, same palette, given the whole screen:
 //
-//   0    the clock, as large as LECO goes
+//   0    the clock, in whichever face is configured
 //   66   a hairline
 //   70   health right-aligned against a vertical rule, the day left of it
 //   160  a hairline
 //   164  the sparkline, standing on the bottom edge
-#define TIME_TOP     (-6)     // LECO's ink is 43px inside a 60px box
 #define TIME_BOX_H   72
 #define RULE1_Y      66
 #define GRID_Y0      70
@@ -24,10 +23,7 @@
 #define SPARK_BOT    227      // bars stand on the last row of the screen
 #define MARGIN       4
 
-#define COL_GOLD  GColorChromeYellow
-#define COL_DIM   GColorLightGray
-#define COL_FAINT GColorDarkGray
-#define COL_GOOD  GColorGreen
+// The only colour the theme never owns: a warning is a warning.
 #define COL_BAD   GColorRed
 
 // Pebble's snprintf has no %f.

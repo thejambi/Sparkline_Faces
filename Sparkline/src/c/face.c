@@ -86,8 +86,8 @@ static void peek_expire(void *ctx) {
 // filled in the past hour it was not running for. After that the sparkline is
 // kept live from the step delta and never refetches.
 // ---------------------------------------------------------------------------
-static void fmt_thousands(char *buf, size_t cap, int v) {
-  if (v >= 1000) snprintf(buf, cap, "%d,%03d", v / 1000, v % 1000);
+static void fmt_thousands(char *buf, size_t cap, int v, bool comma) {
+  if (comma && v >= 1000) snprintf(buf, cap, "%d,%03d", v / 1000, v % 1000);
   else snprintf(buf, cap, "%d", v);
 }
 
@@ -232,29 +232,103 @@ void face_poke(void) {
 }
 
 // ---------------------------------------------------------------------------
-// The clock. LECO as large as it goes, stepping down only if the string will
-// not fit — 24-hour time is a whole digit wider than "9:41".
+// Typefaces. Each family is described by the face it uses for the clock and
+// the one it uses for the step count, plus the y it wants to be drawn at —
+// families disagree wildly about how much of their box is ink, so a single
+// shared offset cannot centre them all. Two custom faces are bundled
+// (Montserrat and Roboto) subset to digits, colon and comma.
+//
+// `comma` records whether the step face can render a thousands separator at
+// all: the numeric-only system faces cannot, and would drop a blank.
 // ---------------------------------------------------------------------------
-static GFont time_font(const char *t, int avail) {
-  static const char *KEYS[] = { FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM,
-                                FONT_KEY_LECO_42_NUMBERS,
-                                FONT_KEY_LECO_36_BOLD_NUMBERS };
-  for (unsigned i = 0; i < ARRAY_LENGTH(KEYS) - 1; i++) {
-    GFont f = fonts_get_system_font(KEYS[i]);
-    if (text_size(t, f).w <= avail) return f;
+typedef struct {
+  const char *clock_sys[2];       // [bold, light]; NULL when custom-loaded
+  uint32_t clock_res[2];
+  const char *steps_sys[2];
+  uint32_t steps_res[2];
+  int clock_y, steps_dy;
+  bool comma;
+} FontSpec;
+
+static const FontSpec FONTS[CF_COUNT] = {
+  [CF_LECO] = {
+    .clock_sys = { FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM,
+                   FONT_KEY_LECO_60_NUMBERS_AM_PM },
+    .steps_sys = { FONT_KEY_LECO_32_BOLD_NUMBERS, FONT_KEY_LECO_28_LIGHT_NUMBERS },
+    .clock_y = -6, .steps_dy = -6, .comma = true },
+  [CF_MONT] = {
+    .clock_res = { RESOURCE_ID_FONT_MONT_B_58, RESOURCE_ID_FONT_MONT_L_58 },
+    .steps_res = { RESOURCE_ID_FONT_MONT_B_34, RESOURCE_ID_FONT_MONT_L_34 },
+    .clock_y = -1, .steps_dy = -4, .comma = true },
+  [CF_ROBOTO] = {
+    .clock_res = { RESOURCE_ID_FONT_ROBO_B_58, RESOURCE_ID_FONT_ROBO_L_58 },
+    .steps_res = { RESOURCE_ID_FONT_ROBO_B_34, RESOURCE_ID_FONT_ROBO_L_34 },
+    .clock_y = 1, .steps_dy = -4, .comma = true },
+  [CF_BITHAM] = {
+    .clock_sys = { FONT_KEY_BITHAM_42_BOLD, FONT_KEY_BITHAM_42_LIGHT },
+    .steps_sys = { FONT_KEY_BITHAM_34_MEDIUM_NUMBERS,
+                   FONT_KEY_BITHAM_34_MEDIUM_NUMBERS },
+    .clock_y = 8, .steps_dy = -4, .comma = false },
+  [CF_ROBOTO_SYS] = {                      // digits and a colon, nothing else
+    .clock_sys = { FONT_KEY_ROBOTO_BOLD_SUBSET_49,
+                   FONT_KEY_ROBOTO_BOLD_SUBSET_49 },
+    .steps_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
+    .clock_y = 2, .steps_dy = 0, .comma = true },
+  [CF_DROID] = {
+    .clock_sys = { FONT_KEY_DROID_SERIF_28_BOLD, FONT_KEY_DROID_SERIF_28_BOLD },
+    .steps_sys = { FONT_KEY_DROID_SERIF_28_BOLD, FONT_KEY_DROID_SERIF_28_BOLD },
+    .clock_y = 15, .steps_dy = 0, .comma = true },
+  [CF_GOTHIC] = {
+    .clock_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
+    .steps_sys = { FONT_KEY_GOTHIC_28_BOLD, FONT_KEY_GOTHIC_28 },
+    .clock_y = 18, .steps_dy = 0, .comma = true },
+};
+
+static const FontSpec *spec(void) { return &FONTS[g_cfg.clock_font]; }
+static int weight(void) { return g_cfg.bold_font ? 0 : 1; }
+
+// Custom faces are loaded on demand and held until the choice changes; two
+// subset faces cost a few hundred bytes, and reloading on every redraw would
+// hit flash once a minute for nothing.
+static GFont s_cf, s_sf;
+static uint32_t s_cf_res, s_sf_res;
+
+static GFont custom(GFont *slot, uint32_t *cur, uint32_t res) {
+  if (*cur != res) {
+    if (*slot) fonts_unload_custom_font(*slot);
+    *slot = fonts_load_custom_font(resource_get_handle(res));
+    *cur = res;
   }
-  return fonts_get_system_font(KEYS[ARRAY_LENGTH(KEYS) - 1]);
+  return *slot;
+}
+
+static void fonts_release(void) {
+  if (s_cf) { fonts_unload_custom_font(s_cf); s_cf = NULL; s_cf_res = 0; }
+  if (s_sf) { fonts_unload_custom_font(s_sf); s_sf = NULL; s_sf_res = 0; }
+}
+
+static GFont clock_face(void) {
+  const FontSpec *f = spec();
+  if (f->clock_sys[weight()])
+    return fonts_get_system_font(f->clock_sys[weight()]);
+  return custom(&s_cf, &s_cf_res, f->clock_res[weight()]);
+}
+
+static GFont steps_face(void) {
+  const FontSpec *f = spec();
+  if (f->steps_sys[weight()])
+    return fonts_get_system_font(f->steps_sys[weight()]);
+  return custom(&s_sf, &s_sf_res, f->steps_res[weight()]);
 }
 
 static void draw_clock(GContext *ctx, GRect b) {
   char t[16];
   fmt_time(t, sizeof t);
-  bool corner = (g_cfg.show_battery || (g_cfg.show_bt && !s_bt_ok));
-  int avail = b.size.w - 2 * MARGIN - (corner ? 26 : 0);
-  GFont f = time_font(t, avail);
+  GFont f = clock_face();
   GSize sz = text_size(t, f);
-  graphics_context_set_text_color(ctx, GColorWhite);
-  graphics_draw_text(ctx, t, f, GRect(MARGIN, TIME_TOP, sz.w + 10, TIME_BOX_H),
+  graphics_context_set_text_color(ctx, palette()->time);
+  graphics_draw_text(ctx, t, f, GRect(MARGIN, spec()->clock_y, sz.w + 10,
+                                      TIME_BOX_H),
                      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
 }
 
@@ -263,12 +337,12 @@ static void draw_status(GContext *ctx, GRect b) {
   int x = b.size.w - 22;
   if (g_cfg.show_battery) {
     int y = 8;
-    graphics_context_set_stroke_color(ctx, COL_FAINT);
+    graphics_context_set_stroke_color(ctx, palette()->lines);
     graphics_context_set_stroke_width(ctx, 1);
     graphics_draw_rect(ctx, GRect(x, y, 16, 9));
-    graphics_context_set_fill_color(ctx, COL_FAINT);
+    graphics_context_set_fill_color(ctx, palette()->lines);
     graphics_fill_rect(ctx, GRect(x + 16, y + 3, 2, 3), 0, GCornerNone);
-    graphics_context_set_fill_color(ctx, s_batt <= 20 ? COL_BAD : COL_DIM);
+    graphics_context_set_fill_color(ctx, s_batt <= 20 ? COL_BAD : palette()->muted);
     int w = (12 * s_batt) / 100;
     graphics_fill_rect(ctx, GRect(x + 2, y + 2, w, 5), 0, GCornerNone);
   }
@@ -288,7 +362,6 @@ static void draw_status(GContext *ctx, GRect b) {
 static void draw_grid(GContext *ctx, GRect b) {
   char buf[24], v[20];
   GFont f28b = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  GFont fsteps = fonts_get_system_font(FONT_KEY_LECO_32_BOLD_NUMBERS);
   GFont f28 = fonts_get_system_font(FONT_KEY_GOTHIC_28);
 
   // With health off there is no sparkline and no column to face, so the day
@@ -300,13 +373,13 @@ static void draw_grid(GContext *ctx, GRect b) {
   int num_r = SEP_X - 9;
 
   if (health_on()) {
-    graphics_context_set_stroke_color(ctx, COL_FAINT);
+    graphics_context_set_stroke_color(ctx, palette()->lines);
     graphics_context_set_stroke_width(ctx, 1);
     graphics_draw_line(ctx, GPoint(SEP_X, r0 + 4), GPoint(SEP_X, GRID_BOT));
 
-    graphics_context_set_text_color(ctx, COL_GOOD);
-    fmt_thousands(v, sizeof v, steps_today());
-    draw_right(ctx, v, fsteps, num_r, r0 - 6, MARGIN);
+    graphics_context_set_text_color(ctx, palette()->health);
+    fmt_thousands(v, sizeof v, steps_today(), spec()->comma);
+    draw_right(ctx, v, steps_face(), num_r, r0 + spec()->steps_dy, MARGIN);
 
     char km[12];
     fmt1(km, sizeof km, walked_m_today() / 1000.0);
@@ -332,15 +405,15 @@ static void draw_grid(GContext *ctx, GRect b) {
   int dx = health_on() ? day_x : MARGIN;
   if (g_cfg.date_format != DATE_OFF) {
     const char *l1 = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
-    graphics_context_set_text_color(ctx, COL_DIM);
+    graphics_context_set_text_color(ctx, palette()->muted);
     draw_left(ctx, l1, f28, dx, r0 + 2);
     snprintf(buf, sizeof buf, "%d", s_mday);
-    graphics_context_set_text_color(ctx, GColorWhite);
+    graphics_context_set_text_color(ctx, palette()->date);
     draw_left(ctx, buf, f28b, dx, r1);
   }
   if (temp_fresh()) {
     snprintf(buf, sizeof buf, "%d\xC2\xB0", (int)s_temp);
-    graphics_context_set_text_color(ctx, COL_DIM);
+    graphics_context_set_text_color(ctx, palette()->muted);
     draw_left(ctx, buf, f28, dx, r2);
   }
 }
@@ -363,7 +436,7 @@ static void draw_spark(GContext *ctx, GRect b) {
   s_minsteps[s_min] = live > 255 ? 255 : live;
 
   // scale first, so the bars stand on top of it
-  graphics_context_set_fill_color(ctx, COL_FAINT);
+  graphics_context_set_fill_color(ctx, palette()->lines);
   for (int i = 0; i < 60; i++) {
     int wall = (s_min + 1 + i) % 60;
     if (wall % 5) continue;
@@ -381,26 +454,27 @@ static void draw_spark(GContext *ctx, GRect b) {
     int st = s_minsteps[wall];
     if (st > SPARK_CAP) st = SPARK_CAP;
     int h = 1 + st * (gh - 1) / SPARK_CAP;
-    graphics_context_set_fill_color(ctx, wall == s_min ? GColorWhite : COL_GOLD);
+    graphics_context_set_fill_color(ctx, wall == s_min ? palette()->time
+                                                      : palette()->spark);
     graphics_fill_rect(ctx, GRect(x, base - h + 1, xe - x, h), 0, GCornerNone);
   }
 }
 
 static void draw(Layer *layer, GContext *ctx) {
   GRect b = layer_get_bounds(layer);
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, palette()->bg);
   graphics_fill_rect(ctx, b, 0, GCornerNone);
 
   draw_clock(ctx, b);
   draw_status(ctx, b);
 
-  graphics_context_set_fill_color(ctx, COL_FAINT);
+  graphics_context_set_fill_color(ctx, palette()->lines);
   graphics_fill_rect(ctx, GRect(MARGIN, RULE1_Y, b.size.w - 2 * MARGIN, 1),
                      0, GCornerNone);
   draw_grid(ctx, b);
 
   if (health_on()) {
-    graphics_context_set_fill_color(ctx, COL_FAINT);
+    graphics_context_set_fill_color(ctx, palette()->lines);
     graphics_fill_rect(ctx, GRect(MARGIN, RULE2_Y, b.size.w - 2 * MARGIN, 1),
                        0, GCornerNone);
     draw_spark(ctx, b);
@@ -481,5 +555,6 @@ void face_deinit(void) {
   connection_service_unsubscribe();
   battery_state_service_unsubscribe();
   health_deinit();
+  fonts_release();
   window_destroy(s_win);
 }

@@ -19,28 +19,67 @@ screen.
 ## The layout
 
 ```
-  0   clock            LECO 60 bold — as large as LECO goes
+  0   clock            the configured face, LECO 60 bold by default
  66   hairline
- 70   8,842  |  WED    steps in LECO 32, so the two numbers that matter share
-100   6.3 km |   29    a typeface; everything else is Gothic 28
-130   68 bpm |  76°
+ 70   8,842  |  WED    the step count follows the clock's family, so the two
+100   6.3 km |   29    numbers that matter share a typeface; the body is
+130   68 bpm |  76°    Gothic 28 on a shared baseline
 161   hairline
 166   sparkline        60 columns, standing on the bottom row of the screen
 ```
 
-Two things are worth knowing about the type:
-
-- **The clock picks its own size.** `time_font()` measures the string and
-  steps down from LECO 60 only if it will not fit. 24-hour time is a whole
-  digit wider than `9:41`, and 60-bold measures 162px of the 166 available —
-  so it fits, but only just.
-- **Right-alignment is done by hand.** Measure, then draw left-aligned at
-  (right edge − width) in a roomy box. The renderer's own right-aligned
-  layout misplaces interior glyphs when the box runs near its width; digits
-  come out fused on top of each other. Inherited from Solfarer, still true.
+**Right-alignment is done by hand.** Measure, then draw left-aligned at
+(right edge − width) in a roomy box. The renderer's own right-aligned layout
+misplaces interior glyphs when the box runs near its width; digits come out
+fused on top of each other. Inherited from Solfarer, still true.
 
 One trap worth recording: the measuring box has to clear the tallest font on
 the face. At 44px tall it was shorter than LECO 60, which measured wrong.
+
+## Fonts
+
+Seven clock faces, each of which also sets the step count. The first four are
+the families ActiveHour offers; the rest are the remaining system faces big
+enough to carry a clock.
+
+| Option | Face | Notes |
+| --- | --- | --- |
+| LECO (60) | system | the default; tall numerals, the widest of the set |
+| Montserrat (58) | bundled | Bold / Light |
+| Roboto (58) | bundled | Bold / Light |
+| Bitham (42) | system | Bold / Light |
+| Roboto, system (49) | system | bold only; the subset face has digits and a colon and nothing else, so the step count falls back to Gothic |
+| Droid Serif (28) | system | bold only; a quiet, bookish clock |
+| Gothic (28) | system | Bold / Regular |
+
+The two bundled faces are subset to `[0-9:,]` — the clock and the step count
+are the only things they ever draw — which keeps all eight generated sizes
+inside 19KB. Licences travel with them in `resources/fonts/`.
+
+Two things the families disagree about, both handled per-family in `FONTS[]`:
+
+- **How much of the box is ink.** LECO's digits are 43px inside a 60px box;
+  Gothic's nearly fill theirs. A single shared offset cannot centre them all
+  against the hairline, so each family carries its own `clock_y`, measured
+  against that rule rather than guessed.
+- **Whether a comma exists.** The numeric-only system faces have no thousands
+  separator, and asking for one drops a blank. `FONTS[].comma` records it, and
+  Bitham renders `8842` rather than a gap.
+
+## Colours
+
+Five presets plus Custom: Classic (green on black, the face as Solfarer left
+it), Mono, Amber, Ice, and Paper — the one light theme, which exists mostly to
+keep the drawing code honest about never assuming a black background.
+
+Custom exposes seven colours: background, clock (which also draws the newest
+bar), health values, day of month, weekday and temperature, rules and chart
+scale, and the sparkline bars. Every preset colour is already on the Pebble 64
+— each channel 00/55/AA/FF — so nothing is quantised out from under the
+design.
+
+A warning stays a warning: the low-battery and disconnected indicators are red
+in every theme.
 
 ## The sparkline
 
@@ -69,3 +108,13 @@ pebble build && pebble install --emulator emery
 
 If the emulator comes up showing a different watchface, `pebble wipe` and
 install again.
+
+Two emulator traps, both of which cost an hour here:
+
+- **Settings persist across installs.** The bundled JS sends a weather message
+  on launch, which makes the watch write the whole settings blob. After that,
+  changing a default in `defaults()` does nothing — the saved blob wins. Wipe
+  between runs when testing defaults.
+- **Screenshots can race the install.** `pebble install` returns before the
+  face has relaunched, so a screenshot taken too soon shows the previous
+  build. Kill first, and give it several seconds.
