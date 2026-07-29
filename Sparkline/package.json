@@ -1,0 +1,48 @@
+{
+  "name": "sparkline",
+  "author": "thejambi",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-watchface"
+  ],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Sparkline",
+    "uuid": "09823517-ed36-458e-94a0-cbe2f1ff1dcf",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": true
+    },
+    "capabilities": [
+      "configurable"
+    ],
+    "messageKeys": [
+      "ShowHealth",
+      "DateFormat",
+      "LeadingZero",
+      "ShowBattery",
+      "ShowBT",
+      "BTVibe",
+      "TapInfo",
+      "WeatherOn",
+      "WeatherLoc",
+      "WeatherUnit",
+      "WeatherTemp"
+    ],
+    "resources": {
+      "media": [
+        {
+          "menuIcon": true,
+          "type": "bitmap",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu_icon.png"
+        }
+      ]
+    }
+  }
+}

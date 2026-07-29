@@ -11,6 +11,7 @@ given and does something different with the other three quarters.
 **Emery only** while an idea is being tried. Other platforms get a layout pass
 once something is worth publishing.
 
-| Face | What fills the rest of the screen |
+| Face | What it does with the screen |
 | --- | --- |
-| [TeaScene](TeaScene) | A Chinese gongfu tea table, recoloured for the time of day |
+| [TeaScene](TeaScene) | A Chinese gongfu tea table below the band, recoloured for the time of day |
+| [Sparkline](Sparkline) | No band at all — the same information given all 228 rows, sparkline along the bottom edge |
