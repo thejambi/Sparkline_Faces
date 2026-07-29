@@ -11,7 +11,8 @@
 //   66   a hairline
 //   70   health right-aligned against a vertical rule, the day left of it
 //   160  a hairline
-//   164  the sparkline, standing on the bottom edge
+//   162  the sparkline, hanging off that rule and standing on the
+//        bottom edge of the screen
 #define TIME_BOX_H   72
 #define RULE1_Y      66
 #define GRID_Y0      70
@@ -19,7 +20,13 @@
 #define SEP_X        116      // the vertical hairline the numbers hang on
 #define GRID_BOT     158
 #define RULE2_Y      161
-#define SPARK_TOP    166
+// The rule is the chart's ceiling: the scale hangs off it with no gap, and
+// bars stop clear of the tick band so the five-minute marks stay legible
+// however busy the hour is.
+#define SPARK_TOP    162
+#define SPARK_TICK5  5        // five-minute tick
+#define SPARK_TICK15 8        // the quarter-hour, a little longer
+#define SPARK_BARTOP 171      // the highest row a bar may reach
 #define SPARK_BOT    227      // bars stand on the last row of the screen
 #define MARGIN       4
 

@@ -477,32 +477,51 @@ static void draw_grid(GContext *ctx, GRect b) {
 #define SPARK_CAP 90             // steps/minute that fills the panel
 #define SPARK_WALK 60            // the reference pace
 
+// A bar's height for a given minute. The walking reference line uses the same
+// function so the dotted rule lands exactly on the top of a walking-pace bar
+// instead of a pixel off it.
+static int bar_h(int steps) {
+  int gh = SPARK_BOT - SPARK_BARTOP + 1;
+  if (steps > SPARK_CAP) steps = SPARK_CAP;
+  return 1 + steps * (gh - 1) / SPARK_CAP;
+}
+
 static void draw_spark(GContext *ctx, GRect b) {
   int gx0 = MARGIN, gw = b.size.w - 2 * MARGIN;
-  int base = SPARK_BOT, gh = SPARK_BOT - SPARK_TOP;
+  int base = SPARK_BOT;
 
   int live = minute_steps_live();
   s_minsteps[s_min] = live > 255 ? 255 : live;
 
-  // scale first, so the bars stand on top of it
-  graphics_context_set_fill_color(ctx, palette()->lines);
+  // The scale goes down first so the bars stand on it. Ticks run along both
+  // edges: the ones on the floor get painted over by a busy hour, which is
+  // exactly when the ones hanging from the ceiling earn their keep.
+  // One colour for every mark on the scale; the hierarchy is length, not
+  // brightness — five, quarter-hour, and the hour running floor to ceiling.
+  graphics_context_set_fill_color(ctx, palette()->muted);
   for (int i = 0; i < 60; i++) {
     int wall = (s_min + 1 + i) % 60;
     if (wall % 5) continue;
     int x = gx0 + gw * i / 60;
-    graphics_fill_rect(ctx, GRect(x, wall == 0 ? SPARK_TOP : base - 4, 1,
-                                  wall == 0 ? gh + 1 : 5), 0, GCornerNone);
+    if (wall == 0) {
+      graphics_fill_rect(ctx, GRect(x, SPARK_TOP, 1, base - SPARK_TOP + 1),
+                         0, GCornerNone);
+      continue;
+    }
+    int len = (wall % 15) ? SPARK_TICK5 : SPARK_TICK15;
+    graphics_fill_rect(ctx, GRect(x, SPARK_TOP, 1, len), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(x, base - len + 1, 1, len), 0, GCornerNone);
   }
-  int wy = base - SPARK_WALK * gh / SPARK_CAP;
+  graphics_context_set_fill_color(ctx, palette()->lines);
+
+  int wy = base - bar_h(SPARK_WALK) + 1;
   for (int x = gx0; x < gx0 + gw; x += 3)
     graphics_fill_rect(ctx, GRect(x, wy, 1, 1), 0, GCornerNone);
 
   for (int i = 0; i < 60; i++) {
     int x = gx0 + gw * i / 60, xe = gx0 + gw * (i + 1) / 60;
     int wall = (s_min + 1 + i) % 60;
-    int st = s_minsteps[wall];
-    if (st > SPARK_CAP) st = SPARK_CAP;
-    int h = 1 + st * (gh - 1) / SPARK_CAP;
+    int h = bar_h(s_minsteps[wall]);
     graphics_context_set_fill_color(ctx, wall == s_min ? palette()->time
                                                       : palette()->spark);
     graphics_fill_rect(ctx, GRect(x, base - h + 1, xe - x, h), 0, GCornerNone);

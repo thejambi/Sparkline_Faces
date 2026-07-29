@@ -112,12 +112,20 @@ with two holes in it.
 ## The sparkline
 
 A column a minute for the past hour, oldest at the left, standing on the
-bottom edge. At 61 rows it has room for a scale the 10px strip never could:
+bottom edge. The hairline above it is the chart's ceiling, and the scale hangs
+straight off it:
 
-- five-minute ticks along the floor, and a full-height rule at the top of the
-  hour
+- five-minute ticks on **both** edges, quarter-hour ticks a little longer, and
+  the top of the hour running floor to ceiling
 - a dotted line at 60 steps/minute — the pace that counts as walking
-- the newest minute drawn white, so *now* is findable
+- the newest minute drawn in the clock's colour, so *now* is findable
+
+Ticks live on both edges for a reason. The ones on the floor get painted over
+by a busy hour — which is exactly when a scale is worth having — so the bars
+stop 1px clear of the tick band at the top and the ceiling marks stay readable
+whatever the hour did. That costs the bars 3 of their 61 rows.
+
+All three tiers are one colour; the hierarchy is length, not brightness.
 
 Bars are contiguous. A one-pixel gap between columns turns an activity trace
 into a picket fence.
