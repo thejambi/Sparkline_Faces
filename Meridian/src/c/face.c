@@ -46,10 +46,64 @@ static GSize tsz(const char *s, FontId f) {
       GTextAlignmentLeft);
 }
 
+static void clock_resolve(void);
+
 static void fonts_load(void) {
   for (int i = 0; i < F_COUNT; i++) {
     s_font[i] = fonts_load_custom_font(resource_get_handle(FONT_RES[i]));
     s_ascent[i] = tsz(FONT_PROBE[i], (FontId)i).h;
+  }
+  clock_resolve();
+}
+
+// The clock is the one place a system face can appear, so it is resolved
+// separately from the bundled set. `slot` is the width of the widest digit:
+// Montserrat is proportional, and drawing into a fixed slot is what stops the
+// minutes shuffling sideways when the digits change. LECO is already tabular
+// and simply agrees.
+static GFont s_clock;
+static int s_clock_asc, s_clock_slot;
+
+static void clock_resolve(void) {
+  if (g_cfg.clock_font == CF_LECO) {
+    s_clock = fonts_get_system_font(g_cfg.bold_clock
+        ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM : FONT_KEY_LECO_60_NUMBERS_AM_PM);
+  } else {
+    s_clock = s_font[g_cfg.bold_clock ? F_CLOCK_B : F_CLOCK];
+  }
+  GSize probe = graphics_text_layout_get_content_size("8", s_clock,
+      GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft);
+  s_clock_asc = probe.h;
+  s_clock_slot = 0;
+  for (char c = '0'; c <= '9'; c++) {
+    char one[2] = { c, 0 };
+    int w = graphics_text_layout_get_content_size(one, s_clock,
+        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+        GTextAlignmentLeft).w;
+    if (w > s_clock_slot) s_clock_slot = w;
+  }
+  s_clock_slot += 2;                 // a hair of air between the slots
+}
+
+void face_fonts_changed(void) { clock_resolve(); }
+
+// Right-aligned within the block, one digit per slot. A single-digit hour
+// therefore sits above the minutes' second digit rather than above the first.
+static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
+  int n = strlen(s);
+  int right = MARGIN_L + 2 * s_clock_slot;
+  int x = right - n * s_clock_slot;
+  for (int i = 0; i < n; i++) {
+    char one[2] = { s[i], 0 };
+    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
+        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+        GTextAlignmentLeft);
+    graphics_draw_text(ctx, one, s_clock,
+        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
+              sz.w + 12, sz.h + 8),
+        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    x += s_clock_slot;
   }
 }
 
@@ -175,18 +229,17 @@ static void draw_sky(GContext *ctx) {
     draw_degree(ctx, MARGIN_R + 3, BASE_DATE - 11, p->muted);
   }
 
-  // the clock: hours over minutes, both flush left
+  // the clock: hours over minutes, right-aligned to each other in place
   int h = s_hour;
   if (!clock_is_24h_style()) { h %= 12; if (h == 0) h = 12; }
-  FontId cf = g_cfg.theme == TH_CUSTOM ? F_CLOCK : F_CLOCK;
   graphics_context_set_text_color(ctx, p->ink);
   if (clock_is_24h_style() || g_cfg.leading_zero)
     snprintf(buf, sizeof buf, "%02d", h);
   else
     snprintf(buf, sizeof buf, "%d", h);
-  draw_base(ctx, buf, cf, MARGIN_L, BASE_HOUR);
+  draw_clock_num(ctx, buf, BASE_HOUR);
   snprintf(buf, sizeof buf, "%02d", s_min);
-  draw_base(ctx, buf, cf, MARGIN_L, BASE_MIN);
+  draw_clock_num(ctx, buf, BASE_MIN);
 
   // the value slot: steps, or last night's sleep until you are up
   if (hl_sleeping()) {

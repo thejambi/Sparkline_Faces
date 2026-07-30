@@ -33,6 +33,30 @@ module.exports = [
   {
     type: 'section',
     items: [
+      { type: 'heading', defaultValue: 'Clock' },
+      {
+        type: 'select',
+        messageKey: 'ClockFont',
+        defaultValue: '0',
+        label: 'Clock face',
+        description: 'Both are drawn into fixed-width slots, so the digits never shuffle sideways as the minutes change. LECO is a system face and tops out at 60px, so it sits noticeably smaller than Montserrat\u2019s 76 \u2014 quieter and more instrument-like.',
+        options: [
+          { label: 'Montserrat (76)', value: '0' },
+          { label: 'LECO (60)', value: '1' }
+        ]
+      },
+      {
+        type: 'toggle',
+        messageKey: 'BoldClock',
+        defaultValue: false,
+        label: 'Bold clock',
+        description: 'Light reads calmer at this size; bold survives brighter sun.'
+      }
+    ]
+  },
+  {
+    type: 'section',
+    items: [
       { type: 'heading', defaultValue: 'Custom colours' },
       {
         type: 'text',

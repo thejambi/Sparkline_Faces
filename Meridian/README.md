@@ -47,6 +47,22 @@ Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so
 seven sizes cost 20KB.
 
+**The clock is drawn one digit at a time, into fixed-width slots**, and the
+hours and minutes are right-aligned to the same edge. Two consequences worth
+having:
+
+- The digits cannot shuffle. Montserrat is proportional — its `1` is barely
+  half the width of its `0` — so a right-aligned proportional clock would jog
+  sideways every time the minute changed. Slotting makes any face tabular.
+- A single-digit hour sits in the *right* slot, above the minutes' second
+  digit, rather than hanging off the left. The block stays where it is; only
+  the alignment inside it changes.
+
+The clock face is selectable — Montserrat at 76, or LECO at 60 — each with a
+bold option. LECO is a system face and cannot go past 60, so it sits
+noticeably smaller and quieter; it is already tabular, and simply agrees with
+the slots.
+
 Two things worth knowing:
 
 - **Everything is positioned from a baseline, never a box top.** Pebble draws

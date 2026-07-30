@@ -2,7 +2,7 @@
 #include "ui.h"
 #include "settings.h"
 
-static void on_settings(void) { face_poke(); }
+static void on_settings(void) { face_fonts_changed(); face_poke(); }
 
 int main(void) {
   settings_init(on_settings);

@@ -4,6 +4,9 @@
 enum { DATE_DAYNUM, DATE_MONTHDAY, DATE_OFF };  // "WED 29" / "JUL 29"
 enum { DIST_AUTO, DIST_KM, DIST_MI };
 enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM };
+// Montserrat is proportional, so the clock is drawn into fixed slots to make
+// it tabular; LECO already is. Either way the digits cannot shuffle.
+enum { CF_MONT, CF_LECO, CF_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
 // short and keep defaults. Bump SETTINGS_VERSION only on a reorder.
@@ -20,6 +23,8 @@ typedef struct {
   uint16_t wake_threshold;
   // Custom theme, packed 0xRRGGBB. Only read when theme == TH_CUSTOM.
   uint32_t c_sky, c_ground, c_horizon, c_ink, c_accent, c_muted, c_scale;
+  uint8_t clock_font;
+  bool bold_clock;
 } Settings;
 
 extern Settings g_cfg;

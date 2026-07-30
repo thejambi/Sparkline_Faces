@@ -42,7 +42,9 @@
       "WeatherOn",
       "WeatherLoc",
       "WeatherUnit",
-      "WeatherTemp"
+      "WeatherTemp",
+      "ClockFont",
+      "BoldClock"
     ],
     "resources": {
       "media": [
