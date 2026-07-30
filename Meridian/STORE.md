@@ -16,7 +16,7 @@ Meridian draws your hour as landscape.
 The bottom of the screen is the last sixty minutes — one column a minute,
 standing on the very bottom edge, with a quarter-hour graticule behind it and
 a dotted line at walking pace. The newest minute is drawn in the clock's own
-colour, so *now* is always findable. Above it is the clock, as large as a
+color, so *now* is always findable. Above it is the clock, as large as a
 200-pixel screen will allow. Between them is one warm line: the horizon.
 
 **Before you get up, it shows you the night instead.** Last night's sleep
@@ -36,18 +36,18 @@ edge.
 - **Stacked** puts the hours over the minutes at 88px, the largest numeral
   that fits, with the health values along the top and the date set as a
   narrow column down the right margin.
-- **One line** brings back the colon, pinned to the dead centre of the
+- **One line** brings back the colon, pinned to the dead center of the
   screen, and groups the day's values against your body's.
 
 ### Six themes, plus your own
 
 Dusk, Phosphor, Noir, Paper, Moss and Tide. Each is built the same way — a lit
-sky over land in shadow, and exactly one bright colour, spent only on the
+sky over land in shadow, and exactly one bright color, spent only on the
 horizon, the step count and the terrain. Phosphor is the exception: no sky at
 all, the time in orange and everything your body reports in green.
 
-Custom exposes all seven colour roles. Every preset value is already one of
-the watch's 64 colours, so nothing is quantised out from under the design.
+Custom exposes all seven color roles. Every preset value is already one of
+the watch's 64 colors, so nothing is quantized out from under the design.
 
 ### Type
 
@@ -62,7 +62,7 @@ shuffle sideways as the minutes change.
   location, or a city or postal code you type in, in which case it never
   touches phone location at all.
 - Bundled fonts: Montserrat (SIL Open Font License) and Roboto (Apache 2.0).
-  Licence texts ship in `resources/fonts/`.
+  License texts ship in `resources/fonts/`.
 
 ## Screenshots to upload
 

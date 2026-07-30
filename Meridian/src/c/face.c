@@ -170,7 +170,7 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   }
 }
 
-// One line, with the colon pinned to the centre of the screen: the hours
+// One line, with the colon pinned to the center of the screen: the hours
 // right-align into it and the minutes hang off it, so the colon never moves
 // however the digits change.
 static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
@@ -386,7 +386,7 @@ static void draw_sky(GContext *ctx) {
   // opens the header row at the left margin and the pulse closes it at the
   // right; on one line the two stack at the right margin instead. Either way
   // the pulse carries its label inboard of the value and the step count
-  // carries none — an accent-coloured number with a comma in it needs no
+  // carries none — an accent-colored number with a comma in it needs no
   // telling, and the two labels will not fit on one row with the two values.
   int b_val = BASE_ROW1;
   int b_bpm = line ? BASE_ROW2 : BASE_ROW1;

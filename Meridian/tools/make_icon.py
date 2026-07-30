@@ -7,7 +7,7 @@ part of the design that survives being shrunk.
 
 The sky is transparent rather than black: the launcher draws its own
 background, and a black square would sit in it as a tile rather than a mark.
-Every colour is on the Pebble 64, same as the themes.
+Every color is on the Pebble 64, same as the themes.
 """
 from PIL import Image
 
@@ -44,7 +44,7 @@ def main(path):
                 px[x, y] = AMBER
 
     im.save(path)
-    print('%s  %dx%d  %d colours' % (path, W, H, len(im.getcolors())))
+    print('%s  %dx%d  %d colors' % (path, W, H, len(im.getcolors())))
 
 
 if __name__ == '__main__':

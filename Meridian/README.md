@@ -6,7 +6,7 @@ The terrain along the bottom is the last hour of your movement — a column a
 minute, sixty of them, standing on the bottom edge of the screen. The clock is
 the sky above it. The one warm line between the two is the horizon.
 
-**Emery only.** Every number here is chosen for a 200x228 colour screen.
+**Emery only.** Every number here is chosen for a 200x228 color screen.
 
 ## The layout
 
@@ -27,13 +27,13 @@ screen allows.
 227   ground, then the terrain
 ```
 
-**One line** — the colon comes back, pinned to the centre of the screen. The
+**One line** — the colon comes back, pinned to the center of the screen. The
 two groups swap sides: the day's values on the left, the body's on the right.
 
 ```
  24   WED 29                 8,842
  52   76°                   BPM 68
-130            09:41               the colon sits dead centre
+130            09:41               the colon sits dead center
 156   ────────────────────────────
 227   ground, then the terrain
 ```
@@ -67,11 +67,11 @@ off the device to do that arithmetic, because the box height Pebble reports
 carries leading above the cap and is not the ink.
 
 The step count carries no label there. Two labels will not fit on one row
-with two values, and an accent-coloured number with a comma in it needs no
+with two values, and an accent-colored number with a comma in it needs no
 telling — whereas a bare `68` does, so the pulse keeps `BPM` inboard of it in
 both layouts.
 
-Two alignment axes and nothing centred: everything begins at x=10 or ends at
+Two alignment axes and nothing centered: everything begins at x=10 or ends at
 x=189. Only the horizon and the ground run to the bezel.
 
 **The clock is stacked, and that is the whole design.** Set on one line it
@@ -84,7 +84,7 @@ The cost is the colon, which stacking removes. That is the trade.
 
 ### Type
 
-One family, three ranks, and no centring anywhere.
+One family, three ranks, and no centering anywhere.
 
 | Rank | Element | Face |
 | --- | --- | --- |
@@ -96,7 +96,7 @@ One family, three ranks, and no centring anywhere.
 
 Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so
-nine faces cost 27KB.
+thirteen faces cost 44KB.
 
 **The clock is drawn one digit at a time, into fixed-width slots**, and the
 hours and minutes are right-aligned to the same edge. Two consequences worth
@@ -131,7 +131,7 @@ LECO is a system face and cannot go past 60, so in the stacked layout it sits
 noticeably smaller and quieter than the two bundled ones — more instrument
 than poster, and its horizon sits 24 rows higher, which buys a much taller
 terrain. On one line it is level with Montserrat. Only the chosen clock face
-is resident: the other eleven would cost RAM for nothing, so it loads on
+is resident: the other seven would cost RAM for nothing, so it loads on
 demand and the previous one is unloaded.
 
 Two things worth knowing:
@@ -144,25 +144,25 @@ Two things worth knowing:
   charset and lets the ring hang past the right margin, so the numerals stay
   optically aligned with the row beneath.
 
-### Colour
+### Color
 
 Six themes plus Custom. Five of them are built the same way: a lit sky over
-ground in shadow, and exactly one bright colour spent only on the horizon, the
+ground in shadow, and exactly one bright color spent only on the horizon, the
 step count and the terrain — because those three are one idea seen three ways.
 
 | | sky | ground | accent |
 | --- | --- | --- | --- |
 | **Dusk** *(default)* | navy | black | amber |
 | **Phosphor** | black | black | green data, orange time |
-| **Noir** | black | black | white horizon, grey terrain |
+| **Noir** | black | black | white horizon, gray terrain |
 | **Paper** | white | cream | orange |
 | **Moss** | dark green | black | chartreuse |
 | **Tide** | teal | black | cyan |
 
-Three meanings rather than seven colours: **the ink is time, the accent is
+Three meanings rather than seven colors: **the ink is time, the accent is
 movement, the muted tone is context.** Custom exposes all seven roles. Every
 preset value is already on the Pebble 64 — each channel 00/55/AA/FF — so
-nothing is quantised out from under the design.
+nothing is quantized out from under the design.
 
 Dusk is the default because it is the only theme that *depicts* the face: a
 lit sky, land in shadow, one warm line between them. It also happens to be
@@ -183,7 +183,7 @@ stand on. A useful accident falls out of it — asleep, the horizon and the
 value drop to the muted green, so the face is entirely green until you get up
 and the time turns orange.
 
-Red is not a theme colour. It appears only on a flat battery and a lost phone.
+Red is not a theme color. It appears only on a flat battery and a lost phone.
 
 ## Sleep, and the morning
 
@@ -218,7 +218,7 @@ ridge visibly ripples.
   covers it the rule vanishes, where it does not it reads as structure
 - a baseline on the last row, so a still minute is ground rather than a stub
 - a dotted line at 60 steps/minute, the pace that counts as walking
-- the newest minute in the clock's colour, so *now* is findable
+- the newest minute in the clock's color, so *now* is findable
 
 The fetch discipline is Solfarer's, unchanged: the minute history is read once
 at boot, then exactly once more at the first quarter-hour mark, which is when
@@ -241,6 +241,6 @@ install again. Two traps, both of which have cost an hour here before:
 - **Screenshots race the install.** `pebble install` returns before the face
   has relaunched. Kill first, and give it several seconds.
 
-Emulator screenshots also run through an LCD simulation, so colours read
+Emulator screenshots also run through an LCD simulation, so colors read
 washed out compared to the hex in `settings.c`. That is roughly what the real
-transflective panel does; judge colour on the wrist, not in the simulator.
+transflective panel does; judge color on the wrist, not in the simulator.

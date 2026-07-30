@@ -33,7 +33,7 @@ static void defaults(void) {
 
 // ---------------------------------------------------------------------------
 // Themes. Every value is already on the Pebble 64 — each channel is one of
-// 0x00/0x55/0xAA/0xFF — so nothing is quantised out from under the design.
+// 0x00/0x55/0xAA/0xFF — so nothing is quantized out from under the design.
 //
 // Most are built the same way: a lit sky over ground in shadow, and exactly
 // one warm or bright thing, spent only on the horizon, the step count and the
@@ -91,7 +91,7 @@ static int tup_int(DictionaryIterator *it, uint32_t key, int fallback) {
   return (int)t->value->int32;
 }
 
-// Clay's colour picker sends a packed 0xRRGGBB integer.
+// Clay's color picker sends a packed 0xRRGGBB integer.
 static uint32_t tup_col(DictionaryIterator *it, uint32_t key, uint32_t fb) {
   Tuple *t = dict_find(it, key);
   if (!t) return fb;

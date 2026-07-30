@@ -4,15 +4,17 @@
 // Meridian — Emery, 200x228.
 //
 // Sky over ground, one warm line where they meet. Three meanings rather than
-// five colours: the ink is time, the accent is movement, the muted tone is
+// five colors: the ink is time, the accent is movement, the muted tone is
 // context.
 //
 // Stacked (the default):                One line:
 //     24  8,842        BPM 68            24  WED 29        8,842
-//    102  9                  29          52  76°          BPM 68
-//                           WED         130       9:41
-//    174  41                76°         156  ──────────────────────
-//    180  ──────────────────────             ground, then terrain
+//     77                     THU          52  76°          BPM 68
+//     98                      30         130       9:41
+//    102  9                             156  ──────────────────────
+//    113                     JUL              ground, then terrain
+//    174  41                76°
+//    180  ──────────────────────
 //         ground, then terrain
 //
 // Both layouts keep the day's values together and the body's values together;
@@ -20,11 +22,11 @@
 // along the top as a header and gives the right margin to a narrow day column,
 // which is what lets the clock be as large as it is: the widest thing beside
 // the numerals is now "WED" rather than "8,842". The single line buys back
-// the colon, which sits dead centre.
+// the colon, which sits dead center.
 //
-// Two alignment axes and nothing centred: everything starts at x=10 or ends
+// Two alignment axes and nothing centered: everything starts at x=10 or ends
 // at x=189. Only the horizon and the ground run to the bezel. The clock is
-// stacked because that is the only way to get a 55px numeral onto a 200px
+// stacked because that is the only way to get a 64px numeral onto a 200px
 // screen — set on one line it has to drop to 44px, and the face stops being
 // about the time.
 
