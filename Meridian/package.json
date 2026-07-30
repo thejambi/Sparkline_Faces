@@ -95,6 +95,18 @@
           "name": "FONT_CAPS_11",
           "file": "fonts/Montserrat-Bold.ttf",
           "characterRegex": "[A-Z]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_76",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_76",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]"
         }
       ]
     }

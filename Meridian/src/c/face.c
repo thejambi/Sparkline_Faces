@@ -23,14 +23,15 @@ static const char *MO[12] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 // ---------------------------------------------------------------------------
 // Type
 // ---------------------------------------------------------------------------
-typedef enum { F_CLOCK, F_CLOCK_B, F_VAL, F_VAL_L, F_UNIT, F_CAPS, F_CAPS_S,
-               F_COUNT } FontId;
+// The clock face is loaded on demand rather than living in this set: only
+// one of the four bundled clock faces is ever on screen, and keeping all of
+// them resident would cost RAM for nothing.
+typedef enum { F_VAL, F_VAL_L, F_UNIT, F_CAPS, F_CAPS_S, F_COUNT } FontId;
 
 static GFont s_font[F_COUNT];
 static int s_ascent[F_COUNT];
 
 static const uint32_t FONT_RES[F_COUNT] = {
-  RESOURCE_ID_FONT_CLOCK_76, RESOURCE_ID_FONT_CLOCK_B_76,
   RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_VALUE_L_22,
   RESOURCE_ID_FONT_UNIT_14, RESOURCE_ID_FONT_CAPS_15,
   RESOURCE_ID_FONT_CAPS_11,
@@ -38,7 +39,7 @@ static const uint32_t FONT_RES[F_COUNT] = {
 // A representative glyph per font: its box height, minus nothing, is the
 // distance from box top to baseline for a face with no descenders — which is
 // true of every charset here (digits, caps, and h/m).
-static const char *FONT_PROBE[F_COUNT] = { "8", "8", "8", "8", "h", "8", "B" };
+static const char *FONT_PROBE[F_COUNT] = { "8", "8", "h", "8", "B" };
 
 static GSize tsz(const char *s, FontId f) {
   return graphics_text_layout_get_content_size(s, s_font[f],
@@ -61,16 +62,36 @@ static void fonts_load(void) {
 // Montserrat is proportional, and drawing into a fixed slot is what stops the
 // minutes shuffling sideways when the digits change. LECO is already tabular
 // and simply agrees.
-static GFont s_clock;
+static GFont s_clock, s_clock_custom;
+static uint32_t s_clock_res;
 static int s_clock_asc, s_clock_slot;
 
 static void clock_resolve(void) {
-  if (g_cfg.clock_font == CF_LECO) {
-    s_clock = fonts_get_system_font(g_cfg.bold_clock
-        ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM : FONT_KEY_LECO_60_NUMBERS_AM_PM);
-  } else {
-    s_clock = s_font[g_cfg.bold_clock ? F_CLOCK_B : F_CLOCK];
+  uint32_t want = 0;
+  switch (g_cfg.clock_font) {
+    case CF_LECO:
+      s_clock = fonts_get_system_font(g_cfg.bold_clock
+          ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM
+          : FONT_KEY_LECO_60_NUMBERS_AM_PM);
+      break;
+    case CF_ROBOTO:
+      want = g_cfg.bold_clock ? RESOURCE_ID_FONT_ROBO_B_76
+                              : RESOURCE_ID_FONT_ROBO_76;
+      break;
+    default:
+      want = g_cfg.bold_clock ? RESOURCE_ID_FONT_CLOCK_B_76
+                              : RESOURCE_ID_FONT_CLOCK_76;
+      break;
   }
+  if (want != s_clock_res) {
+    if (s_clock_custom) {
+      fonts_unload_custom_font(s_clock_custom);
+      s_clock_custom = NULL;
+    }
+    s_clock_res = want;
+    if (want) s_clock_custom = fonts_load_custom_font(resource_get_handle(want));
+  }
+  if (want) s_clock = s_clock_custom;
   GSize probe = graphics_text_layout_get_content_size("8", s_clock,
       GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
       GTextAlignmentLeft);
@@ -110,6 +131,11 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
 static void fonts_unload(void) {
   for (int i = 0; i < F_COUNT; i++)
     if (s_font[i]) { fonts_unload_custom_font(s_font[i]); s_font[i] = NULL; }
+  if (s_clock_custom) {
+    fonts_unload_custom_font(s_clock_custom);
+    s_clock_custom = NULL;
+    s_clock_res = 0;
+  }
 }
 
 // Draw with the ink sitting on `baseline`, returning the width used.

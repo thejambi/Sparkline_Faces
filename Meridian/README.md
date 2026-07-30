@@ -45,7 +45,7 @@ One family, three ranks, and no centring anywhere.
 
 Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so
-seven sizes cost 20KB.
+nine faces cost 27KB.
 
 **The clock is drawn one digit at a time, into fixed-width slots**, and the
 hours and minutes are right-aligned to the same edge. Two consequences worth
@@ -58,10 +58,18 @@ having:
   digit, rather than hanging off the left. The block stays where it is; only
   the alignment inside it changes.
 
-The clock face is selectable — Montserrat at 76, or LECO at 60 — each with a
-bold option. LECO is a system face and cannot go past 60, so it sits
-noticeably smaller and quieter; it is already tabular, and simply agrees with
-the slots.
+The clock face is selectable, each with a bold option:
+
+| Face | Size | Character |
+| --- | --- | --- |
+| **Montserrat** | 76, bundled | geometric, round counters |
+| **Roboto** | 76, bundled | a little narrower, more neutral |
+| **LECO** | 60, system | squared LCD; already tabular |
+
+LECO is a system face and cannot go past 60, so it sits noticeably smaller and
+quieter than the two bundled ones — more instrument than poster. Only the
+chosen clock face is resident: the other three would cost RAM for nothing, so
+it loads on demand and the previous one is unloaded.
 
 Two things worth knowing:
 

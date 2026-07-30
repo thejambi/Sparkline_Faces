@@ -6,7 +6,7 @@ enum { DIST_AUTO, DIST_KM, DIST_MI };
 enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM };
 // Montserrat is proportional, so the clock is drawn into fixed slots to make
 // it tabular; LECO already is. Either way the digits cannot shuffle.
-enum { CF_MONT, CF_LECO, CF_COUNT };
+enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
 // short and keep defaults. Bump SETTINGS_VERSION only on a reorder.

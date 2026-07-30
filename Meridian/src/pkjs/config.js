@@ -39,9 +39,10 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',
-        description: 'Both are drawn into fixed-width slots, so the digits never shuffle sideways as the minutes change. LECO is a system face and tops out at 60px, so it sits noticeably smaller than Montserrat\u2019s 76 \u2014 quieter and more instrument-like.',
+        description: 'All three are drawn into fixed-width slots, so the digits never shuffle sideways as the minutes change. Montserrat is geometric and Roboto is a touch narrower and more neutral; both are bundled at 76px. LECO is a system face and tops out at 60, so it sits noticeably smaller \u2014 quieter, and more instrument than poster.',
         options: [
           { label: 'Montserrat (76)', value: '0' },
+          { label: 'Roboto (76)', value: '2' },
           { label: 'LECO (60)', value: '1' }
         ]
       },
