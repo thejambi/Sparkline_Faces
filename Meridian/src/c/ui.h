@@ -55,9 +55,17 @@
 
 #define TRACK_CAPS    2             // only the caps are tracked
 
-// The day column's number sits this far above its caption, so that the
-// caption — not the number — takes the clock baseline it is aligned to.
-#define LABEL_DROP    15
+// The day column reads THU / 30 / JUL. Two gaps rather than one because a cap
+// is 8 rows of ink and a numeral is 16: measured from the baselines, the same
+// optical gap is a different number above and below.
+#define LABEL_DROP    15            // number baseline down to the caption under it
+#define LABEL_RISE    21            // caption baseline up to the number under it
+
+// Ink heights, measured off the device rather than derived: Pebble reports a
+// font's box height, which carries leading above the cap and is not the ink.
+// The block runs from the weekday's ink top to the month's ink bottom.
+#define INK_VAL       16            // a numeral at F_VAL
+#define DATE_BLOCK_H  (LABEL_RISE + LABEL_DROP + 8)
 
 void fmt1(char *buf, size_t cap, double v);            // "12.3"
 

@@ -123,6 +123,7 @@ module.exports = [
         messageKey: 'DateFormat',
         defaultValue: '0',
         label: 'Date',
+        description: 'Only the one-line layout has to choose: two of the three parts crowd its top row. The stacked layout sets the date as a column and shows all three — THU over 30 over JUL — whichever is picked here. Off hides it in both.',
         options: [
           { label: 'Weekday + day', value: '0' },
           { label: 'Month + day', value: '1' },

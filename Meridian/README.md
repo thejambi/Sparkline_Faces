@@ -18,8 +18,10 @@ screen allows.
 ```
   0   ▔▔▔▔▔▔▔▔▔▔▔▔                      battery, 2px, top edge
  24   8,842               BPM 68        the health header
- 87                           30        the day column: number...
-102   9                      WED        ...over its caption
+ 77                          THU        the day column, whole, and
+ 98                           30        floating: 45 rows of clear sky
+102   9                                 above it and 45 below
+113                          JUL
 174   41                     76°
 180   ────────────────────────────      the horizon
 227   ground, then the terrain
@@ -46,10 +48,23 @@ Every element is the same in both.
 obvious arrangement — date and temperature along the top, health down the
 right margin — puts `8,842` beside the numerals and caps them at 76px. Swap
 the two and the widest thing beside the clock becomes the weekday, so long as
-the weekday drops to a caption *under* the day number rather than sitting
-beside it: `WED 29` set as one line is 73px wide, which is wider than the
-step count it replaced and would have made the clock smaller, not larger. As
-a narrow column it is 36px, and the clock gains twelve.
+the date is set as a column rather than a line: `WED 29` set as one line is
+73px wide, which is wider than the step count it replaced and would have made
+the clock smaller, not larger. Stacked into `THU` / `30` / `JUL` it is 36px,
+and the clock gains twelve.
+
+Setting it as a column also buys back a whole part of the date. On one line
+the weekday and the month compete for the same row and one of them has to go,
+which is what the date setting chooses between; a column has room for all
+three, so stacked it shows the lot and ignores the setting.
+
+The block does not tie to the hour's baseline. As three lines it is tall
+enough that its own rhythm down the right margin matters more than an
+alignment nothing else in that column shares, so its foot is placed where the
+gap up to the header equals the gap down to the temperature — 45 rows either
+side, against 34 and 56 when it hung off the hour. Ink heights are measured
+off the device to do that arithmetic, because the box height Pebble reports
+carries leading above the cap and is not the ink.
 
 The step count carries no label there. Two labels will not fit on one row
 with two values, and an accent-coloured number with a comma in it needs no
@@ -77,7 +92,7 @@ One family, three ranks, and no centring anywhere.
 | Secondary | steps / sleep, pulse | Montserrat Bold / Light 22 |
 | Secondary | day number, temperature | Montserrat Bold 22 |
 | Label | date on one line | Montserrat Bold 15, caps, tracked |
-| Label | weekday, BPM, sleep units | Montserrat Bold 11/14 |
+| Label | weekday, month, BPM, sleep units | Montserrat Bold 11/14 |
 
 Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so

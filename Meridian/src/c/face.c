@@ -100,6 +100,20 @@ static const ClockGrid *grid(void) {
               [g_cfg.clock_font < CF_COUNT ? g_cfg.clock_font : 0];
 }
 
+// Where the day column's last line sits. It floats rather than tying to the
+// hour's baseline: as a three-line block, its own rhythm down the right margin
+// matters more than an alignment nothing else in that column shares. Placed so
+// the gap up to the header equals the gap down to the temperature —
+//
+//   (foot - DATE_BLOCK_H) - BASE_ROW1 == (b_min - INK_VAL) - foot
+//
+// which is 113 against Montserrat's 174 minutes — eleven rows below where the
+// hour's baseline would have put it, and 45 of clear sky on either side of the
+// block instead of 34 above and 56 below.
+static int date_foot(void) {
+  return (grid()->b_min - INK_VAL + DATE_BLOCK_H + BASE_ROW1) / 2;
+}
+
 static int horizon_y(void) { return grid()->horizon; }
 static int ground_y(void) { return horizon_y() + HORIZON_H; }
 static int bar_max(void) { return PLOT_BOT - ground_y() - 3; }
@@ -310,23 +324,32 @@ static void draw_sky(GContext *ctx) {
   // The day's values and the body's values, each group kept with its own kind.
   // On one line they are two rows at the top left, set small. Stacked they are
   // a column down the right margin — and being a column is the point: the
-  // widest thing beside the clock becomes "WED" rather than "8,842", which is
-  // what pays for the numerals being as large as they are. So the weekday
-  // drops to a caption under the day number rather than sitting beside it.
+  // widest thing beside the clock becomes "THU" rather than "8,842", which is
+  // what pays for the numerals being as large as they are.
+  //
+  // A column has the room for the whole date, so it takes all three parts and
+  // ignores the weekday-or-month setting entirely; on one line the two would
+  // crowd the row, which is what the setting is there to choose between.
   bool line = g_cfg.layout == LAY_LINE;
 
   if (g_cfg.date_format != DATE_OFF) {
-    const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
-    graphics_context_set_text_color(ctx, p->muted);
     if (line) {
+      const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
       snprintf(buf, sizeof buf, "%s %d", l, s_mday);
+      graphics_context_set_text_color(ctx, p->muted);
       draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW1);
     } else {
+      int b_mon = date_foot();
+      int b_day = b_mon - LABEL_DROP;
       snprintf(buf, sizeof buf, "%d", s_mday);
-      draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_hour - LABEL_DROP);
+      graphics_context_set_text_color(ctx, p->muted);
+      draw_right(ctx, buf, F_VAL, MARGIN_R, b_day);
       graphics_context_set_text_color(ctx, p->scale);
-      draw_tracked(ctx, l, F_CAPS_S, MARGIN_R - tracked_w(l, F_CAPS_S),
-                   grid()->b_hour);
+      const char *wd = WD[s_wday], *mo = MO[s_mon];
+      draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R - tracked_w(wd, F_CAPS_S),
+                   b_day - LABEL_RISE);
+      draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R - tracked_w(mo, F_CAPS_S),
+                   b_mon);
     }
   }
 
