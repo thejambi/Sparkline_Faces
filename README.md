@@ -10,6 +10,6 @@ once something is worth publishing.
 
 | Face | What it is |
 | --- | --- |
-| [Meridian](Meridian) | Sky over ground. A stacked clock, and the hour as terrain along the bottom edge — which becomes last night's sleep before you get up |
+| [Emberline](Emberline) | Sky over ground. A stacked clock, and the hour as terrain along the bottom edge — which becomes last night's sleep before you get up |
 | [Sparkline](Sparkline) | The Solfarer band given all 228 rows, with a tall chart along the bottom |
 | [TeaScene](TeaScene) | The band kept compact, with a Chinese gongfu tea table filling the rest |

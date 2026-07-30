@@ -1,7 +1,7 @@
 #pragma once
 #include <pebble.h>
 
-// Meridian — Emery, 200x228.
+// Emberline — Emery, 200x228.
 //
 // Sky over ground, one warm line where they meet. Three meanings rather than
 // five colors: the ink is time, the accent is movement, the muted tone is

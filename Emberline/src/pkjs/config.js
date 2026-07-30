@@ -11,7 +11,7 @@
 module.exports = [
   {
     type: 'heading',
-    defaultValue: 'Meridian'
+    defaultValue: 'Emberline'
   },
   {
     type: 'text',

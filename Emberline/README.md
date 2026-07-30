@@ -1,4 +1,4 @@
-# Meridian
+# Emberline
 
 Sky over ground, with one line where they meet.
 

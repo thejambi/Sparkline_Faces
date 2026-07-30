@@ -3,7 +3,7 @@
 Copy for the appstore entry. Kept here so it is versioned with the face it
 describes — a listing that drifts from the build is worse than no listing.
 
-**Title** — Meridian
+**Title** — Emberline
 
 **Tagline** (one line, shown under the title)
 
@@ -11,7 +11,7 @@ describes — a listing that drifts from the build is worse than no listing.
 
 ## Description
 
-Meridian draws your hour as landscape.
+Emberline draws your hour as landscape.
 
 The bottom of the screen is the last sixty minutes — one column a minute,
 standing on the very bottom edge, with a quarter-hour graticule behind it and

@@ -26,6 +26,10 @@ SCALE = (85, 85, 170)
 HORIZON_Y = 268
 RULE = 3
 SHOT = 'store/screenshots/emery_1_dusk.png'
+SHOT_X = 486                        # leaves a 34px right margin
+NAME = 'EMBERLINE'
+NAME_MAX = 68                       # shrunk to fit if the name is a long one
+TEXT_L = 44
 
 # The same profile the icon uses, stretched over a banner's width.
 PROFILE = [0.00, 0.12, 0.34, 0.55, 0.42, 0.18, 0.05, 0.00, 0.00, 0.08,
@@ -63,18 +67,29 @@ def main():
             d.text((x - b[0], baseline - b[3]), c, font=font, fill=fill)
             x += (b[2] - b[0]) + track
 
-    name = ImageFont.truetype(FD + 'Montserrat-Bold.ttf', 68)
+    # The wordmark takes the largest size that still clears the watch. Fitted
+    # rather than fixed, because renaming the face is exactly what pushes a
+    # name off the end of a size chosen for the old one: EMBERLINE is 447px at
+    # the 68 that MERIDIAN sat in comfortably at 391.
+    room = SHOT_X - 24 - TEXT_L
+    for size in range(NAME_MAX, 23, -2):
+        name = ImageFont.truetype(FD + 'Montserrat-Bold.ttf', size)
+        w = sum(name.getbbox(c)[2] - name.getbbox(c)[0] + 3 for c in NAME) - 3
+        if w <= room:
+            break
+    print('  wordmark %s at %dpx (%d of %dpx)' % (NAME, size, w, room))
+
     tag = ImageFont.truetype(FD + 'Montserrat-Bold.ttf', 21)
     sub = ImageFont.truetype(FD + 'Montserrat-Light.ttf', 20)
 
-    put('MERIDIAN', name, AMBER, 44, 150, track=3)
-    put('SKY OVER GROUND', tag, MUTED, 46, 190, track=4)
-    put('the last hour of your movement,', sub, INK, 46, 232)
-    put('a column a minute', sub, INK, 46, 258)
+    put(NAME, name, AMBER, TEXT_L, 150, track=3)
+    put('SKY OVER GROUND', tag, MUTED, TEXT_L + 2, 190, track=4)
+    put('the last hour of your movement,', sub, INK, TEXT_L + 2, 232)
+    put('a column a minute', sub, INK, TEXT_L + 2, 258)
 
     # the watch, standing on the horizon
     shot = Image.open(SHOT).convert('RGB')
-    sx, sy = 466, HORIZON_Y - shot.height + RULE
+    sx, sy = SHOT_X, HORIZON_Y - shot.height + RULE
     d.rectangle([sx - 2, sy - 2, sx + shot.width + 1, sy + shot.height + 1],
                 outline=SCALE, width=2)
     im.paste(shot, (sx, sy))

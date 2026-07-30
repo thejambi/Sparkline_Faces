@@ -1,5 +1,5 @@
 {
-  "name": "meridian",
+  "name": "emberline",
   "author": "thejambi",
   "version": "1.0.0",
   "keywords": [
@@ -8,7 +8,7 @@
   "private": true,
   "dependencies": {},
   "pebble": {
-    "displayName": "Meridian",
+    "displayName": "Emberline",
     "uuid": "0c8aaa3b-ef18-47d9-a9eb-3c0f02a28302",
     "sdkVersion": "3",
     "enableMultiJS": true,

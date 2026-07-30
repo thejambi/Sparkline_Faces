@@ -2,7 +2,7 @@
 #include "settings.h"
 #include "health.h"
 
-// Meridian. See ui.h for the layout and why the clock is stacked.
+// Emberline. See ui.h for the layout and why the clock is stacked.
 //
 // Everything here is positioned from a baseline, never from a box top. Pebble
 // draws text from the box, so each font carries the distance from its box top
