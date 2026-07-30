@@ -1,0 +1,36 @@
+#pragma once
+#include <pebble.h>
+
+enum { DATE_DAYNUM, DATE_MONTHDAY, DATE_OFF };  // "WED 29" / "JUL 29"
+enum { DIST_AUTO, DIST_KM, DIST_MI };
+enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM };
+
+// Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
+// short and keep defaults. Bump SETTINGS_VERSION only on a reorder.
+#define SETTINGS_VERSION 1
+typedef struct {
+  uint8_t version;
+  uint8_t theme;
+  uint8_t date_format;
+  uint8_t dist_unit;
+  bool leading_zero, show_bpm, show_battery, bt_vibe;
+  bool show_sleep;               // sleep holds the value slot before you rise
+  bool sleep_terrain;            // ...and the terrain shows last night
+  bool weather_on;
+  uint16_t wake_threshold;
+  // Custom theme, packed 0xRRGGBB. Only read when theme == TH_CUSTOM.
+  uint32_t c_sky, c_ground, c_horizon, c_ink, c_accent, c_muted, c_scale;
+} Settings;
+
+extern Settings g_cfg;
+
+// What the face actually draws with. `bar` follows the accent and `now`
+// follows the ink, because movement is one idea and time is another — the
+// palette should not let them drift apart.
+typedef struct {
+  GColor sky, ground, horizon, ink, accent, muted, scale;
+} Palette;
+
+const Palette *palette(void);
+
+void settings_init(void (*cb)(void));

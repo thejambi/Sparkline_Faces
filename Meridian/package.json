@@ -1,0 +1,100 @@
+{
+  "name": "meridian",
+  "author": "thejambi",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-watchface"
+  ],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Meridian",
+    "uuid": "0c8aaa3b-ef18-47d9-a9eb-3c0f02a28302",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": true
+    },
+    "capabilities": [
+      "configurable"
+    ],
+    "messageKeys": [
+      "Theme",
+      "ColSky",
+      "ColGround",
+      "ColHorizon",
+      "ColInk",
+      "ColAccent",
+      "ColMuted",
+      "ColScale",
+      "DateFormat",
+      "LeadingZero",
+      "DistUnit",
+      "ShowSleep",
+      "WakeThreshold",
+      "SleepTerrain",
+      "ShowBpm",
+      "ShowBattery",
+      "BTVibe",
+      "WeatherOn",
+      "WeatherLoc",
+      "WeatherUnit",
+      "WeatherTemp"
+    ],
+    "resources": {
+      "media": [
+        {
+          "menuIcon": true,
+          "type": "bitmap",
+          "name": "IMAGE_MENU_ICON",
+          "file": "images/menu_icon.png"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_76",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_B_76",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_VALUE_22",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9,]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_VALUE_L_22",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_UNIT_14",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[hm]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CAPS_15",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CAPS_11",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z]"
+        }
+      ]
+    }
+  }
+}
