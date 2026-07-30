@@ -10,15 +10,35 @@ the sky above it. The one warm line between the two is the horizon.
 
 ## The layout
 
+Two of them, and which one is a setting.
+
+**Stacked** — the default. Hours over minutes, and the biggest numeral the
+screen allows.
+
 ```
   0   ▔▔▔▔▔▔▔▔▔▔▔▔                      battery, 2px, top edge
  22   WED 29                    76°     tracked caps, both margins
  94   9                      8,842      hours share a baseline with the steps
 156   41                    BPM 68      minutes share one with the pulse
 162   ────────────────────────────      the horizon
-164   ground
-227   the terrain stands on the last row
+227   ground, then the terrain
 ```
+
+**One line** — the colon comes back, pinned to the centre of the screen. The
+day's values gather on the left, the body's on the right, each group with its
+own kind.
+
+```
+ 24   WED 29                 8,842
+ 52   76°                   BPM 68
+130            09:41               the colon sits dead centre
+156   ────────────────────────────
+227   ground, then the terrain
+```
+
+Stacked buys a much larger numeral and pays for it with a shorter terrain;
+one line buys back the colon and a calmer header. Every element is the same
+in both.
 
 Two alignment axes and nothing centred: everything begins at x=10 or ends at
 x=189. Only the horizon and the ground run to the bezel.
@@ -60,16 +80,25 @@ having:
 
 The clock face is selectable, each with a bold option:
 
-| Face | Size | Character |
-| --- | --- | --- |
-| **Montserrat** | 76, bundled | geometric, round counters |
-| **Roboto** | 76, bundled | a little narrower, more neutral |
-| **LECO** | 60, system | squared LCD; already tabular |
+| Face | Stacked | One line | Character |
+| --- | --- | --- | --- |
+| **Montserrat** | 76 | 60 | geometric, round counters |
+| **Roboto** | 88 | 68 | narrower, so it grows furthest |
+| **LECO** | 60 | 60 | squared LCD; already tabular |
 
-LECO is a system face and cannot go past 60, so it sits noticeably smaller and
-quieter than the two bundled ones — more instrument than poster. Only the
-chosen clock face is resident: the other three would cost RAM for nothing, so
-it loads on demand and the previous one is unloaded.
+Each size is the largest that face can reach before it collides — with the
+step count when stacked, with the margins on one line. Roboto is meaningfully
+narrower than Montserrat, which is why it gets a 16% larger numeral out of the
+same space, and why the stacked Roboto's horizon sits lower than the stacked
+Montserrat's: bigger clock, shorter terrain. A 60px LECO and an 88px Roboto
+cannot share a grid, so every (layout, face) pair carries its own baselines in
+`GRID[][]`.
+
+LECO is a system face and cannot go past 60, so in the stacked layout it sits
+noticeably smaller and quieter than the two bundled ones — more instrument
+than poster. On one line it is level with Montserrat. Only the chosen clock
+face is resident: the other eleven would cost RAM for nothing, so it loads on
+demand and the previous one is unloaded.
 
 Two things worth knowing:
 

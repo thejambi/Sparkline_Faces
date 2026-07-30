@@ -44,7 +44,8 @@
       "WeatherUnit",
       "WeatherTemp",
       "ClockFont",
-      "BoldClock"
+      "BoldClock",
+      "Layout"
     ],
     "resources": {
       "media": [
@@ -98,13 +99,37 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_76",
+          "name": "FONT_ROBO_88",
           "file": "fonts/Roboto-Light.ttf",
           "characterRegex": "[0-9:]"
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_B_76",
+          "name": "FONT_ROBO_B_88",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_60",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_B_60",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_68",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]"
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_68",
           "file": "fonts/Roboto-Bold.ttf",
           "characterRegex": "[0-9:]"
         }

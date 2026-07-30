@@ -66,23 +66,51 @@ static GFont s_clock, s_clock_custom;
 static uint32_t s_clock_res;
 static int s_clock_asc, s_clock_slot;
 
+// A 60px LECO and an 88px Roboto cannot share a grid, so every (layout, face)
+// pair carries its own. A `light` of 0 means the system LECO. In the stacked
+// layout the clock is as large as each face can go before it collides with
+// the step count, which is why the horizon — and so the terrain — sits lower
+// for the wider faces. That is the trade, made explicit.
+typedef struct {
+  uint32_t light, bold;
+  int b_hour, b_min;          // stacked
+  int b_clock;                // one line
+  int horizon;
+} ClockGrid;
+
+static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
+  [LAY_STACK] = {
+    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_76, RESOURCE_ID_FONT_CLOCK_B_76,
+                    94, 156, 0, 162 },
+    [CF_LECO]   = { 0, 0, 88, 146, 0, 152 },
+    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_88, RESOURCE_ID_FONT_ROBO_B_88,
+                    98, 170, 0, 176 },
+  },
+  [LAY_LINE] = {
+    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_60, RESOURCE_ID_FONT_CLOCK_B_60,
+                    0, 0, 130, 156 },
+    [CF_LECO]   = { 0, 0, 0, 0, 130, 156 },
+    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_68, RESOURCE_ID_FONT_ROBO_B_68,
+                    0, 0, 132, 158 },
+  },
+};
+
+static const ClockGrid *grid(void) {
+  return &GRID[g_cfg.layout < LAY_COUNT ? g_cfg.layout : 0]
+              [g_cfg.clock_font < CF_COUNT ? g_cfg.clock_font : 0];
+}
+
+static int horizon_y(void) { return grid()->horizon; }
+static int ground_y(void) { return horizon_y() + HORIZON_H; }
+static int bar_max(void) { return PLOT_BOT - ground_y() - 3; }
+
 static void clock_resolve(void) {
-  uint32_t want = 0;
-  switch (g_cfg.clock_font) {
-    case CF_LECO:
-      s_clock = fonts_get_system_font(g_cfg.bold_clock
-          ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM
-          : FONT_KEY_LECO_60_NUMBERS_AM_PM);
-      break;
-    case CF_ROBOTO:
-      want = g_cfg.bold_clock ? RESOURCE_ID_FONT_ROBO_B_76
-                              : RESOURCE_ID_FONT_ROBO_76;
-      break;
-    default:
-      want = g_cfg.bold_clock ? RESOURCE_ID_FONT_CLOCK_B_76
-                              : RESOURCE_ID_FONT_CLOCK_76;
-      break;
-  }
+  const ClockGrid *g = grid();
+  uint32_t want = g_cfg.bold_clock ? g->bold : g->light;
+  if (!want)
+    s_clock = fonts_get_system_font(g_cfg.bold_clock
+        ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM
+        : FONT_KEY_LECO_60_NUMBERS_AM_PM);
   if (want != s_clock_res) {
     if (s_clock_custom) {
       fonts_unload_custom_font(s_clock_custom);
@@ -117,6 +145,47 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   int x = right - n * s_clock_slot;
   for (int i = 0; i < n; i++) {
     char one[2] = { s[i], 0 };
+    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
+        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+        GTextAlignmentLeft);
+    graphics_draw_text(ctx, one, s_clock,
+        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
+              sz.w + 12, sz.h + 8),
+        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    x += s_clock_slot;
+  }
+}
+
+// One line, with the colon pinned to the centre of the screen: the hours
+// right-align into it and the minutes hang off it, so the colon never moves
+// however the digits change.
+static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
+                            int baseline) {
+  GSize cs = graphics_text_layout_get_content_size(":", s_clock,
+      GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft);
+  int cslot = cs.w + 8;
+  int cx0 = SCREEN_W / 2 - cslot / 2;
+
+  int x = cx0 - (int)strlen(hh) * s_clock_slot;
+  for (const char *c = hh; *c; c++) {
+    char one[2] = { *c, 0 };
+    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
+        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+        GTextAlignmentLeft);
+    graphics_draw_text(ctx, one, s_clock,
+        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
+              sz.w + 12, sz.h + 8),
+        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    x += s_clock_slot;
+  }
+  graphics_draw_text(ctx, ":", s_clock,
+      GRect(cx0 + (cslot - cs.w) / 2, baseline - s_clock_asc, cs.w + 12,
+            cs.h + 8),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  x = cx0 + cslot;
+  for (const char *c = mm; *c; c++) {
+    char one[2] = { *c, 0 };
     GSize sz = graphics_text_layout_get_content_size(one, s_clock,
         GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
         GTextAlignmentLeft);
@@ -238,36 +307,52 @@ static void draw_sky(GContext *ctx) {
   const Palette *p = palette();
   char buf[24];
 
-  // date, tracked caps, flush left
+  // The day's values and the body's values. Stacked, they share one row at
+  // opposite margins; on one line they become two columns, each group
+  // gathered with its own kind.
+  bool line = g_cfg.layout == LAY_LINE;
+  int b_date = line ? BASE_ROW1 : BASE_DATE;
+  int b_temp = line ? BASE_ROW2 : BASE_DATE;
+
   if (g_cfg.date_format != DATE_OFF) {
     const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
     snprintf(buf, sizeof buf, "%s %d", l, s_mday);
     graphics_context_set_text_color(ctx, p->muted);
-    draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_DATE);
+    draw_tracked(ctx, buf, F_CAPS, MARGIN_L, b_date);
   }
 
-  // temperature, numerals optically right-aligned, the ring hanging past
   if (temp_fresh()) {
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
     int w = tracked_w(buf, F_CAPS);
-    draw_tracked(ctx, buf, F_CAPS, MARGIN_R - w, BASE_DATE);
-    draw_degree(ctx, MARGIN_R + 3, BASE_DATE - 11, p->muted);
+    if (line) {
+      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, b_temp);
+      draw_degree(ctx, MARGIN_L + w + 3, b_temp - 11, p->muted);
+    } else {
+      draw_tracked(ctx, buf, F_CAPS, MARGIN_R - w, b_temp);
+      draw_degree(ctx, MARGIN_R + 3, b_temp - 11, p->muted);
+    }
   }
 
-  // the clock: hours over minutes, right-aligned to each other in place
   int h = s_hour;
   if (!clock_is_24h_style()) { h %= 12; if (h == 0) h = 12; }
   graphics_context_set_text_color(ctx, p->ink);
+  char mmbuf[4];
   if (clock_is_24h_style() || g_cfg.leading_zero)
     snprintf(buf, sizeof buf, "%02d", h);
   else
     snprintf(buf, sizeof buf, "%d", h);
-  draw_clock_num(ctx, buf, BASE_HOUR);
-  snprintf(buf, sizeof buf, "%02d", s_min);
-  draw_clock_num(ctx, buf, BASE_MIN);
+  snprintf(mmbuf, sizeof mmbuf, "%02d", s_min);
+  if (line) {
+    draw_clock_line(ctx, buf, mmbuf, grid()->b_clock);
+  } else {
+    draw_clock_num(ctx, buf, grid()->b_hour);
+    draw_clock_num(ctx, mmbuf, grid()->b_min);
+  }
 
   // the value slot: steps, or last night's sleep until you are up
+  int b_val = line ? BASE_ROW1 : grid()->b_hour;
+  int b_bpm = line ? BASE_ROW2 : grid()->b_min;
   if (hl_sleeping()) {
     int ss = hl_sleep_secs();
     unsigned hh = ((unsigned)ss / 3600u) % 100u;
@@ -280,17 +365,17 @@ static void draw_sky(GContext *ctx) {
     int total = wa + 2 + wh + 7 + wb + 2 + wm;
     int x = MARGIN_R - total;
     graphics_context_set_text_color(ctx, p->muted);
-    x += draw_base(ctx, a, F_VAL, x, BASE_HOUR) + 2;
+    x += draw_base(ctx, a, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
-    x += draw_base(ctx, "h", F_UNIT, x, BASE_HOUR) + 7;
+    x += draw_base(ctx, "h", F_UNIT, x, b_val) + 7;
     graphics_context_set_text_color(ctx, p->muted);
-    x += draw_base(ctx, b, F_VAL, x, BASE_HOUR) + 2;
+    x += draw_base(ctx, b, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
-    draw_base(ctx, "m", F_UNIT, x, BASE_HOUR);
+    draw_base(ctx, "m", F_UNIT, x, b_val);
   } else {
     fmt_thousands(buf, sizeof buf, hl_steps());
     graphics_context_set_text_color(ctx, p->accent);
-    draw_right(ctx, buf, F_VAL, MARGIN_R, BASE_HOUR);
+    draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
   }
 
   // pulse, sharing the minutes' baseline
@@ -298,21 +383,21 @@ static void draw_sky(GContext *ctx) {
   if (bpm > 0) {
     snprintf(buf, sizeof buf, "%d", bpm);
     graphics_context_set_text_color(ctx, p->muted);
-    int vw = draw_right(ctx, buf, F_VAL_L, MARGIN_R, BASE_MIN);
+    int vw = draw_right(ctx, buf, F_VAL_L, MARGIN_R, b_bpm);
     graphics_context_set_text_color(ctx, p->scale);
     int lw = tracked_w("BPM", F_CAPS_S);
-    draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - vw - 8 - lw, BASE_MIN);
+    draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
   } else if (!hl_sleeping()) {
     // no sensor: the distance takes the slot rather than leaving a hole
     char km[12];
     fmt1(km, sizeof km, use_miles() ? hl_walked_m() / 1609.344
                                     : hl_walked_m() / 1000.0);
     graphics_context_set_text_color(ctx, p->muted);
-    int vw = draw_right(ctx, km, F_VAL_L, MARGIN_R, BASE_MIN);
+    int vw = draw_right(ctx, km, F_VAL_L, MARGIN_R, b_bpm);
     graphics_context_set_text_color(ctx, p->scale);
     const char *u = use_miles() ? "MI" : "KM";
     int lw = tracked_w(u, F_CAPS_S);
-    draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - vw - 8 - lw, BASE_MIN);
+    draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
   }
 }
 
@@ -325,11 +410,11 @@ static void draw_ground(GContext *ctx) {
   GColor now = sleeping ? p->scale : p->ink;
 
   graphics_context_set_fill_color(ctx, sleeping ? p->muted : p->horizon);
-  graphics_fill_rect(ctx, GRect(0, HORIZON_Y, SCREEN_W, HORIZON_H), 0,
+  graphics_fill_rect(ctx, GRect(0, horizon_y(), SCREEN_W, HORIZON_H), 0,
                      GCornerNone);
   graphics_context_set_fill_color(ctx, p->ground);
-  graphics_fill_rect(ctx, GRect(0, GROUND_Y, SCREEN_W, SCREEN_H - GROUND_Y), 0,
-                     GCornerNone);
+  graphics_fill_rect(ctx, GRect(0, ground_y(), SCREEN_W,
+                                SCREEN_H - ground_y()), 0, GCornerNone);
 
   // A quarter-hour architecture behind the terrain. Where a column covers it
   // the rule vanishes; where it does not, it reads as structure.
@@ -338,15 +423,15 @@ static void draw_ground(GContext *ctx) {
     int wall = (s_min + 1 + i) % 60;
     if (t->live && wall % 15) continue;
     if (!t->live && i % 15) continue;
-    graphics_fill_rect(ctx, GRect(PLOT_X + COL_W * i, GROUND_Y, 1,
-                                  PLOT_BOT - GROUND_Y + 1), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(PLOT_X + COL_W * i, ground_y(), 1,
+                                  PLOT_BOT - ground_y() + 1), 0, GCornerNone);
   }
   graphics_fill_rect(ctx, GRect(PLOT_X, PLOT_BOT, COL_W * COLS, 1), 0,
                      GCornerNone);
 
   // the pace that counts as walking — only meaningful on the live hour
   if (t->live) {
-    int wy = PLOT_BOT - WALK_RATE * BAR_MAX / STEP_CAP;
+    int wy = PLOT_BOT - WALK_RATE * bar_max() / STEP_CAP;
     for (int x = PLOT_X; x < PLOT_X + COL_W * COLS; x += 4)
       graphics_fill_rect(ctx, GRect(x, wy, 1, 1), 0, GCornerNone);
   }
@@ -354,7 +439,7 @@ static void draw_ground(GContext *ctx) {
   for (int i = 0; i < COLS; i++) {
     int v = t->col[i];
     if (v > t->cap) v = t->cap;
-    int h = (v * BAR_MAX + t->cap / 2) / t->cap;
+    int h = (v * bar_max() + t->cap / 2) / t->cap;
     bool is_now = t->live && i == COLS - 1;
     if (is_now && h < 4) h = 4;
     if (h <= 0) continue;

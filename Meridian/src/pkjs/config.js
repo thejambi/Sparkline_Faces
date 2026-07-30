@@ -36,6 +36,17 @@ module.exports = [
       { type: 'heading', defaultValue: 'Clock' },
       {
         type: 'select',
+        messageKey: 'Layout',
+        defaultValue: '0',
+        label: 'Layout',
+        description: 'Stacked puts the hours over the minutes and buys a much larger numeral \u2014 Roboto reaches 88 there against 68 on one line \u2014 paying for it with a shorter terrain. One line buys back the colon, which sits dead centre, and gathers the date and temperature on the left against the steps and pulse on the right.',
+        options: [
+          { label: 'Stacked \u2014 biggest clock', value: '0' },
+          { label: 'One line \u2014 with the colon', value: '1' }
+        ]
+      },
+      {
+        type: 'select',
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',

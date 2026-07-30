@@ -7,6 +7,9 @@ enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM };
 // Montserrat is proportional, so the clock is drawn into fixed slots to make
 // it tabular; LECO already is. Either way the digits cannot shuffle.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_COUNT };
+// Two ways to set the same information. Stacked buys a much larger numeral;
+// the single line buys back the colon and a calmer header.
+enum { LAY_STACK, LAY_LINE, LAY_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
 // short and keep defaults. Bump SETTINGS_VERSION only on a reorder.
@@ -25,6 +28,7 @@ typedef struct {
   uint32_t c_sky, c_ground, c_horizon, c_ink, c_accent, c_muted, c_scale;
   uint8_t clock_font;
   bool bold_clock;
+  uint8_t layout;
 } Settings;
 
 extern Settings g_cfg;

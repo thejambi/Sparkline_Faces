@@ -7,12 +7,17 @@
 // five colours: the ink is time, the accent is movement, the muted tone is
 // context.
 //
-//     22   WED 29                    76°    tracked caps
-//     94   9                      8,842     hours share a baseline with steps
-//    156   41                    BPM 68     minutes share one with the pulse
-//    162   ────────────────────────────     the horizon, 2px
-//    164   ground
-//    227   the terrain stands on the last row of the screen
+// Stacked (the default):                One line:
+//     22  WED 29            76°           24  WED 29        8,842
+//     94  9              8,842            52  76°          BPM 68
+//    156  41            BPM 68           130       9:41
+//    162  ──────────────────────         156  ──────────────────────
+//         ground, then terrain                ground, then terrain
+//
+// Stacked buys a much larger numeral — Roboto reaches 88 there against 68 on
+// one line — and pays for it with a shorter terrain. The single line buys
+// back the colon, which sits dead centre, and groups the day's values on the
+// left against the body's on the right.
 //
 // Two alignment axes and nothing centred: everything starts at x=10 or ends
 // at x=189. Only the horizon and the ground run to the bezel. The clock is
@@ -25,13 +30,14 @@
 #define MARGIN_L      10
 #define MARGIN_R      189           // last pixel of the optical right edge
 
-#define BASE_DATE     22            // baselines, never box tops
-#define BASE_HOUR     94
-#define BASE_MIN      156
+// Baselines, never box tops. The clock rows and the horizon move with the
+// chosen face and layout — a 60px LECO and an 88px Roboto cannot share a
+// grid — so those live in the metrics table in face.c. These two do not move.
+#define BASE_DATE     22            // stacked layout: the single header row
+#define BASE_ROW1     24            // one-line layout: the two header rows
+#define BASE_ROW2     52
 
-#define HORIZON_Y     162
 #define HORIZON_H     2
-#define GROUND_Y      (HORIZON_Y + HORIZON_H)
 
 // 60 columns of exactly 3px. Any other pitch and the columns beat against
 // each other — every third bar comes out a pixel fatter and the terrain
