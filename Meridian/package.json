@@ -57,13 +57,13 @@
         },
         {
           "type": "font",
-          "name": "FONT_CLOCK_76",
+          "name": "FONT_CLOCK_88",
           "file": "fonts/Montserrat-Light.ttf",
           "characterRegex": "[0-9:]"
         },
         {
           "type": "font",
-          "name": "FONT_CLOCK_B_76",
+          "name": "FONT_CLOCK_B_88",
           "file": "fonts/Montserrat-Bold.ttf",
           "characterRegex": "[0-9:]"
         },

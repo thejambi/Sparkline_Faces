@@ -39,7 +39,7 @@ module.exports = [
         messageKey: 'Layout',
         defaultValue: '0',
         label: 'Layout',
-        description: 'Stacked puts the hours over the minutes and buys a much larger numeral \u2014 Roboto reaches 88 there against 68 on one line \u2014 paying for it with a shorter terrain. One line buys back the colon, which sits dead centre, and gathers the date and temperature on the left against the steps and pulse on the right.',
+        description: 'Stacked puts the hours over the minutes and buys a much larger numeral \u2014 88px against 60 \u2014 paying for it with a shorter terrain. It runs the steps and pulse along the top and gives the right margin to a narrow day column, which is what leaves the clock room to be that size. One line buys back the colon, which sits dead centre, and swaps the two groups over: date and temperature on the left, steps and pulse on the right.',
         options: [
           { label: 'Stacked \u2014 biggest clock', value: '0' },
           { label: 'One line \u2014 with the colon', value: '1' }
@@ -50,11 +50,11 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',
-        description: 'All three are drawn into fixed-width slots, so the digits never shuffle sideways as the minutes change. Montserrat is geometric and Roboto is a touch narrower and more neutral; both are bundled at 76px. LECO is a system face and tops out at 60, so it sits noticeably smaller \u2014 quieter, and more instrument than poster.',
+        description: 'All three are drawn into fixed-width slots, so the digits never shuffle sideways as the minutes change. Montserrat is geometric and Roboto is a touch narrower and more neutral; stacked, both reach 88px. LECO is a system face and tops out at 60, so it sits noticeably smaller \u2014 quieter, and more instrument than poster, and it leaves a much taller terrain.',
         options: [
-          { label: 'Montserrat (76)', value: '0' },
-          { label: 'Roboto (76)', value: '2' },
-          { label: 'LECO (60)', value: '1' }
+          { label: 'Montserrat', value: '0' },
+          { label: 'Roboto', value: '2' },
+          { label: 'LECO', value: '1' }
         ]
       },
       {

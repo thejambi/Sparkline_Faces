@@ -17,18 +17,16 @@ screen allows.
 
 ```
   0   ▔▔▔▔▔▔▔▔▔▔▔▔                      battery, 2px, top edge
- 22   WED 29                    76°     tracked caps, both margins
- 79   9                      8,842      the value rises...
- 94                           STEPS     ...so its caption takes the baseline
-141   41                         68      that the hours and minutes sit on
-156                              BPM
-162   ────────────────────────────      the horizon
+ 24   8,842               BPM 68        the health header
+ 87                           30        the day column: number...
+102   9                      WED        ...over its caption
+174   41                     76°
+180   ────────────────────────────      the horizon
 227   ground, then the terrain
 ```
 
 **One line** — the colon comes back, pinned to the centre of the screen. The
-day's values gather on the left, the body's on the right, each group with its
-own kind.
+two groups swap sides: the day's values on the left, the body's on the right.
 
 ```
  24   WED 29                 8,842
@@ -38,25 +36,34 @@ own kind.
 227   ground, then the terrain
 ```
 
-Stacked buys a much larger numeral and pays for it with a shorter terrain;
-one line buys back the colon and a calmer header. Every element is the same
-in both.
+Both layouts keep the day's values together and the body's values together.
+They differ in which margin each group takes, and in how much of the screen
+that leaves for the clock: stacked buys 88px numerals and pays for them with
+a shorter terrain, while one line buys back the colon and a calmer header.
+Every element is the same in both.
 
-Only the stacked layout captions its values. The caption takes the baseline
-the value used to sit on and the value rises above it, rather than the
-caption dropping below — dropping would put `BPM` under the horizon on the
-taller faces, and the rows to avoid that would have to come out of the
-terrain. On one line there is no room for captions at all, so the pulse keeps
-its label alongside.
+**The stacked layout's day column is the thing that pays for its clock.** The
+obvious arrangement — date and temperature along the top, health down the
+right margin — puts `8,842` beside the numerals and caps them at 76px. Swap
+the two and the widest thing beside the clock becomes the weekday, so long as
+the weekday drops to a caption *under* the day number rather than sitting
+beside it: `WED 29` set as one line is 73px wide, which is wider than the
+step count it replaced and would have made the clock smaller, not larger. As
+a narrow column it is 36px, and the clock gains twelve.
+
+The step count carries no label there. Two labels will not fit on one row
+with two values, and an accent-coloured number with a comma in it needs no
+telling — whereas a bare `68` does, so the pulse keeps `BPM` inboard of it in
+both layouts.
 
 Two alignment axes and nothing centred: everything begins at x=10 or ends at
 x=189. Only the horizon and the ground run to the bezel.
 
 **The clock is stacked, and that is the whole design.** Set on one line it
-tops out at 44px on a 200px screen, and the face stops being about the time.
-Stacked, the numerals are 55px, and the clock owns the field the way it does
-on the faces people actually love — TimeStyle gives 82% of its vertical to the
-time and nothing else competes.
+tops out at 44px of cap height on a 200px screen, and the face stops being
+about the time. Stacked, the numerals are 64px, and the clock owns the field
+the way it does on the faces people actually love — TimeStyle gives 82% of
+its vertical to the time and nothing else competes.
 
 The cost is the colon, which stacking removes. That is the trade.
 
@@ -66,11 +73,11 @@ One family, three ranks, and no centring anywhere.
 
 | Rank | Element | Face |
 | --- | --- | --- |
-| Hero | clock | Montserrat Light 76 |
-| Secondary | steps / sleep | Montserrat Bold 22 |
-| Secondary | pulse | Montserrat Light 22 |
-| Label | date, temperature | Montserrat Bold 15, caps, tracked |
-| Label | BPM, sleep units | Montserrat Bold 11/14 |
+| Hero | clock | Montserrat Light 88 |
+| Secondary | steps / sleep, pulse | Montserrat Bold / Light 22 |
+| Secondary | day number, temperature | Montserrat Bold 22 |
+| Label | date on one line | Montserrat Bold 15, caps, tracked |
+| Label | weekday, BPM, sleep units | Montserrat Bold 11/14 |
 
 Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so
@@ -91,22 +98,24 @@ The clock face is selectable, each with a bold option:
 
 | Face | Stacked | One line | Character |
 | --- | --- | --- | --- |
-| **Montserrat** | 76 | 60 | geometric, round counters |
-| **Roboto** | 88 | 68 | narrower, so it grows furthest |
+| **Montserrat** | 88 | 60 | geometric, round counters |
+| **Roboto** | 88 | 68 | narrower, so it has width to spare |
 | **LECO** | 60 | 60 | squared LCD; already tabular |
 
 Each size is the largest that face can reach before it collides — with the
-step count when stacked, with the margins on one line. Roboto is meaningfully
-narrower than Montserrat, which is why it gets a 16% larger numeral out of the
-same space, and why the stacked Roboto's horizon sits lower than the stacked
-Montserrat's: bigger clock, shorter terrain. A 60px LECO and an 88px Roboto
-cannot share a grid, so every (layout, face) pair carries its own baselines in
-`GRID[][]`.
+horizon when stacked, with the margins on one line. Once the day column
+freed the right margin, height rather than width became the binding
+constraint stacked, and the two bundled faces both land on 88 and share a
+grid. Roboto still has width in hand; spending it would cost terrain rows,
+which is not a trade worth making twice. A 60px LECO and an 88px Roboto
+cannot share a grid, so every (layout, face) pair carries its own baselines
+in `GRID[][]`.
 
 LECO is a system face and cannot go past 60, so in the stacked layout it sits
 noticeably smaller and quieter than the two bundled ones — more instrument
-than poster. On one line it is level with Montserrat. Only the chosen clock
-face is resident: the other eleven would cost RAM for nothing, so it loads on
+than poster, and its horizon sits 24 rows higher, which buys a much taller
+terrain. On one line it is level with Montserrat. Only the chosen clock face
+is resident: the other eleven would cost RAM for nothing, so it loads on
 demand and the previous one is unloaded.
 
 Two things worth knowing:

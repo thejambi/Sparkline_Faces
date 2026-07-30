@@ -68,9 +68,9 @@ static int s_clock_asc, s_clock_slot;
 
 // A 60px LECO and an 88px Roboto cannot share a grid, so every (layout, face)
 // pair carries its own. A `light` of 0 means the system LECO. In the stacked
-// layout the clock is as large as each face can go before it collides with
-// the step count, which is why the horizon — and so the terrain — sits lower
-// for the wider faces. That is the trade, made explicit.
+// layout the clock is as large as each face can go before it runs out of
+// height, which is why the horizon — and so the terrain — sits lower there.
+// That is the trade, made explicit.
 typedef struct {
   uint32_t light, bold;
   int b_hour, b_min;          // stacked
@@ -80,11 +80,11 @@ typedef struct {
 
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
-    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_76, RESOURCE_ID_FONT_CLOCK_B_76,
-                    94, 156, 0, 162 },
-    [CF_LECO]   = { 0, 0, 88, 146, 0, 152 },
+    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_88, RESOURCE_ID_FONT_CLOCK_B_88,
+                    102, 174, 0, 180 },
+    [CF_LECO]   = { 0, 0, 92, 150, 0, 156 },
     [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_88, RESOURCE_ID_FONT_ROBO_B_88,
-                    98, 170, 0, 176 },
+                    102, 174, 0, 180 },
   },
   [LAY_LINE] = {
     [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_60, RESOURCE_ID_FONT_CLOCK_B_60,
@@ -297,40 +297,49 @@ static bool use_miles(void) {
 // The degree mark is drawn rather than set: it keeps the glyph off the
 // bundled charset, and it lets the ring hang past the right margin so the
 // numerals themselves stay optically aligned with the row below.
-static void draw_degree(GContext *ctx, int x, int top, GColor col) {
+static void draw_degree(GContext *ctx, int x, int top, int size, GColor col) {
   graphics_context_set_stroke_color(ctx, col);
   graphics_context_set_stroke_width(ctx, 1);
-  graphics_draw_rect(ctx, GRect(x, top, 4, 4));
+  graphics_draw_rect(ctx, GRect(x, top, size, size));
 }
 
 static void draw_sky(GContext *ctx) {
   const Palette *p = palette();
   char buf[24];
 
-  // The day's values and the body's values. Stacked, they share one row at
-  // opposite margins; on one line they become two columns, each group
-  // gathered with its own kind.
+  // The day's values and the body's values, each group kept with its own kind.
+  // On one line they are two rows at the top left, set small. Stacked they are
+  // a column down the right margin — and being a column is the point: the
+  // widest thing beside the clock becomes "WED" rather than "8,842", which is
+  // what pays for the numerals being as large as they are. So the weekday
+  // drops to a caption under the day number rather than sitting beside it.
   bool line = g_cfg.layout == LAY_LINE;
-  int b_date = line ? BASE_ROW1 : BASE_DATE;
-  int b_temp = line ? BASE_ROW2 : BASE_DATE;
 
   if (g_cfg.date_format != DATE_OFF) {
     const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
-    snprintf(buf, sizeof buf, "%s %d", l, s_mday);
     graphics_context_set_text_color(ctx, p->muted);
-    draw_tracked(ctx, buf, F_CAPS, MARGIN_L, b_date);
+    if (line) {
+      snprintf(buf, sizeof buf, "%s %d", l, s_mday);
+      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW1);
+    } else {
+      snprintf(buf, sizeof buf, "%d", s_mday);
+      draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_hour - LABEL_DROP);
+      graphics_context_set_text_color(ctx, p->scale);
+      draw_tracked(ctx, l, F_CAPS_S, MARGIN_R - tracked_w(l, F_CAPS_S),
+                   grid()->b_hour);
+    }
   }
 
   if (temp_fresh()) {
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
-    int w = tracked_w(buf, F_CAPS);
     if (line) {
-      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, b_temp);
-      draw_degree(ctx, MARGIN_L + w + 3, b_temp - 11, p->muted);
+      int w = tracked_w(buf, F_CAPS);
+      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW2);
+      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - 11, 4, p->muted);
     } else {
-      draw_tracked(ctx, buf, F_CAPS, MARGIN_R - w, b_temp);
-      draw_degree(ctx, MARGIN_R + 3, b_temp - 11, p->muted);
+      draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_min);
+      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - 16, 5, p->muted);
     }
   }
 
@@ -350,13 +359,14 @@ static void draw_sky(GContext *ctx) {
     draw_clock_num(ctx, mmbuf, grid()->b_min);
   }
 
-  // the value slot: steps, or last night's sleep until you are up
-  // Stacked, each value carries a caption on the baseline beneath it and
-  // rises to make room; on one line there is no room for captions, so the
-  // pulse keeps its label alongside.
-  int b_val = line ? BASE_ROW1 : grid()->b_hour - LABEL_DROP;
-  int b_bpm = line ? BASE_ROW2 : grid()->b_min - LABEL_DROP;
-  int b_cap1 = grid()->b_hour, b_cap2 = grid()->b_min;
+  // the value slot: steps, or last night's sleep until you are up. Stacked it
+  // opens the header row at the left margin and the pulse closes it at the
+  // right; on one line the two stack at the right margin instead. Either way
+  // the pulse carries its label inboard of the value and the step count
+  // carries none — an accent-coloured number with a comma in it needs no
+  // telling, and the two labels will not fit on one row with the two values.
+  int b_val = BASE_ROW1;
+  int b_bpm = line ? BASE_ROW2 : BASE_ROW1;
   if (hl_sleeping()) {
     int ss = hl_sleep_secs();
     unsigned hh = ((unsigned)ss / 3600u) % 100u;
@@ -367,7 +377,7 @@ static void draw_sky(GContext *ctx) {
     int wa = tsz(a, F_VAL).w, wb = tsz(b, F_VAL).w;
     int wh = tsz("h", F_UNIT).w, wm = tsz("m", F_UNIT).w;
     int total = wa + 2 + wh + 7 + wb + 2 + wm;
-    int x = MARGIN_R - total;
+    int x = line ? MARGIN_R - total : MARGIN_L;
     graphics_context_set_text_color(ctx, p->muted);
     x += draw_base(ctx, a, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
@@ -376,43 +386,31 @@ static void draw_sky(GContext *ctx) {
     x += draw_base(ctx, b, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
     draw_base(ctx, "m", F_UNIT, x, b_val);
-    if (!line) {
-      int lw = tracked_w("SLEEP", F_CAPS_S);
-      draw_tracked(ctx, "SLEEP", F_CAPS_S, MARGIN_R - lw, b_cap1);
-    }
   } else {
     fmt_thousands(buf, sizeof buf, hl_steps());
     graphics_context_set_text_color(ctx, p->accent);
-    draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
-    if (!line) {
-      graphics_context_set_text_color(ctx, p->scale);
-      int lw = tracked_w("STEPS", F_CAPS_S);
-      draw_tracked(ctx, "STEPS", F_CAPS_S, MARGIN_R - lw, b_cap1);
-    }
+    if (line) draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
+    else      draw_base(ctx, buf, F_VAL, MARGIN_L, b_val);
   }
 
-  // pulse, sharing the minutes' baseline
+  // the pulse, always right-aligned with its label inboard of it
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
+  const char *lbl = NULL;
   if (bpm > 0) {
     snprintf(buf, sizeof buf, "%d", bpm);
+    lbl = "BPM";
+  } else if (!hl_sleeping()) {
+    // no sensor: the distance takes the slot rather than leaving a hole
+    fmt1(buf, sizeof buf, use_miles() ? hl_walked_m() / 1609.344
+                                      : hl_walked_m() / 1000.0);
+    lbl = use_miles() ? "MI" : "KM";
+  }
+  if (lbl) {
     graphics_context_set_text_color(ctx, p->muted);
     int vw = draw_right(ctx, buf, F_VAL_L, MARGIN_R, b_bpm);
     graphics_context_set_text_color(ctx, p->scale);
-    int lw = tracked_w("BPM", F_CAPS_S);
-    if (line) draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
-    else      draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - lw, b_cap2);
-  } else if (!hl_sleeping()) {
-    // no sensor: the distance takes the slot rather than leaving a hole
-    char km[12];
-    fmt1(km, sizeof km, use_miles() ? hl_walked_m() / 1609.344
-                                    : hl_walked_m() / 1000.0);
-    graphics_context_set_text_color(ctx, p->muted);
-    int vw = draw_right(ctx, km, F_VAL_L, MARGIN_R, b_bpm);
-    graphics_context_set_text_color(ctx, p->scale);
-    const char *u = use_miles() ? "MI" : "KM";
-    int lw = tracked_w(u, F_CAPS_S);
-    if (line) draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
-    else      draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - lw, b_cap2);
+    draw_tracked(ctx, lbl, F_CAPS_S,
+                 MARGIN_R - vw - 8 - tracked_w(lbl, F_CAPS_S), b_bpm);
   }
 }
 

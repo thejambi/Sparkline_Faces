@@ -8,16 +8,19 @@
 // context.
 //
 // Stacked (the default):                One line:
-//     22  WED 29            76°           24  WED 29        8,842
-//     94  9              8,842            52  76°          BPM 68
-//    156  41            BPM 68           130       9:41
-//    162  ──────────────────────         156  ──────────────────────
-//         ground, then terrain                ground, then terrain
+//     24  8,842        BPM 68            24  WED 29        8,842
+//    102  9                  29          52  76°          BPM 68
+//                           WED         130       9:41
+//    174  41                76°         156  ──────────────────────
+//    180  ──────────────────────             ground, then terrain
+//         ground, then terrain
 //
-// Stacked buys a much larger numeral — Roboto reaches 88 there against 68 on
-// one line — and pays for it with a shorter terrain. The single line buys
-// back the colon, which sits dead centre, and groups the day's values on the
-// left against the body's on the right.
+// Both layouts keep the day's values together and the body's values together;
+// they differ in which side each group takes. Stacked runs the health values
+// along the top as a header and gives the right margin to a narrow day column,
+// which is what lets the clock be as large as it is: the widest thing beside
+// the numerals is now "WED" rather than "8,842". The single line buys back
+// the colon, which sits dead centre.
 //
 // Two alignment axes and nothing centred: everything starts at x=10 or ends
 // at x=189. Only the horizon and the ground run to the bezel. The clock is
@@ -32,9 +35,9 @@
 
 // Baselines, never box tops. The clock rows and the horizon move with the
 // chosen face and layout — a 60px LECO and an 88px Roboto cannot share a
-// grid — so those live in the metrics table in face.c. These two do not move.
-#define BASE_DATE     22            // stacked layout: the single header row
-#define BASE_ROW1     24            // one-line layout: the two header rows
+// grid — so those live in the metrics table in face.c. These two do not move:
+// the header takes one row stacked and two on a line.
+#define BASE_ROW1     24
 #define BASE_ROW2     52
 
 #define HORIZON_H     2
@@ -52,10 +55,8 @@
 
 #define TRACK_CAPS    2             // only the caps are tracked
 
-// Stacked only: each value gets a caption under it. The caption takes the
-// baseline the value used to sit on and the value rises above it, rather
-// than the caption dropping below — dropping would put it under the horizon
-// on the taller faces, and cost the terrain rows to avoid.
+// The day column's number sits this far above its caption, so that the
+// caption — not the number — takes the clock baseline it is aligned to.
 #define LABEL_DROP    15
 
 void fmt1(char *buf, size_t cap, double v);            // "12.3"
