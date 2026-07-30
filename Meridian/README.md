@@ -18,8 +18,10 @@ screen allows.
 ```
   0   ▔▔▔▔▔▔▔▔▔▔▔▔                      battery, 2px, top edge
  22   WED 29                    76°     tracked caps, both margins
- 94   9                      8,842      hours share a baseline with the steps
-156   41                    BPM 68      minutes share one with the pulse
+ 79   9                      8,842      the value rises...
+ 94                           STEPS     ...so its caption takes the baseline
+141   41                         68      that the hours and minutes sit on
+156                              BPM
 162   ────────────────────────────      the horizon
 227   ground, then the terrain
 ```
@@ -39,6 +41,13 @@ own kind.
 Stacked buys a much larger numeral and pays for it with a shorter terrain;
 one line buys back the colon and a calmer header. Every element is the same
 in both.
+
+Only the stacked layout captions its values. The caption takes the baseline
+the value used to sit on and the value rises above it, rather than the
+caption dropping below — dropping would put `BPM` under the horizon on the
+taller faces, and the rows to avoid that would have to come out of the
+terrain. On one line there is no room for captions at all, so the pulse keeps
+its label alongside.
 
 Two alignment axes and nothing centred: everything begins at x=10 or ends at
 x=189. Only the horizon and the ground run to the bezel.

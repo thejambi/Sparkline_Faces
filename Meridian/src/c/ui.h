@@ -52,6 +52,12 @@
 
 #define TRACK_CAPS    2             // only the caps are tracked
 
+// Stacked only: each value gets a caption under it. The caption takes the
+// baseline the value used to sit on and the value rises above it, rather
+// than the caption dropping below — dropping would put it under the horizon
+// on the taller faces, and cost the terrain rows to avoid.
+#define LABEL_DROP    15
+
 void fmt1(char *buf, size_t cap, double v);            // "12.3"
 
 void face_init(void);

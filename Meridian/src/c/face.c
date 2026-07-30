@@ -351,8 +351,12 @@ static void draw_sky(GContext *ctx) {
   }
 
   // the value slot: steps, or last night's sleep until you are up
-  int b_val = line ? BASE_ROW1 : grid()->b_hour;
-  int b_bpm = line ? BASE_ROW2 : grid()->b_min;
+  // Stacked, each value carries a caption on the baseline beneath it and
+  // rises to make room; on one line there is no room for captions, so the
+  // pulse keeps its label alongside.
+  int b_val = line ? BASE_ROW1 : grid()->b_hour - LABEL_DROP;
+  int b_bpm = line ? BASE_ROW2 : grid()->b_min - LABEL_DROP;
+  int b_cap1 = grid()->b_hour, b_cap2 = grid()->b_min;
   if (hl_sleeping()) {
     int ss = hl_sleep_secs();
     unsigned hh = ((unsigned)ss / 3600u) % 100u;
@@ -372,10 +376,19 @@ static void draw_sky(GContext *ctx) {
     x += draw_base(ctx, b, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
     draw_base(ctx, "m", F_UNIT, x, b_val);
+    if (!line) {
+      int lw = tracked_w("SLEEP", F_CAPS_S);
+      draw_tracked(ctx, "SLEEP", F_CAPS_S, MARGIN_R - lw, b_cap1);
+    }
   } else {
     fmt_thousands(buf, sizeof buf, hl_steps());
     graphics_context_set_text_color(ctx, p->accent);
     draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
+    if (!line) {
+      graphics_context_set_text_color(ctx, p->scale);
+      int lw = tracked_w("STEPS", F_CAPS_S);
+      draw_tracked(ctx, "STEPS", F_CAPS_S, MARGIN_R - lw, b_cap1);
+    }
   }
 
   // pulse, sharing the minutes' baseline
@@ -386,7 +399,8 @@ static void draw_sky(GContext *ctx) {
     int vw = draw_right(ctx, buf, F_VAL_L, MARGIN_R, b_bpm);
     graphics_context_set_text_color(ctx, p->scale);
     int lw = tracked_w("BPM", F_CAPS_S);
-    draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
+    if (line) draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
+    else      draw_tracked(ctx, "BPM", F_CAPS_S, MARGIN_R - lw, b_cap2);
   } else if (!hl_sleeping()) {
     // no sensor: the distance takes the slot rather than leaving a hole
     char km[12];
@@ -397,7 +411,8 @@ static void draw_sky(GContext *ctx) {
     graphics_context_set_text_color(ctx, p->scale);
     const char *u = use_miles() ? "MI" : "KM";
     int lw = tracked_w(u, F_CAPS_S);
-    draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
+    if (line) draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - vw - 8 - lw, b_bpm);
+    else      draw_tracked(ctx, u, F_CAPS_S, MARGIN_R - lw, b_cap2);
   }
 }
 
