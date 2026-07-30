@@ -10,7 +10,7 @@ static Palette s_pal;
 static void defaults(void) {
   memset(&g_cfg, 0, sizeof g_cfg);
   g_cfg.version = SETTINGS_VERSION;
-  g_cfg.theme = TH_PHOSPHOR;
+  g_cfg.theme = TH_DUSK;
   g_cfg.date_format = DATE_DAYNUM;
   g_cfg.dist_unit = DIST_AUTO;
   g_cfg.show_bpm = true;
@@ -39,11 +39,12 @@ static void defaults(void) {
 // one warm or bright thing, spent only on the horizon, the step count and the
 // terrain. Those three are the same idea seen three ways.
 //
-// Phosphor is the exception, and the default. It spends two hues on an unlit
-// screen rather than one on a lit one: the time in orange, everything the body
-// reports in green, and no sky at all. The horizon follows the clock there
-// instead of the terrain, which is the opposite of the others — it reads as
-// the line the numerals stand on rather than the edge of the plot.
+// Phosphor is the exception. It spends two hues on an unlit screen rather than
+// one on a lit one: the time in orange, everything the body reports in green,
+// and no sky at all. The horizon follows the clock there instead of the
+// terrain, which is the opposite of the others — it reads as the line the
+// numerals stand on rather than the edge of the plot. Dusk is the default
+// because it is the only theme that depicts what the face is about.
 // ---------------------------------------------------------------------------
 typedef struct {
   uint32_t sky, ground, horizon, ink, accent, muted, scale;
@@ -69,7 +70,7 @@ static void resolve(void) {
   Theme custom = { g_cfg.c_sky, g_cfg.c_ground, g_cfg.c_horizon, g_cfg.c_ink,
                    g_cfg.c_accent, g_cfg.c_muted, g_cfg.c_scale };
   const Theme *t = (g_cfg.theme == TH_CUSTOM) ? &custom
-                 : &THEMES[g_cfg.theme < TH_COUNT ? g_cfg.theme : TH_PHOSPHOR];
+                 : &THEMES[g_cfg.theme < TH_COUNT ? g_cfg.theme : TH_DUSK];
   s_pal.sky     = GColorFromHEX(t->sky);
   s_pal.ground  = GColorFromHEX(t->ground);
   s_pal.horizon = GColorFromHEX(t->horizon);
@@ -101,7 +102,7 @@ static uint32_t tup_col(DictionaryIterator *it, uint32_t key, uint32_t fb) {
 
 static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.theme        = tup_int(it, MESSAGE_KEY_Theme, g_cfg.theme);
-  if (g_cfg.theme >= TH_COUNT) g_cfg.theme = TH_PHOSPHOR;
+  if (g_cfg.theme >= TH_COUNT) g_cfg.theme = TH_DUSK;
   g_cfg.date_format  = tup_int(it, MESSAGE_KEY_DateFormat, g_cfg.date_format);
   g_cfg.dist_unit    = tup_int(it, MESSAGE_KEY_DistUnit, g_cfg.dist_unit);
   if (g_cfg.dist_unit > DIST_MI) g_cfg.dist_unit = DIST_AUTO;

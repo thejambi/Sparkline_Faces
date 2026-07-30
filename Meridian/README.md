@@ -152,8 +152,8 @@ step count and the terrain — because those three are one idea seen three ways.
 
 | | sky | ground | accent |
 | --- | --- | --- | --- |
-| **Phosphor** *(default)* | black | black | green data, orange time |
-| **Dusk** | navy | black | amber |
+| **Dusk** *(default)* | navy | black | amber |
+| **Phosphor** | black | black | green data, orange time |
 | **Noir** | black | black | white horizon, grey terrain |
 | **Paper** | white | cream | orange |
 | **Moss** | dark green | black | chartreuse |
@@ -164,8 +164,16 @@ movement, the muted tone is context.** Custom exposes all seven roles. Every
 preset value is already on the Pebble 64 — each channel 00/55/AA/FF — so
 nothing is quantised out from under the design.
 
-Phosphor is the exception and the default, and it breaks the recipe on
-purpose. There is no lit sky: both bands are black, so the horizon is the only
+Dusk is the default because it is the only theme that *depicts* the face: a
+lit sky, land in shadow, one warm line between them. It also happens to be
+the widest luminance separation of any dark theme here, which matters on a
+reflective panel with no light of its own. Paper is strictly the most legible
+in direct sun — a white ground uses the panel's brightest state — but at
+thumbnail size it reads as a system face, and a default is the argument a
+watchface makes for itself.
+
+Phosphor is the exception, and it breaks the recipe on purpose. There is no
+lit sky: both bands are black, so the horizon is the only
 thing dividing them. It spends two hues rather than one — `FF5500` on the time
 and the horizon, `00AA55` on everything the body reports, `005555` on the
 graticule — which makes the split by *what a number is about* rather than by
