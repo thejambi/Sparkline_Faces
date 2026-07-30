@@ -59,8 +59,8 @@ def draw(size, ground, cols=len(PROFILE), horizon_frac=0.38, gap_frac=0.08):
 def main():
     for path, size, ground in (
             ('resources/images/menu_icon.png', 25, None),
-            ('publish/icon_small.png', 48, SKY),
-            ('publish/icon_large.png', 144, SKY)):
+            ('store/icon_small_48.png', 48, SKY),
+            ('store/icon_large_144.png', 144, SKY)):
         im = draw(size, ground)
         im.save(path)
         print('%-34s %dx%d  %d colors' % (path, size, size, len(im.getcolors())))

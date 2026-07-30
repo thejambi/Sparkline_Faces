@@ -79,32 +79,44 @@ one watch per shot.
 
 ## Publishing
 
-Assets live in `publish/`, built by `tools/make_icon.py` and copied from the
-emulator sweep. Screenshot filenames must start with the platform name — the
-tool keys off that to know which platform a shot belongs to.
+Assets live in `store/`, matching Solfarer and Lighthaul. `tools/make_icon.py`
+draws the icons, `tools/make_banner.py` the banner; the screenshots are single
+frames from the emulator sweep. Screenshot filenames must start with the
+platform name — the tool keys off that to know where a shot belongs.
 
 | File | What |
 | --- | --- |
-| `icon_small.png` | 48x48, Dusk sky |
-| `icon_large.png` | 144x144, Dusk sky |
-| `emery_01_dusk.png` | the default, stacked |
-| `emery_02_sleep.png` | last night's sleep, and the night as terrain |
-| `emery_03_one_line.png` | the other layout |
-| `emery_04_phosphor.png` | theming |
-| `emery_05_paper.png` | the light theme |
+| `description.txt` | the listing body, piped in by the command below |
+| `icon_small_48.png`, `icon_large_144.png` | Dusk sky, drawn at size |
+| `banner_720x320.png` | uploaded through the web UI; `publish` has no flag for it |
+| `screenshots/emery_1_dusk.png` | the default, stacked |
+| `screenshots/emery_2_sleep.png` | last night's sleep, and the night as terrain |
+| `screenshots/emery_3_one_line.png` | the other layout |
+| `screenshots/emery_4_phosphor.png` | theming |
+| `screenshots/emery_5_paper.png` | the light theme |
 
-Run from this directory, with the `.pbw` freshly built:
+Run from this directory, with the `.pbw` freshly built and the repo pushed
+(the source URL is part of the listing):
 
 ```
-pebble publish --release-notes "First release."
+pebble publish --non-interactive --no-gif-all-platforms --is-published \
+  --source "https://github.com/thejambi/Sparkline_Faces" \
+  --description "$(cat store/description.txt)" \
+  --icon-small store/icon_small_48.png \
+  --icon-large store/icon_large_144.png \
+  --screenshots store/screenshots/emery_1_dusk.png \
+               store/screenshots/emery_2_sleep.png \
+               store/screenshots/emery_3_one_line.png \
+               store/screenshots/emery_4_phosphor.png \
+               store/screenshots/emery_5_paper.png \
+  --release-notes "First release."
 ```
 
-It uploads to `appstore-api.repebble.com` and prompts for the listing fields
-on a first publish — paste them from the top of this file.
+`--category` is deliberately absent. Solfarer_App passed `tools`, but that is a
+watchapp category and this declares `watchapp.watchface = true`, so the store
+files it as a watchface on its own. If the API turns out to want one, it will
+say so plainly rather than mis-file the listing.
 
-**`--is-published` is deliberately not passed.** Without it the release is
-created but not made visible, so the listing can be read once before anyone
-else sees it. Flip it live from the web UI, or re-run with the flag.
-
-If the emulator wedges during rollover-GIF capture, add
-`--no-gif-all-platforms` and upload the static shots instead.
+`--no-gif-all-platforms` skips the rollover-GIF capture, which boots an
+emulator per platform. There is only one platform here and the static shots
+already show every state worth showing.
