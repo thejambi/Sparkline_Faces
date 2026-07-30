@@ -5,7 +5,7 @@
 // that way" — the reasoning lives in the README. On a phone, anything past two
 // lines stops being read, so the long version does not belong here.
 //
-// Section order follows how often a setting gets touched. Custom colours is
+// Section order follows how often a setting gets touched. Custom colors is
 // seven rows most people never open, so it sits at the foot of the page rather
 // than between Theme and Layout.
 module.exports = [
@@ -20,13 +20,13 @@ module.exports = [
   {
     type: 'section',
     items: [
-      { type: 'heading', defaultValue: 'Colour' },
+      { type: 'heading', defaultValue: 'Color' },
       {
         type: 'select',
         messageKey: 'Theme',
         defaultValue: '0',
         label: 'Theme',
-        description: 'Most are a lit sky over land in shadow, with one bright colour spent on the horizon, the step count and the terrain. Phosphor is the odd one out: no sky at all, the time in orange and everything your body reports in green.',
+        description: 'Paint the sky over land in shadow, let the step count be the terrain.',
         options: [
           { label: 'Dusk — navy and amber', value: '0' },
           { label: 'Phosphor — orange and green on black', value: '6' },
@@ -48,7 +48,7 @@ module.exports = [
         messageKey: 'Layout',
         defaultValue: '0',
         label: 'Layout',
-        description: 'Stacked gives the largest numerals the screen allows and a shorter terrain. One line is smaller and brings back the colon.',
+        description: 'Stacked gives the largest digits the screen allows and a shorter terrain.',
         options: [
           { label: 'Stacked — hours over minutes', value: '0' },
           { label: 'One line — with the colon', value: '1' }
@@ -71,7 +71,7 @@ module.exports = [
         messageKey: 'BoldClock',
         defaultValue: true,
         label: 'Bold clock',
-        description: 'Bold holds up in bright sun; light reads calmer indoors.'
+        description: 'Whether to bold the clock face font.'
       }
     ]
   },
@@ -84,7 +84,7 @@ module.exports = [
         messageKey: 'DateFormat',
         defaultValue: '0',
         label: 'Date',
-        description: 'Stacked has room for the whole date and shows THU over 30 over JUL either way. This picks what the one-line layout shows, where only two parts fit.',
+        description: 'For one-line layout. Stacked layout shows weekday and month.',
         options: [
           { label: 'Weekday + day', value: '0' },
           { label: 'Month + day', value: '1' },
@@ -135,7 +135,7 @@ module.exports = [
         messageKey: 'ShowSleep',
         defaultValue: true,
         label: 'Show sleep on waking',
-        description: 'Before you get moving, the step slot shows last night’s sleep as 6h 32m. Steps take it back once you pass the threshold below, and the colours warm at the same moment.'
+        description: 'Before you get moving, the step slot shows last night’s sleep as 6h 32m. Step count displays once it passes the wake threshold below, and the colors warm at the same moment.'
       },
       {
         type: 'slider',
@@ -152,7 +152,7 @@ module.exports = [
         messageKey: 'SleepTerrain',
         defaultValue: true,
         label: 'Sleep terrain',
-        description: 'While sleep is showing, the terrain draws the night instead — sixty columns from falling asleep to waking, each one how much you moved. First thing in the morning the past hour is mostly empty, which is what this avoids.'
+        description: 'While sleep is showing, the terrain draws the night instead of step count.'
       }
     ]
   },
@@ -172,7 +172,7 @@ module.exports = [
         messageKey: 'WeatherLoc',
         defaultValue: '',
         label: 'Location',
-        description: 'A city or postal code. Left empty, weather follows your phone; filled in, it never touches your phone’s location at all.',
+        description: 'A city or postal code. Left empty, weather follows your phone; filled in, it never reads for your phone’s location at all.',
         attributes: { placeholder: 'e.g. Minneapolis or 55401' }
       },
       {
@@ -203,10 +203,10 @@ module.exports = [
   {
     type: 'section',
     items: [
-      { type: 'heading', defaultValue: 'Custom colours' },
+      { type: 'heading', defaultValue: 'Custom colors' },
       {
         type: 'text',
-        defaultValue: 'Used only when Theme is set to Custom. The watch shows 64 colours — every channel snaps to 00, 55, AA or FF — so what you pick within that grid is what you get.'
+        defaultValue: 'Used only when Theme is set to Custom.'
       },
       { type: 'color', messageKey: 'ColSky', label: 'Sky', defaultValue: 0x000055, sunlight: false },
       { type: 'color', messageKey: 'ColGround', label: 'Ground', defaultValue: 0x000000, sunlight: false },
