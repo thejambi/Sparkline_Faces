@@ -73,7 +73,7 @@ One family, three ranks, and no centring anywhere.
 
 | Rank | Element | Face |
 | --- | --- | --- |
-| Hero | clock | Montserrat Light 88 |
+| Hero | clock | Montserrat Bold 88 |
 | Secondary | steps / sleep, pulse | Montserrat Bold / Light 22 |
 | Secondary | day number, temperature | Montserrat Bold 22 |
 | Label | date on one line | Montserrat Bold 15, caps, tracked |
@@ -94,7 +94,8 @@ having:
   digit, rather than hanging off the left. The block stays where it is; only
   the alignment inside it changes.
 
-The clock face is selectable, each with a bold option:
+The clock face is selectable, each with a bold option — bold by default,
+because it is what survives brighter sun:
 
 | Face | Stacked | One line | Character |
 | --- | --- | --- | --- |
@@ -130,12 +131,13 @@ Two things worth knowing:
 
 ### Colour
 
-Five themes plus Custom. Each is built the same way: a lit sky over ground in
-shadow, and exactly one bright colour spent only on the horizon, the step
-count and the terrain — because those three are one idea seen three ways.
+Six themes plus Custom. Five of them are built the same way: a lit sky over
+ground in shadow, and exactly one bright colour spent only on the horizon, the
+step count and the terrain — because those three are one idea seen three ways.
 
 | | sky | ground | accent |
 | --- | --- | --- | --- |
+| **Phosphor** *(default)* | black | black | green data, orange time |
 | **Dusk** | navy | black | amber |
 | **Noir** | black | black | white horizon, grey terrain |
 | **Paper** | white | cream | orange |
@@ -146,6 +148,17 @@ Three meanings rather than seven colours: **the ink is time, the accent is
 movement, the muted tone is context.** Custom exposes all seven roles. Every
 preset value is already on the Pebble 64 — each channel 00/55/AA/FF — so
 nothing is quantised out from under the design.
+
+Phosphor is the exception and the default, and it breaks the recipe on
+purpose. There is no lit sky: both bands are black, so the horizon is the only
+thing dividing them. It spends two hues rather than one — `FF5500` on the time
+and the horizon, `00AA55` on everything the body reports, `005555` on the
+graticule — which makes the split by *what a number is about* rather than by
+rank. The horizon siding with the clock instead of the terrain is what stops
+the two halves from reading as unrelated: it becomes the line the numerals
+stand on. A useful accident falls out of it — asleep, the horizon and the
+value drop to the muted green, so the face is entirely green until you get up
+and the time turns orange.
 
 Red is not a theme colour. It appears only on a flat battery and a lost phone.
 

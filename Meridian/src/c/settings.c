@@ -10,7 +10,7 @@ static Palette s_pal;
 static void defaults(void) {
   memset(&g_cfg, 0, sizeof g_cfg);
   g_cfg.version = SETTINGS_VERSION;
-  g_cfg.theme = TH_DUSK;
+  g_cfg.theme = TH_PHOSPHOR;
   g_cfg.date_format = DATE_DAYNUM;
   g_cfg.dist_unit = DIST_AUTO;
   g_cfg.show_bpm = true;
@@ -20,7 +20,7 @@ static void defaults(void) {
   g_cfg.weather_on = true;
   g_cfg.wake_threshold = 500;
   g_cfg.clock_font = CF_MONT;
-  g_cfg.bold_clock = false;
+  g_cfg.bold_clock = true;
   g_cfg.layout = LAY_STACK;
   g_cfg.c_sky = 0x000055;
   g_cfg.c_ground = 0x000000;
@@ -35,32 +35,41 @@ static void defaults(void) {
 // Themes. Every value is already on the Pebble 64 — each channel is one of
 // 0x00/0x55/0xAA/0xFF — so nothing is quantised out from under the design.
 //
-// Each is built the same way: a lit sky over ground in shadow, and exactly
+// Most are built the same way: a lit sky over ground in shadow, and exactly
 // one warm or bright thing, spent only on the horizon, the step count and the
 // terrain. Those three are the same idea seen three ways.
+//
+// Phosphor is the exception, and the default. It spends two hues on an unlit
+// screen rather than one on a lit one: the time in orange, everything the body
+// reports in green, and no sky at all. The horizon follows the clock there
+// instead of the terrain, which is the opposite of the others — it reads as
+// the line the numerals stand on rather than the edge of the plot.
 // ---------------------------------------------------------------------------
 typedef struct {
   uint32_t sky, ground, horizon, ink, accent, muted, scale;
 } Theme;
 
-static const Theme THEMES[] = {
+static const Theme THEMES[TH_COUNT] = {
   // dusk — navy sky, black land, one amber line where they meet
-  { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA },
+  [TH_DUSK]  = { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA },
   // noir — no hue at all; the horizon is the only pure white shape
-  { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 },
+  [TH_NOIR]  = { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 },
   // paper — the light one, and the most readable in direct sun
-  { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA },
+  [TH_PAPER] = { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA },
   // moss
-  { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 },
+  [TH_MOSS]  = { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 },
   // tide
-  { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA },
+  [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA },
+  // TH_CUSTOM is a hole in this table: it comes from g_cfg instead
+  // phosphor — two phosphors on a dead screen, orange for time, green for body
+  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 },
 };
 
 static void resolve(void) {
   Theme custom = { g_cfg.c_sky, g_cfg.c_ground, g_cfg.c_horizon, g_cfg.c_ink,
                    g_cfg.c_accent, g_cfg.c_muted, g_cfg.c_scale };
   const Theme *t = (g_cfg.theme == TH_CUSTOM) ? &custom
-                 : &THEMES[g_cfg.theme < ARRAY_LENGTH(THEMES) ? g_cfg.theme : 0];
+                 : &THEMES[g_cfg.theme < TH_COUNT ? g_cfg.theme : TH_PHOSPHOR];
   s_pal.sky     = GColorFromHEX(t->sky);
   s_pal.ground  = GColorFromHEX(t->ground);
   s_pal.horizon = GColorFromHEX(t->horizon);
@@ -92,7 +101,7 @@ static uint32_t tup_col(DictionaryIterator *it, uint32_t key, uint32_t fb) {
 
 static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.theme        = tup_int(it, MESSAGE_KEY_Theme, g_cfg.theme);
-  if (g_cfg.theme > TH_CUSTOM) g_cfg.theme = TH_DUSK;
+  if (g_cfg.theme >= TH_COUNT) g_cfg.theme = TH_PHOSPHOR;
   g_cfg.date_format  = tup_int(it, MESSAGE_KEY_DateFormat, g_cfg.date_format);
   g_cfg.dist_unit    = tup_int(it, MESSAGE_KEY_DistUnit, g_cfg.dist_unit);
   if (g_cfg.dist_unit > DIST_MI) g_cfg.dist_unit = DIST_AUTO;

@@ -3,7 +3,12 @@
 
 enum { DATE_DAYNUM, DATE_MONTHDAY, DATE_OFF };  // "WED 29" / "JUL 29"
 enum { DIST_AUTO, DIST_KM, DIST_MI };
-enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM };
+// Theme values are persisted and are sent by the config page as string ints,
+// so they are append-only too: TH_PHOSPHOR goes after TH_CUSTOM rather than
+// beside its siblings, because inserting it anywhere earlier would silently
+// turn a saved Custom into a preset. The config page lists it first regardless.
+enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
+       TH_COUNT };
 // Montserrat is proportional, so the clock is drawn into fixed slots to make
 // it tabular; LECO already is. Either way the digits cannot shuffle.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_COUNT };
@@ -12,8 +17,11 @@ enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_COUNT };
 enum { LAY_STACK, LAY_LINE, LAY_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
-// short and keep defaults. Bump SETTINGS_VERSION only on a reorder.
-#define SETTINGS_VERSION 1
+// short and keep defaults. Bump SETTINGS_VERSION on a reorder, or to force a
+// saved blob to be discarded so that changed defaults are actually seen —
+// which is the only way a new default reaches a watch that has ever saved.
+// 2: the Phosphor default, and the stacked/Montserrat/bold clock it goes with.
+#define SETTINGS_VERSION 2
 typedef struct {
   uint8_t version;
   uint8_t theme;

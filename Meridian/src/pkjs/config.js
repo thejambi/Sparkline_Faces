@@ -16,10 +16,11 @@ module.exports = [
       {
         type: 'select',
         messageKey: 'Theme',
-        defaultValue: '0',
+        defaultValue: '6',
         label: 'Theme',
-        description: 'Each one is built the same way: a lit sky over ground in shadow, and exactly one bright colour, spent only on the horizon, the step count and the terrain.',
+        description: 'Most are built the same way: a lit sky over ground in shadow, and exactly one bright colour, spent only on the horizon, the step count and the terrain. Phosphor is the exception — no sky at all, the time in orange and everything your body reports in green.',
         options: [
+          { label: 'Phosphor — orange and green on black', value: '6' },
           { label: 'Dusk — navy and amber', value: '0' },
           { label: 'Noir — no hue at all', value: '1' },
           { label: 'Paper — light', value: '2' },
@@ -60,7 +61,7 @@ module.exports = [
       {
         type: 'toggle',
         messageKey: 'BoldClock',
-        defaultValue: false,
+        defaultValue: true,
         label: 'Bold clock',
         description: 'Light reads calmer at this size; bold survives brighter sun.'
       }
