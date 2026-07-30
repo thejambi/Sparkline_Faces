@@ -113,7 +113,7 @@ module.exports = [
         description: 'Automatic follows the units set in the Pebble app.',
         options: [
           { label: 'Automatic', value: '0' },
-          { label: 'Kilometres', value: '1' },
+          { label: 'Kilometers', value: '1' },
           { label: 'Miles', value: '2' }
         ]
       },
