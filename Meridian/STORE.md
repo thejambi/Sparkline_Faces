@@ -76,3 +76,35 @@ From `preview/`, in this order — all 200x228, native:
 
 The sheets are multi-panel; upload the individual frames if the store wants
 one watch per shot.
+
+## Publishing
+
+Assets live in `publish/`, built by `tools/make_icon.py` and copied from the
+emulator sweep. Screenshot filenames must start with the platform name — the
+tool keys off that to know which platform a shot belongs to.
+
+| File | What |
+| --- | --- |
+| `icon_small.png` | 48x48, Dusk sky |
+| `icon_large.png` | 144x144, Dusk sky |
+| `emery_01_dusk.png` | the default, stacked |
+| `emery_02_sleep.png` | last night's sleep, and the night as terrain |
+| `emery_03_one_line.png` | the other layout |
+| `emery_04_phosphor.png` | theming |
+| `emery_05_paper.png` | the light theme |
+
+Run from this directory, with the `.pbw` freshly built:
+
+```
+pebble publish --release-notes "First release."
+```
+
+It uploads to `appstore-api.repebble.com` and prompts for the listing fields
+on a first publish — paste them from the top of this file.
+
+**`--is-published` is deliberately not passed.** Without it the release is
+created but not made visible, so the listing can be read once before anyone
+else sees it. Flip it live from the web UI, or re-run with the flag.
+
+If the emulator wedges during rollover-GIF capture, add
+`--no-gif-all-platforms` and upload the static shots instead.

@@ -1,52 +1,70 @@
 #!/usr/bin/env python3
-"""The launcher icon: the face's whole idea at 25 pixels.
+"""The icons: the face's whole idea, at 25, 48 and 144 pixels.
 
-A horizon with terrain standing on the bottom edge. No clock — at this size a
-numeral is four pixels of stem and reads as noise — so the icon carries the
-part of the design that survives being shrunk.
+A horizon with terrain standing on the bottom edge. No clock — at any of these
+sizes a numeral is a few pixels of stem and reads as noise — so the icons carry
+the part of the design that survives being shrunk.
 
-The sky is transparent rather than black: the launcher draws its own
-background, and a black square would sit in it as a tile rather than a mark.
-Every color is on the Pebble 64, same as the themes.
+Two kinds, because they are shown in different places:
+
+  launcher  25px, amber on transparent. The launcher draws its own background,
+            and a black square would sit in it as a tile rather than a mark.
+  store     48 and 144px, on Dusk's navy sky. A store icon *is* a tile, so it
+            gets the default theme's ground rather than a hole.
+
+Everything is drawn at its target size rather than scaled from one master:
+upscaling a 25px bitmap gives soft edges, and the whole point of the mark is
+that it is made of hard pixel rows.
+
+    python3 tools/make_icon.py            # writes all three
 """
 from PIL import Image
 
-W = H = 25
-AMBER = (255, 170, 0, 255)          # 0xFFAA00, Dusk's accent
+# Dusk, the default theme — see THEMES[] in src/c/settings.c
+SKY = (0, 0, 85, 255)               # 0x000055
+AMBER = (255, 170, 0, 255)          # 0xFFAA00
 CLEAR = (0, 0, 0, 0)
 
-HORIZON_Y = 9                       # 2 rows, then ground below
-BAR_TOP = 13                        # a gap under the horizon, as on the face
-BOT = 24
-PITCH, BAR_W = 3, 2
-
-# A plausible hour: two bursts and a quiet stretch. Read left to right, these
-# are the same shape the terrain draws.
-HEIGHTS = [2, 5, 11, 7, 1, 3, 8, 12]
+# A plausible hour: two bursts and a quiet stretch, as fractions of the plot.
+# Read left to right, this is the shape the terrain draws.
+PROFILE = [0.15, 0.40, 0.95, 0.55, 0.08, 0.25, 0.65, 1.00]
 
 
-def main(path):
-    im = Image.new('RGBA', (W, H), CLEAR)
+def draw(size, ground, cols=len(PROFILE), horizon_frac=0.38, gap_frac=0.08):
+    """One icon. `ground` is the sky colour, or None for transparent."""
+    im = Image.new('RGBA', (size, size), ground or CLEAR)
     px = im.load()
 
-    for x in range(W):
-        px[x, HORIZON_Y] = AMBER
-        px[x, HORIZON_Y + 1] = AMBER
+    rule = max(1, round(size / 12))              # horizon thickness
+    hy = round(size * horizon_frac)
+    for y in range(hy, hy + rule):
+        for x in range(size):
+            px[x, y] = AMBER
 
-    room = BOT - BAR_TOP + 1
-    for i, h in enumerate(HEIGHTS):
-        x0 = 1 + i * PITCH
-        if x0 + BAR_W > W:
-            break
-        h = min(h, room)
-        for x in range(x0, x0 + BAR_W):
-            for y in range(BOT - h + 1, BOT + 1):
+    top = hy + rule + round(size * gap_frac)     # a gap under the horizon
+    bot = size - 1
+    room = bot - top + 1
+
+    pitch = size / cols
+    bar_w = max(1, round(pitch * 0.68))
+    for i, frac in enumerate(PROFILE[:cols]):
+        x0 = round(i * pitch + (pitch - bar_w) / 2)
+        h = max(1, round(frac * room))
+        for x in range(x0, min(x0 + bar_w, size)):
+            for y in range(bot - h + 1, bot + 1):
                 px[x, y] = AMBER
+    return im
 
-    im.save(path)
-    print('%s  %dx%d  %d colors' % (path, W, H, len(im.getcolors())))
+
+def main():
+    for path, size, ground in (
+            ('resources/images/menu_icon.png', 25, None),
+            ('publish/icon_small.png', 48, SKY),
+            ('publish/icon_large.png', 144, SKY)):
+        im = draw(size, ground)
+        im.save(path)
+        print('%-34s %dx%d  %d colors' % (path, size, size, len(im.getcolors())))
 
 
 if __name__ == '__main__':
-    import sys
-    main(sys.argv[1] if len(sys.argv) > 1 else 'resources/images/menu_icon.png')
+    main()
