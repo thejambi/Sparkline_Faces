@@ -401,11 +401,11 @@ static void draw_sky(GContext *ctx) {
     int wh = tsz("h", F_UNIT).w, wm = tsz("m", F_UNIT).w;
     int total = wa + 2 + wh + 7 + wb + 2 + wm;
     int x = line ? MARGIN_R - total : MARGIN_L;
-    graphics_context_set_text_color(ctx, p->muted);
+    graphics_context_set_text_color(ctx, p->sleep);
     x += draw_base(ctx, a, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
     x += draw_base(ctx, "h", F_UNIT, x, b_val) + 7;
-    graphics_context_set_text_color(ctx, p->muted);
+    graphics_context_set_text_color(ctx, p->sleep);
     x += draw_base(ctx, b, F_VAL, x, b_val) + 2;
     graphics_context_set_text_color(ctx, p->scale);
     draw_base(ctx, "m", F_UNIT, x, b_val);
@@ -442,10 +442,10 @@ static void draw_ground(GContext *ctx) {
   const Terrain *t = hl_terrain();
   bool sleeping = hl_sleeping();
 
-  GColor bar = sleeping ? p->muted : p->accent;
-  GColor now = sleeping ? p->scale : p->ink;
+  GColor bar = sleeping ? p->sleep : p->terrain;
+  GColor now = sleeping ? p->scale : p->now;
 
-  graphics_context_set_fill_color(ctx, sleeping ? p->muted : p->horizon);
+  graphics_context_set_fill_color(ctx, sleeping ? p->sleep : p->horizon);
   graphics_fill_rect(ctx, GRect(0, horizon_y(), SCREEN_W, HORIZON_H), 0,
                      GCornerNone);
   graphics_context_set_fill_color(ctx, p->ground);

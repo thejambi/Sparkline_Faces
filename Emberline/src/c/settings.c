@@ -29,6 +29,7 @@ static void defaults(void) {
   g_cfg.c_accent = 0xFFAA00;
   g_cfg.c_muted = 0xAAAAFF;
   g_cfg.c_scale = 0x5555AA;
+  g_cfg.c_terrain = g_cfg.c_now = g_cfg.c_sleep = COL_INHERIT;
 }
 
 // ---------------------------------------------------------------------------
@@ -78,6 +79,16 @@ static void resolve(void) {
   s_pal.accent  = GColorFromHEX(t->accent);
   s_pal.muted   = GColorFromHEX(t->muted);
   s_pal.scale   = GColorFromHEX(t->scale);
+
+  // The three that were once shared. A preset keeps them tied on purpose; only
+  // Custom can cut them loose, and only where it has actually been asked to.
+  bool is_custom = g_cfg.theme == TH_CUSTOM;
+  s_pal.terrain = GColorFromHEX(
+      is_custom && g_cfg.c_terrain != COL_INHERIT ? g_cfg.c_terrain : t->accent);
+  s_pal.now     = GColorFromHEX(
+      is_custom && g_cfg.c_now != COL_INHERIT ? g_cfg.c_now : t->ink);
+  s_pal.sleep   = GColorFromHEX(
+      is_custom && g_cfg.c_sleep != COL_INHERIT ? g_cfg.c_sleep : t->muted);
 }
 
 const Palette *palette(void) { return &s_pal; }
@@ -129,6 +140,9 @@ static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.c_accent  = tup_col(it, MESSAGE_KEY_ColAccent, g_cfg.c_accent);
   g_cfg.c_muted   = tup_col(it, MESSAGE_KEY_ColMuted, g_cfg.c_muted);
   g_cfg.c_scale   = tup_col(it, MESSAGE_KEY_ColScale, g_cfg.c_scale);
+  g_cfg.c_terrain = tup_col(it, MESSAGE_KEY_ColTerrain, g_cfg.c_terrain);
+  g_cfg.c_now     = tup_col(it, MESSAGE_KEY_ColNow, g_cfg.c_now);
+  g_cfg.c_sleep   = tup_col(it, MESSAGE_KEY_ColSleep, g_cfg.c_sleep);
   Tuple *wt = dict_find(it, MESSAGE_KEY_WeatherTemp);   // phone-side fetch
   if (wt) face_set_temp((int)wt->value->int32);
   g_cfg.version = SETTINGS_VERSION;

@@ -160,9 +160,21 @@ step count and the terrain — because those three are one idea seen three ways.
 | **Tide** | teal | black | cyan |
 
 Three meanings rather than seven colors: **the ink is time, the accent is
-movement, the muted tone is context.** Custom exposes all seven roles. Every
-preset value is already on the Pebble 64 — each channel 00/55/AA/FF — so
-nothing is quantized out from under the design.
+movement, the muted tone is context.** Every preset value is already on the
+Pebble 64 — each channel 00/55/AA/FF — so nothing is quantized out from under
+the design.
+
+A preset ties three roles together on purpose. The newest bar takes the
+clock's color because the current minute *is* the time; the terrain takes the
+step count's because both *are* movement; and the whole sleep state borrows
+the muted tone, because before you are up everything on the face is context.
+Custom can cut all three loose — it is the one place where breaking the rule
+is the point — so it exposes ten roles rather than seven.
+
+The three latecomers default to a sentinel meaning **still shared**, which is
+also what a settings blob saved before they existed reads as. So adding them
+could not move a color under anyone who had already set one; the split only
+happens once it is asked for.
 
 Dusk is the default because it is the only theme that *depicts* the face: a
 lit sky, land in shadow, one warm line between them. It also happens to be

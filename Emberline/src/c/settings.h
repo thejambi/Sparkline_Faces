@@ -37,15 +37,28 @@ typedef struct {
   uint8_t clock_font;
   bool bold_clock;
   uint8_t layout;
+  // Roles that used to be shared. COL_INHERIT means "still shared", which is
+  // what a save from before these existed reads as — so updating cannot move a
+  // colour under anyone. Clay's picker is 24-bit and can never send it.
+  uint32_t c_terrain, c_now, c_sleep;
 } Settings;
+
+#define COL_INHERIT 0xFF000000u
 
 extern Settings g_cfg;
 
-// What the face actually draws with. `bar` follows the accent and `now`
-// follows the ink, because movement is one idea and time is another — the
-// palette should not let them drift apart.
+// What the face actually draws with.
+//
+// In the presets `terrain` follows the accent and `now` follows the ink,
+// because movement is one idea and time is another and the palette should not
+// let them drift apart. Custom is allowed to break that — it is the one place
+// where breaking it is the point — so those two, and the sleep tint, can be
+// set on their own there.
 typedef struct {
   GColor sky, ground, horizon, ink, accent, muted, scale;
+  GColor terrain;                // the bars; accent unless Custom says otherwise
+  GColor now;                    // the newest column; ink unless overridden
+  GColor sleep;                  // the whole sleep state; muted unless overridden
 } Palette;
 
 const Palette *palette(void);

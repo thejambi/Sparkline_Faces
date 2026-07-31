@@ -1,7 +1,7 @@
 {
   "name": "emberline",
   "author": "thejambi",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "keywords": [
     "pebble-watchface"
   ],
@@ -45,7 +45,10 @@
       "WeatherTemp",
       "ClockFont",
       "BoldClock",
-      "Layout"
+      "Layout",
+      "ColTerrain",
+      "ColNow",
+      "ColSleep"
     ],
     "resources": {
       "media": [

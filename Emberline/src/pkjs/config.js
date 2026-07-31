@@ -206,14 +206,17 @@ module.exports = [
       { type: 'heading', defaultValue: 'Custom colors' },
       {
         type: 'text',
-        defaultValue: 'Used only when Theme is set to Custom.'
+        defaultValue: 'Used only when Theme is set to Custom. The presets tie three of these together on purpose — the newest bar is the clock’s color because it is the time, and the terrain is the step color because both are movement. Here you can cut them loose.'
       },
       { type: 'color', messageKey: 'ColSky', label: 'Sky', defaultValue: 0x000055, sunlight: false },
       { type: 'color', messageKey: 'ColGround', label: 'Ground', defaultValue: 0x000000, sunlight: false },
       { type: 'color', messageKey: 'ColHorizon', label: 'Horizon line', defaultValue: 0xFFAA00, sunlight: false },
       { type: 'color', messageKey: 'ColInk', label: 'Clock', defaultValue: 0xFFFFFF, sunlight: false },
-      { type: 'color', messageKey: 'ColAccent', label: 'Steps and terrain', defaultValue: 0xFFAA00, sunlight: false },
+      { type: 'color', messageKey: 'ColAccent', label: 'Step count', defaultValue: 0xFFAA00, sunlight: false },
+      { type: 'color', messageKey: 'ColTerrain', label: 'Terrain', defaultValue: 0xFFAA00, sunlight: false },
+      { type: 'color', messageKey: 'ColNow', label: 'The newest bar', defaultValue: 0xFFFFFF, sunlight: false },
       { type: 'color', messageKey: 'ColMuted', label: 'Date, weather, pulse', defaultValue: 0xAAAAFF, sunlight: false },
+      { type: 'color', messageKey: 'ColSleep', label: 'Sleep', defaultValue: 0xAAAAFF, sunlight: false },
       { type: 'color', messageKey: 'ColScale', label: 'Chart scale and labels', defaultValue: 0x5555AA, sunlight: false }
     ]
   },
