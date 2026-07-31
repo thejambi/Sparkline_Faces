@@ -74,13 +74,7 @@
           "type": "font",
           "name": "FONT_VALUE_22",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9,]"
-        },
-        {
-          "type": "font",
-          "name": "FONT_VALUE_L_22",
-          "file": "fonts/Montserrat-Light.ttf",
-          "characterRegex": "[0-9]"
+          "characterRegex": "[0-9,.]"
         },
         {
           "type": "font",

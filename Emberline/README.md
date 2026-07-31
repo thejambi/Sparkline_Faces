@@ -89,14 +89,19 @@ One family, three ranks, and no centering anywhere.
 | Rank | Element | Face |
 | --- | --- | --- |
 | Hero | clock | Montserrat Bold 88 |
-| Secondary | steps / sleep, pulse | Montserrat Bold / Light 22 |
-| Secondary | day number, temperature | Montserrat Bold 22 |
+| Secondary | steps, sleep, pulse, day number, temperature | Montserrat Bold 22 |
 | Label | date on one line | Montserrat Bold 15, caps, tracked |
 | Label | weekday, month, BPM, sleep units | Montserrat Bold 11/14 |
 
+Every value at the secondary rank is bold, including the pulse. It was Light
+once, to stop two 22px numerals sharing the header row from reading as two
+headlines — but the hierarchy is already carried by color there, accent
+against muted, and on a screen with no light of its own the hairline strokes
+are the first thing to go. Color survives the panel; stroke weight does not.
+
 Only the caps are tracked — tracked figures look broken. Every face is
 subsetted by `characterRegex` to the handful of glyphs it actually draws, so
-thirteen faces cost 44KB.
+twelve faces cost 43KB.
 
 **The clock is drawn one digit at a time, into fixed-width slots**, and the
 hours and minutes are right-aligned to the same edge. Two consequences worth

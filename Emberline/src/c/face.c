@@ -26,20 +26,19 @@ static const char *MO[12] = { "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
 // The clock face is loaded on demand rather than living in this set: only
 // one of the four bundled clock faces is ever on screen, and keeping all of
 // them resident would cost RAM for nothing.
-typedef enum { F_VAL, F_VAL_L, F_UNIT, F_CAPS, F_CAPS_S, F_COUNT } FontId;
+typedef enum { F_VAL, F_UNIT, F_CAPS, F_CAPS_S, F_COUNT } FontId;
 
 static GFont s_font[F_COUNT];
 static int s_ascent[F_COUNT];
 
 static const uint32_t FONT_RES[F_COUNT] = {
-  RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_VALUE_L_22,
-  RESOURCE_ID_FONT_UNIT_14, RESOURCE_ID_FONT_CAPS_15,
-  RESOURCE_ID_FONT_CAPS_11,
+  RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_UNIT_14,
+  RESOURCE_ID_FONT_CAPS_15, RESOURCE_ID_FONT_CAPS_11,
 };
 // A representative glyph per font: its box height, minus nothing, is the
 // distance from box top to baseline for a face with no descenders — which is
 // true of every charset here (digits, caps, and h/m).
-static const char *FONT_PROBE[F_COUNT] = { "8", "8", "h", "8", "B" };
+static const char *FONT_PROBE[F_COUNT] = { "8", "h", "8", "B" };
 
 static GSize tsz(const char *s, FontId f) {
   return graphics_text_layout_get_content_size(s, s_font[f],
@@ -430,7 +429,7 @@ static void draw_sky(GContext *ctx) {
   }
   if (lbl) {
     graphics_context_set_text_color(ctx, p->muted);
-    int vw = draw_right(ctx, buf, F_VAL_L, MARGIN_R, b_bpm);
+    int vw = draw_right(ctx, buf, F_VAL, MARGIN_R, b_bpm);
     graphics_context_set_text_color(ctx, p->scale);
     draw_tracked(ctx, lbl, F_CAPS_S,
                  MARGIN_R - vw - 8 - tracked_w(lbl, F_CAPS_S), b_bpm);
