@@ -6,7 +6,10 @@ The terrain along the bottom is the last hour of your movement — a column a
 minute, sixty of them, standing on the bottom edge of the screen. The clock is
 the sky above it. The one warm line between the two is the horizon.
 
-**Emery only.** Every number here is chosen for a 200x228 color screen.
+**Pebble Time 2, Time, Time Steel, Pebble 2 and Pebble 2 Duo** — emery,
+basalt, diorite and flint. Not aplite: the Classic and the original Steel have
+no Health API at all, and a face whose ground is your step count has nothing
+to draw there.
 
 ## The layout
 

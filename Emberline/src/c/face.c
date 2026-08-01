@@ -31,9 +31,23 @@ typedef enum { F_VAL, F_UNIT, F_CAPS, F_CAPS_S, F_COUNT } FontId;
 static GFont s_font[F_COUNT];
 static int s_ascent[F_COUNT];
 
+// Each platform ships only its own sizes — an 88px numeral is meaningless on
+// a 144px screen, and carrying both sets would double the resource budget for
+// nothing. The names differ, so the choice has to be made at compile time.
+#if defined(PBL_PLATFORM_EMERY)
+#define RES_VALUE   RESOURCE_ID_FONT_VALUE_22
+#define RES_UNIT    RESOURCE_ID_FONT_UNIT_14
+#define RES_CAPS    RESOURCE_ID_FONT_CAPS_15
+#define RES_CAPS_S  RESOURCE_ID_FONT_CAPS_11
+#else
+#define RES_VALUE   RESOURCE_ID_FONT_VALUE_16
+#define RES_UNIT    RESOURCE_ID_FONT_UNIT_10
+#define RES_CAPS    RESOURCE_ID_FONT_DATE_11
+#define RES_CAPS_S  RESOURCE_ID_FONT_CAPS_9
+#endif
+
 static const uint32_t FONT_RES[F_COUNT] = {
-  RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_UNIT_14,
-  RESOURCE_ID_FONT_CAPS_15, RESOURCE_ID_FONT_CAPS_11,
+  RES_VALUE, RES_UNIT, RES_CAPS, RES_CAPS_S,
 };
 // A representative glyph per font: its box height, minus nothing, is the
 // distance from box top to baseline for a face with no descenders — which is
@@ -77,6 +91,7 @@ typedef struct {
   int horizon;
 } ClockGrid;
 
+#if defined(PBL_PLATFORM_EMERY)
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
     [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_88, RESOURCE_ID_FONT_CLOCK_B_88,
@@ -93,6 +108,24 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
                     0, 0, 132, 158 },
   },
 };
+#else   // 144x168: width binds here, not height
+static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
+  [LAY_STACK] = {
+    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58,
+                    72, 120, 0, 126 },
+    [CF_LECO]   = { 0, 0, 62, 98, 0, 104 },
+    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_60, RESOURCE_ID_FONT_ROBO_B_60,
+                    74, 122, 0, 128 },
+  },
+  [LAY_LINE] = {
+    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38,
+                    0, 0, 94, 114 },
+    [CF_LECO]   = { 0, 0, 0, 0, 94, 114 },
+    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_44, RESOURCE_ID_FONT_ROBO_B_44,
+                    0, 0, 96, 116 },
+  },
+};
+#endif
 
 static const ClockGrid *grid(void) {
   return &GRID[g_cfg.layout < LAY_COUNT ? g_cfg.layout : 0]
@@ -121,9 +154,15 @@ static void clock_resolve(void) {
   const ClockGrid *g = grid();
   uint32_t want = g_cfg.bold_clock ? g->bold : g->light;
   if (!want)
+#if defined(PBL_PLATFORM_EMERY)
     s_clock = fonts_get_system_font(g_cfg.bold_clock
         ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM
         : FONT_KEY_LECO_60_NUMBERS_AM_PM);
+#else
+    // 42 is as far as LECO goes on these, and there is no bold cut at that
+    // size, so the bold toggle simply has nothing to say about LECO here.
+    s_clock = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
+#endif
   if (want != s_clock_res) {
     if (s_clock_custom) {
       fonts_unload_custom_font(s_clock_custom);
@@ -238,11 +277,19 @@ static int draw_right(GContext *ctx, const char *s, FontId f, int right,
 }
 
 // Only the caps are tracked. Tracked figures look broken.
+//
+// A space is advance, never a glyph. Every face here is subsetted by
+// characterRegex to the characters that carry ink, so asking one for a space
+// is asking for something that was never generated — which draws as nothing
+// at 15pt on Emery and as the wildcard box at 11pt on Basalt. Stepping over it
+// is the same width either way, and does not depend on what the subsetter
+// happened to keep.
+static int space_w(FontId f) { return tsz("0", f).w / 2; }
+
 static int tracked_w(const char *s, FontId f) {
   int w = 0;
   for (const char *c = s; *c; c++) {
-    char one[2] = { *c, 0 };
-    w += tsz(one, f).w + TRACK_CAPS;
+    w += (*c == ' ' ? space_w(f) : tsz((char[2]){ *c, 0 }, f).w) + TRACK_CAPS;
   }
   return w > 0 ? w - TRACK_CAPS : 0;
 }
@@ -250,6 +297,7 @@ static int tracked_w(const char *s, FontId f) {
 static void draw_tracked(GContext *ctx, const char *s, FontId f, int x,
                          int baseline) {
   for (const char *c = s; *c; c++) {
+    if (*c == ' ') { x += space_w(f) + TRACK_CAPS; continue; }
     char one[2] = { *c, 0 };
     x += draw_base(ctx, one, f, x, baseline) + TRACK_CAPS;
   }
@@ -358,10 +406,12 @@ static void draw_sky(GContext *ctx) {
     if (line) {
       int w = tracked_w(buf, F_CAPS);
       draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW2);
-      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - 11, 4, p->muted);
+      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - INK_CAPS_S - 3,
+                  DEG_SIZE_S, p->muted);
     } else {
       draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_min);
-      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - 16, 5, p->muted);
+      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - INK_VAL, DEG_SIZE,
+                  p->muted);
     }
   }
 
@@ -458,8 +508,17 @@ static void draw_ground(GContext *ctx) {
     int wall = (s_min + 1 + i) % 60;
     if (t->live && wall % 15) continue;
     if (!t->live && i % 15) continue;
-    graphics_fill_rect(ctx, GRect(PLOT_X + COL_W * i, ground_y(), 1,
+    int x = PLOT_X + COL_W * i;
+#if defined(PBL_BW)
+    // With no grey, a solid white rule is as loud as the bars it sits behind
+    // and the terrain stops reading as a silhouette. Drawn every other row it
+    // recedes — the same trick the walking-pace line already uses.
+    for (int y = ground_y(); y <= PLOT_BOT; y += 2)
+      graphics_fill_rect(ctx, GRect(x, y, 1, 1), 0, GCornerNone);
+#else
+    graphics_fill_rect(ctx, GRect(x, ground_y(), 1,
                                   PLOT_BOT - ground_y() + 1), 0, GCornerNone);
+#endif
   }
   graphics_fill_rect(ctx, GRect(PLOT_X, PLOT_BOT, COL_W * COLS, 1), 0,
                      GCornerNone);
@@ -478,6 +537,16 @@ static void draw_ground(GContext *ctx) {
     bool is_now = t->live && i == COLS - 1;
     if (is_now && h < 4) h = 4;
     if (h <= 0) continue;
+#if defined(PBL_BW)
+    // `now` is the clock's color and the bars are the accent, which on two
+    // colors is the same white. Cut it away from its neighbour with a column
+    // of ground instead, so the newest minute is still findable.
+    if (is_now) {
+      graphics_context_set_fill_color(ctx, p->ground);
+      graphics_fill_rect(ctx, GRect(PLOT_X + COL_W * i - 1, PLOT_BOT - h + 1,
+                                    1, h), 0, GCornerNone);
+    }
+#endif
     graphics_context_set_fill_color(ctx, is_now ? now : bar);
     graphics_fill_rect(ctx, GRect(PLOT_X + COL_W * i, PLOT_BOT - h + 1,
                                   COL_W, h), 0, GCornerNone);

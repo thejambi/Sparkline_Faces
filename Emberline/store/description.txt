@@ -10,4 +10,4 @@ Before you get up, the face shows you the night instead. Last night's sleep hold
 * Steps, heart rate - or the day's distance when there is no reading - the date, the temperature, and a two-pixel battery bar along the very top edge
 * Weather from Open-Meteo: no account and no API key. It follows your phone, or a city or postal code you type in, in which case it never touches phone location at all
 
-Built for Pebble Time 2. Every number in the layout is chosen for its 200x228 color screen.
+For Pebble Time 2, Pebble Time and Time Steel, Pebble 2 and Pebble 2 Duo. The layout is derived for each screen rather than scaled, and on the black-and-white watches the hierarchy moves into size and position instead of color.

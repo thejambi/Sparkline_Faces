@@ -57,7 +57,9 @@ shuffle sideways as the minutes change.
 
 ## Notes for the listing
 
-- **Emery only** (Pebble Time 2). The layout is built around 200x228.
+- **emery, basalt, diorite, flint** — Time 2, Time, Time Steel, Pebble 2,
+  Pebble 2 Duo. Not aplite, which has no Health API. Round screens (chalk,
+  gabbro) are not done yet.
 - Weather comes from Open-Meteo — no account, no API key. It uses the phone's
   location, or a city or postal code you type in, in which case it never
   touches phone location at all.

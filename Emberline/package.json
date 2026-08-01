@@ -1,7 +1,7 @@
 {
   "name": "emberline",
   "author": "thejambi",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -13,7 +13,10 @@
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "emery"
+      "basalt",
+      "diorite",
+      "emery",
+      "flint"
     ],
     "watchapp": {
       "watchface": true
@@ -62,73 +65,241 @@
           "type": "font",
           "name": "FONT_CLOCK_88",
           "file": "fonts/Montserrat-Light.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_CLOCK_B_88",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_VALUE_22",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9,.]"
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_UNIT_14",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[hm]"
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_CAPS_15",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[A-Z0-9-]"
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_CAPS_11",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[A-Z]"
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_ROBO_88",
           "file": "fonts/Roboto-Light.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_ROBO_B_88",
           "file": "fonts/Roboto-Bold.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_CLOCK_60",
           "file": "fonts/Montserrat-Light.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_CLOCK_B_60",
           "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_ROBO_68",
           "file": "fonts/Roboto-Light.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
         },
         {
           "type": "font",
           "name": "FONT_ROBO_B_68",
           "file": "fonts/Roboto-Bold.ttf",
-          "characterRegex": "[0-9:]"
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_58",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_B_58",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_38",
+          "file": "fonts/Montserrat-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_B_38",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_60",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_60",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_44",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_44",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_VALUE_16",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_UNIT_10",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DATE_11",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CAPS_9",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
         }
       ]
     }

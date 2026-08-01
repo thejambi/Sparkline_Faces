@@ -80,6 +80,21 @@ static void resolve(void) {
   s_pal.muted   = GColorFromHEX(t->muted);
   s_pal.scale   = GColorFromHEX(t->scale);
 
+#if defined(PBL_BW)
+  // Diorite and Flint have two colors, not sixty-four, and no grey to fall
+  // back on. Every theme would quantize by luminance, which puts the scale
+  // tone (0x5555AA) on the black side and makes the graticule, the labels and
+  // the battery bar vanish into the ground. So the palette is not resolved at
+  // all here: everything is white on black, and the hierarchy that color was
+  // carrying moves into size, weight and position — which the layout already
+  // has. The theme picker still works, it just has nothing to change.
+  s_pal.sky = s_pal.ground = GColorBlack;
+  s_pal.horizon = s_pal.ink = s_pal.accent = GColorWhite;
+  s_pal.muted = s_pal.scale = GColorWhite;
+  s_pal.terrain = s_pal.now = s_pal.sleep = GColorWhite;
+  return;
+#endif
+
   // The three that were once shared. A preset keeps them tied on purpose; only
   // Custom can cut them loose, and only where it has actually been asked to.
   bool is_custom = g_cfg.theme == TH_CUSTOM;
