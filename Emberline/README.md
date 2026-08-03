@@ -170,11 +170,27 @@ with. Custom exposes it as an eleventh role, defaulting to the sky.
 
 ### The rest of the type
 
-The face used for everything that is not the clock is selectable too —
-Montserrat, Inter or Source Sans 3, across all four roles at once. Inter has
-the tallest x-height of the three, so it reads largest at the same pixel size;
-Source Sans 3 is the narrowest. Only the chosen family is resident, and it is
-unloaded and reloaded when the setting changes rather than kept alongside.
+The face used for everything that is not the clock is selectable too, across
+all four roles at once: Montserrat, Inter, Source Sans 3, or Gothic. Inter has
+the tallest x-height, so it reads largest at the same pixel size; Source Sans 3
+is the narrowest. Only the chosen family is resident, and it is unloaded and
+reloaded when the setting changes rather than kept alongside — which means
+remembering which of the four are *ours*, since handing a system font to
+`fonts_unload_custom_font` is not a thing to do twice.
+
+**Gothic is the only system family that reaches these sizes**, and it costs no
+resource bytes at all. Bitham cannot: its smallest full cut is 30 and the
+largest role here is 22, while its 18 and 34 cuts are reduced-charset subsets.
+LECO and the Bitham numerals are digits-only, which rules them out for the
+caps. Gothic only comes in 09/14/18/24 against the 11/14/15/22 the layout
+wants, so the proportions are near rather than exact.
+
+One approximation worth knowing: `INK_VAL` and `INK_CAPS_S` are Montserrat's
+ink heights, and they place the day column and the degree ring. The other
+three families differ by a pixel or two, so those sit marginally off where
+they would if measured per face. Deriving them on the device would mean
+measuring ink rather than the box height Pebble reports, which it does not
+offer.
 
 Two things worth knowing:
 

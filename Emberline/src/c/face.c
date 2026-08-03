@@ -56,6 +56,25 @@ static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
   [TF_MONT]   = { T_MONT },
   [TF_INTER]  = { T_INTER },
   [TF_SOURCE] = { T_SOURCE },
+  [TF_SYSTEM] = { 0, 0, 0, 0 },
+};
+
+// Gothic is the only system family that reaches these sizes at all. Bitham has
+// nothing full below 30 and the largest role here is 22; its 18 and 34 cuts are
+// reduced-charset subsets. LECO and the Bitham numerals are digits-only, which
+// rules them out for the caps.
+//
+// The grid is coarser than the bundled faces — 09/14/18/24 against 11/14/15/22
+// — so the proportions are near, not equal. It costs no resource bytes at all,
+// which is the trade.
+static const char *TEXT_SYS[TF_COUNT][F_COUNT] = {
+#if defined(PBL_PLATFORM_EMERY)
+  [TF_SYSTEM] = { FONT_KEY_GOTHIC_24_BOLD, FONT_KEY_GOTHIC_14,
+                  FONT_KEY_GOTHIC_18_BOLD, FONT_KEY_GOTHIC_14_BOLD },
+#else
+  [TF_SYSTEM] = { FONT_KEY_GOTHIC_18_BOLD, FONT_KEY_GOTHIC_09,
+                  FONT_KEY_GOTHIC_14_BOLD, FONT_KEY_GOTHIC_09 },
+#endif
 };
 
 // A representative glyph per font: its box height, minus nothing, is the
@@ -72,14 +91,31 @@ static GSize tsz(const char *s, FontId f) {
 static void clock_resolve(void);
 
 static uint8_t s_text_loaded = 0xFF;
+// A system font must never be handed to fonts_unload_custom_font, so which of
+// the four are ours has to be remembered rather than assumed.
+static bool s_font_custom[F_COUNT];
+
+static void text_unload(void) {
+  for (int i = 0; i < F_COUNT; i++) {
+    if (s_font[i] && s_font_custom[i]) fonts_unload_custom_font(s_font[i]);
+    s_font[i] = NULL;
+    s_font_custom[i] = false;
+  }
+  s_text_loaded = 0xFF;
+}
 
 static void text_load(void) {
   uint8_t want = g_cfg.text_font < TF_COUNT ? g_cfg.text_font : TF_MONT;
   if (want == s_text_loaded) return;
-  for (int i = 0; i < F_COUNT; i++)
-    if (s_font[i]) fonts_unload_custom_font(s_font[i]);
+  text_unload();
   for (int i = 0; i < F_COUNT; i++) {
-    s_font[i] = fonts_load_custom_font(resource_get_handle(TEXT_RES[want][i]));
+    const char *key = TEXT_SYS[want][i];
+    if (key) {
+      s_font[i] = fonts_get_system_font(key);
+    } else {
+      s_font[i] = fonts_load_custom_font(resource_get_handle(TEXT_RES[want][i]));
+      s_font_custom[i] = true;
+    }
     s_ascent[i] = tsz(FONT_PROBE[i], (FontId)i).h;
   }
   s_text_loaded = want;
@@ -320,9 +356,7 @@ static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
 }
 
 static void fonts_unload(void) {
-  for (int i = 0; i < F_COUNT; i++)
-    if (s_font[i]) { fonts_unload_custom_font(s_font[i]); s_font[i] = NULL; }
-  s_text_loaded = 0xFF;
+  text_unload();
   if (s_clock_custom) {
     fonts_unload_custom_font(s_clock_custom);
     s_clock_custom = NULL;

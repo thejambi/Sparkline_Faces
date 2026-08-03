@@ -20,7 +20,7 @@ enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
 // the single line buys back the colon and a calmer header.
 enum { LAY_STACK, LAY_LINE, LAY_COUNT };
 // The face used for everything that is not the clock. Append-only.
-enum { TF_MONT, TF_INTER, TF_SOURCE, TF_COUNT };
+enum { TF_MONT, TF_INTER, TF_SOURCE, TF_SYSTEM, TF_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
 // short and keep defaults. Bump SETTINGS_VERSION on a reorder, or to force a
