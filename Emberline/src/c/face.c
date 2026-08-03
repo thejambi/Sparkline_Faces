@@ -39,15 +39,11 @@ static int s_ascent[F_COUNT];
                  RESOURCE_ID_FONT_CAPS_15,  RESOURCE_ID_FONT_CAPS_11
 #define T_INTER  RESOURCE_ID_FONT_IVAL_22,  RESOURCE_ID_FONT_IUNI_14, \
                  RESOURCE_ID_FONT_ICAP_15,  RESOURCE_ID_FONT_ICPS_11
-#define T_SOURCE RESOURCE_ID_FONT_SVAL_22,  RESOURCE_ID_FONT_SUNI_14, \
-                 RESOURCE_ID_FONT_SCAP_15,  RESOURCE_ID_FONT_SCPS_11
 #else
 #define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
                  RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
 #define T_INTER  RESOURCE_ID_FONT_IVAL_16,  RESOURCE_ID_FONT_IUNI_10, \
                  RESOURCE_ID_FONT_ICAP_11,  RESOURCE_ID_FONT_ICPS_9
-#define T_SOURCE RESOURCE_ID_FONT_SVAL_16,  RESOURCE_ID_FONT_SUNI_10, \
-                 RESOURCE_ID_FONT_SCAP_11,  RESOURCE_ID_FONT_SCPS_9
 #endif
 
 // The face used for everything that is not the clock. Same four roles in the
@@ -55,7 +51,6 @@ static int s_ascent[F_COUNT];
 static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
   [TF_MONT]   = { T_MONT },
   [TF_INTER]  = { T_INTER },
-  [TF_SOURCE] = { T_SOURCE },
   [TF_SYSTEM] = { 0, 0, 0, 0 },
 };
 
@@ -106,6 +101,9 @@ static void text_unload(void) {
 
 static void text_load(void) {
   uint8_t want = g_cfg.text_font < TF_COUNT ? g_cfg.text_font : TF_MONT;
+  // Source Sans was a text face once; its row is zeroed now, and asking for
+  // resource 0 is not a thing to do.
+  if (!TEXT_RES[want][0] && !TEXT_SYS[want][0]) want = TF_MONT;
   if (want == s_text_loaded) return;
   text_unload();
   for (int i = 0; i < F_COUNT; i++) {
@@ -158,22 +156,14 @@ typedef struct {
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_94, RESOURCE_ID_FONT_CLOCK_B_94, 106, 182, 0, 188 },
-    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_93,  RESOURCE_ID_FONT_ROBO_B_93,  106, 182, 0, 188 },
-    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_77,  RESOURCE_ID_FONT_GROT_B_77,  118, 182, 0, 188 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_91,  RESOURCE_ID_FONT_INTR_B_91,  106, 182, 0, 188 },
-    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_103, RESOURCE_ID_FONT_SRCE_B_103, 106, 182, 0, 188 },
-    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_95,  RESOURCE_ID_FONT_PLEX_B_95,  106, 182, 0, 188 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
     // LECO is a system face and cannot grow, so it keeps its taller terrain
     [CF_LECO]    = { 0, 0, 92, 150, 0, 156 },
   },
   [LAY_LINE] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_57, RESOURCE_ID_FONT_CLOCK_B_57, 0, 0, 130, 156 },
-    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_67,  RESOURCE_ID_FONT_ROBO_B_67,  0, 0, 132, 158 },
-    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_59,  RESOURCE_ID_FONT_GROT_B_59,  0, 0, 130, 156 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  0, 0, 130, 156 },
-    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_71,  RESOURCE_ID_FONT_SRCE_B_71,  0, 0, 132, 158 },
-    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_57,  RESOURCE_ID_FONT_PLEX_B_57,  0, 0, 130, 156 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_49,  RESOURCE_ID_FONT_DSEG_B_49,  0, 0, 130, 156 },
     [CF_LECO]    = { 0, 0, 0, 0, 130, 156 },
   },
@@ -182,30 +172,29 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58, 75, 122, 0, 128 },
-    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_58,  RESOURCE_ID_FONT_ROBO_B_58,  74, 122, 0, 128 },
-    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_54,  RESOURCE_ID_FONT_GROT_B_54,  77, 122, 0, 128 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
-    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_65,  RESOURCE_ID_FONT_SRCE_B_65,  74, 122, 0, 128 },
-    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_59,  RESOURCE_ID_FONT_PLEX_B_59,  74, 122, 0, 128 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
     [CF_LECO]    = { 0, 0, 62, 98, 0, 104 },
   },
   [LAY_LINE] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38, 0, 0, 94, 114 },
-    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_44,  RESOURCE_ID_FONT_ROBO_B_44,  0, 0, 96, 116 },
-    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_40,  RESOURCE_ID_FONT_GROT_B_40,  0, 0, 94, 114 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_37,  RESOURCE_ID_FONT_INTR_B_37,  0, 0, 94, 114 },
-    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_48,  RESOURCE_ID_FONT_SRCE_B_48,  0, 0, 96, 116 },
-    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_39,  RESOURCE_ID_FONT_PLEX_B_39,  0, 0, 94, 114 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_33,  RESOURCE_ID_FONT_DSEG_B_33,  0, 0, 94, 114 },
     [CF_LECO]    = { 0, 0, 0, 0, 94, 114 },
   },
 };
 #endif
 
+// The enum keeps the slots of faces that have been dropped, because a watch
+// running an older release has one of them persisted and renumbering would
+// hand it somebody else's font. Their rows are left zeroed, and a zeroed
+// horizon is the tell — nothing legitimate puts the horizon at the top of the
+// screen. Those fall back to Montserrat.
 static const ClockGrid *grid(void) {
-  return &GRID[g_cfg.layout < LAY_COUNT ? g_cfg.layout : 0]
-              [g_cfg.clock_font < CF_COUNT ? g_cfg.clock_font : 0];
+  int lay = g_cfg.layout < LAY_COUNT ? g_cfg.layout : LAY_STACK;
+  int face = g_cfg.clock_font < CF_COUNT ? g_cfg.clock_font : CF_MONT;
+  if (GRID[lay][face].horizon == 0) face = CF_MONT;
+  return &GRID[lay][face];
 }
 
 // Where the day column's last line sits. It floats rather than tying to the

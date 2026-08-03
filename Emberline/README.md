@@ -123,11 +123,7 @@ because it is what survives brighter sun:
 | Face | Emery stacked | Character |
 | --- | --- | --- |
 | **Montserrat** | 94 | geometric, round counters |
-| **Roboto** | 93 | neutral grotesque |
 | **Inter** | 91 | tall x-height, very clean |
-| **Space Grotesk** | 77 | geometric with quirks — see below |
-| **Source Sans 3** | 103 | humanist, narrow figures |
-| **IBM Plex Mono** | 95 | naturally tabular, engineered |
 | **DSEG7 Classic** | 68 | a real seven-segment display |
 | **LECO** | 60 | squared LCD; system face |
 
@@ -171,9 +167,9 @@ with. Custom exposes it as an eleventh role, defaulting to the sky.
 ### The rest of the type
 
 The face used for everything that is not the clock is selectable too, across
-all four roles at once: Montserrat, Inter, Source Sans 3, or Gothic. Inter has
-the tallest x-height, so it reads largest at the same pixel size; Source Sans 3
-is the narrowest. Only the chosen family is resident, and it is unloaded and
+all four roles at once: Montserrat, Inter, or Gothic. Inter has
+the taller x-height of the two bundled ones, so it reads largest at the same
+pixel size. Only the chosen family is resident, and it is unloaded and
 reloaded when the setting changes rather than kept alongside — which means
 remembering which of the four are *ours*, since handing a system font to
 `fonts_unload_custom_font` is not a thing to do twice.

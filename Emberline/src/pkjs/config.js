@@ -62,11 +62,7 @@ module.exports = [
         description: 'All of them are drawn one digit at a time into fixed-width slots, so the numerals never shuffle sideways as the minutes change. DSEG7 is a real seven-segment face — it looks its best on Phosphor, against a black sky. LECO is the system face and cannot grow, so it sits much smaller and leaves a taller terrain.',
         options: [
           { label: 'Montserrat — geometric', value: '0' },
-          { label: 'Roboto — neutral', value: '2' },
           { label: 'Inter — tall and clean', value: '4' },
-          { label: 'Space Grotesk — quirky, and smaller', value: '3' },
-          { label: 'Source Sans 3 — humanist', value: '5' },
-          { label: 'IBM Plex Mono — engineered', value: '6' },
           { label: 'DSEG7 — seven-segment', value: '7' },
           { label: 'LECO — small, system', value: '1' }
         ]
@@ -80,7 +76,6 @@ module.exports = [
         options: [
           { label: 'Montserrat', value: '0' },
           { label: 'Inter', value: '1' },
-          { label: 'Source Sans 3', value: '2' },
           { label: 'Gothic — the system face', value: '3' }
         ]
       },
