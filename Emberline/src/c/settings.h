@@ -19,6 +19,8 @@ enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
 // Two ways to set the same information. Stacked buys a much larger numeral;
 // the single line buys back the colon and a calmer header.
 enum { LAY_STACK, LAY_LINE, LAY_COUNT };
+// The face used for everything that is not the clock. Append-only.
+enum { TF_MONT, TF_INTER, TF_SOURCE, TF_COUNT };
 
 // Persisted whole. APPEND-ONLY: new fields go at the end; older saves stop
 // short and keep defaults. Bump SETTINGS_VERSION on a reorder, or to force a
@@ -45,6 +47,8 @@ typedef struct {
   // what a save from before these existed reads as — so updating cannot move a
   // colour under anyone. Clay's picker is 24-bit and can never send it.
   uint32_t c_terrain, c_now, c_sleep;
+  uint8_t text_font;
+  uint32_t c_unlit;              // DSEG's dark segments; COL_INHERIT = the sky
 } Settings;
 
 #define COL_INHERIT 0xFF000000u
@@ -63,6 +67,11 @@ typedef struct {
   GColor terrain;                // the bars; accent unless Custom says otherwise
   GColor now;                    // the newest column; ink unless overridden
   GColor sleep;                  // the whole sleep state; muted unless overridden
+  // The segments a seven-segment display is *not* lighting. Only DSEG draws
+  // them, and only where the palette has somewhere to put them: it has to sit
+  // between the sky and the ink, and on a lit sky the Pebble 64 has nothing
+  // there. Where there is nothing, this is the sky and the ghosts vanish.
+  GColor unlit;
 } Palette;
 
 const Palette *palette(void);

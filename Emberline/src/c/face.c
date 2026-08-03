@@ -35,20 +35,29 @@ static int s_ascent[F_COUNT];
 // a 144px screen, and carrying both sets would double the resource budget for
 // nothing. The names differ, so the choice has to be made at compile time.
 #if defined(PBL_PLATFORM_EMERY)
-#define RES_VALUE   RESOURCE_ID_FONT_VALUE_22
-#define RES_UNIT    RESOURCE_ID_FONT_UNIT_14
-#define RES_CAPS    RESOURCE_ID_FONT_CAPS_15
-#define RES_CAPS_S  RESOURCE_ID_FONT_CAPS_11
+#define T_MONT   RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_UNIT_14, \
+                 RESOURCE_ID_FONT_CAPS_15,  RESOURCE_ID_FONT_CAPS_11
+#define T_INTER  RESOURCE_ID_FONT_IVAL_22,  RESOURCE_ID_FONT_IUNI_14, \
+                 RESOURCE_ID_FONT_ICAP_15,  RESOURCE_ID_FONT_ICPS_11
+#define T_SOURCE RESOURCE_ID_FONT_SVAL_22,  RESOURCE_ID_FONT_SUNI_14, \
+                 RESOURCE_ID_FONT_SCAP_15,  RESOURCE_ID_FONT_SCPS_11
 #else
-#define RES_VALUE   RESOURCE_ID_FONT_VALUE_16
-#define RES_UNIT    RESOURCE_ID_FONT_UNIT_10
-#define RES_CAPS    RESOURCE_ID_FONT_DATE_11
-#define RES_CAPS_S  RESOURCE_ID_FONT_CAPS_9
+#define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
+                 RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
+#define T_INTER  RESOURCE_ID_FONT_IVAL_16,  RESOURCE_ID_FONT_IUNI_10, \
+                 RESOURCE_ID_FONT_ICAP_11,  RESOURCE_ID_FONT_ICPS_9
+#define T_SOURCE RESOURCE_ID_FONT_SVAL_16,  RESOURCE_ID_FONT_SUNI_10, \
+                 RESOURCE_ID_FONT_SCAP_11,  RESOURCE_ID_FONT_SCPS_9
 #endif
 
-static const uint32_t FONT_RES[F_COUNT] = {
-  RES_VALUE, RES_UNIT, RES_CAPS, RES_CAPS_S,
+// The face used for everything that is not the clock. Same four roles in the
+// same order whichever family is chosen, so only the resource ids change.
+static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
+  [TF_MONT]   = { T_MONT },
+  [TF_INTER]  = { T_INTER },
+  [TF_SOURCE] = { T_SOURCE },
 };
+
 // A representative glyph per font: its box height, minus nothing, is the
 // distance from box top to baseline for a face with no descenders — which is
 // true of every charset here (digits, caps, and h/m).
@@ -62,11 +71,22 @@ static GSize tsz(const char *s, FontId f) {
 
 static void clock_resolve(void);
 
-static void fonts_load(void) {
+static uint8_t s_text_loaded = 0xFF;
+
+static void text_load(void) {
+  uint8_t want = g_cfg.text_font < TF_COUNT ? g_cfg.text_font : TF_MONT;
+  if (want == s_text_loaded) return;
+  for (int i = 0; i < F_COUNT; i++)
+    if (s_font[i]) fonts_unload_custom_font(s_font[i]);
   for (int i = 0; i < F_COUNT; i++) {
-    s_font[i] = fonts_load_custom_font(resource_get_handle(FONT_RES[i]));
+    s_font[i] = fonts_load_custom_font(resource_get_handle(TEXT_RES[want][i]));
     s_ascent[i] = tsz(FONT_PROBE[i], (FontId)i).h;
   }
+  s_text_loaded = want;
+}
+
+static void fonts_load(void) {
+  text_load();
   clock_resolve();
 }
 
@@ -207,13 +227,39 @@ static void clock_resolve(void) {
   s_clock_slot += 2;                 // a hair of air between the slots
 }
 
-void face_fonts_changed(void) { clock_resolve(); }
+void face_fonts_changed(void) { text_load(); clock_resolve(); }
+
+// A seven-segment display shows the segments it is *not* lighting, and that is
+// most of what makes one read as a display rather than as a typeface. DSEG
+// draws them by setting an 8 underneath every digit in a darker tone.
+//
+// It only happens where the palette has somewhere to put that tone: it must
+// sit between the sky and the ink, and above a lit sky the Pebble 64 has
+// nothing there — on Dusk every candidate reads as 88 rather than 9. Those
+// themes set unlit to their own sky, and this quietly draws nothing.
+static void draw_ghost(GContext *ctx, int x, int slot_w, int baseline) {
+  const Palette *p = palette();
+  if (g_cfg.clock_font != CF_DSEG || gcolor_equal(p->unlit, p->sky)) return;
+  GSize sz = graphics_text_layout_get_content_size("8", s_clock,
+      GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft);
+  graphics_context_set_text_color(ctx, p->unlit);
+  graphics_draw_text(ctx, "8", s_clock,
+      GRect(x + (slot_w - sz.w) / 2, baseline - s_clock_asc, sz.w + 12,
+            sz.h + 8),
+      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  graphics_context_set_text_color(ctx, p->ink);
+}
 
 // Right-aligned within the block, one digit per slot. A single-digit hour
 // therefore sits above the minutes' second digit rather than above the first.
 static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   int n = strlen(s);
   int right = MARGIN_L + 2 * s_clock_slot;
+  // Both slots get their unlit 8, even the one no digit lands in — a real
+  // display does not go dark where the hour happens to be one digit.
+  for (int i = 0; i < 2; i++)
+    draw_ghost(ctx, MARGIN_L + i * s_clock_slot, s_clock_slot, baseline);
   int x = right - n * s_clock_slot;
   for (int i = 0; i < n; i++) {
     char one[2] = { s[i], 0 };
@@ -239,6 +285,10 @@ static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
   int cslot = cs.w + 8;
   int cx0 = SCREEN_W / 2 - cslot / 2;
 
+  for (int i = 0; i < 2; i++) {
+    draw_ghost(ctx, cx0 - (2 - i) * s_clock_slot, s_clock_slot, baseline);
+    draw_ghost(ctx, cx0 + cslot + i * s_clock_slot, s_clock_slot, baseline);
+  }
   int x = cx0 - (int)strlen(hh) * s_clock_slot;
   for (const char *c = hh; *c; c++) {
     char one[2] = { *c, 0 };
@@ -272,6 +322,7 @@ static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
 static void fonts_unload(void) {
   for (int i = 0; i < F_COUNT; i++)
     if (s_font[i]) { fonts_unload_custom_font(s_font[i]); s_font[i] = NULL; }
+  s_text_loaded = 0xFF;
   if (s_clock_custom) {
     fonts_unload_custom_font(s_clock_custom);
     s_clock_custom = NULL;

@@ -30,6 +30,8 @@ static void defaults(void) {
   g_cfg.c_muted = 0xAAAAFF;
   g_cfg.c_scale = 0x5555AA;
   g_cfg.c_terrain = g_cfg.c_now = g_cfg.c_sleep = COL_INHERIT;
+  g_cfg.c_unlit = COL_INHERIT;
+  g_cfg.text_font = TF_MONT;
 }
 
 // ---------------------------------------------------------------------------
@@ -48,28 +50,29 @@ static void defaults(void) {
 // because it is the only theme that depicts what the face is about.
 // ---------------------------------------------------------------------------
 typedef struct {
-  uint32_t sky, ground, horizon, ink, accent, muted, scale;
+  uint32_t sky, ground, horizon, ink, accent, muted, scale, unlit;
 } Theme;
 
 static const Theme THEMES[TH_COUNT] = {
   // dusk — navy sky, black land, one amber line where they meet
-  [TH_DUSK]  = { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA },
+  [TH_DUSK]  = { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA , 0x000055 },
   // noir — no hue at all; the horizon is the only pure white shape
-  [TH_NOIR]  = { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 },
+  [TH_NOIR]  = { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 , 0x555555 },
   // paper — the light one, and the most readable in direct sun
-  [TH_PAPER] = { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA },
+  [TH_PAPER] = { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA , 0xAAAAAA },
   // moss
-  [TH_MOSS]  = { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 },
+  [TH_MOSS]  = { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 , 0x00AA00 },
   // tide
-  [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA },
+  [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA , 0x00AAAA },
   // TH_CUSTOM is a hole in this table: it comes from g_cfg instead
   // phosphor — two phosphors on a dead screen, orange for time, green for body
-  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 },
+  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 , 0x550000 },
 };
 
 static void resolve(void) {
   Theme custom = { g_cfg.c_sky, g_cfg.c_ground, g_cfg.c_horizon, g_cfg.c_ink,
-                   g_cfg.c_accent, g_cfg.c_muted, g_cfg.c_scale };
+                   g_cfg.c_accent, g_cfg.c_muted, g_cfg.c_scale,
+                   g_cfg.c_unlit == COL_INHERIT ? g_cfg.c_sky : g_cfg.c_unlit };
   const Theme *t = (g_cfg.theme == TH_CUSTOM) ? &custom
                  : &THEMES[g_cfg.theme < TH_COUNT ? g_cfg.theme : TH_DUSK];
   s_pal.sky     = GColorFromHEX(t->sky);
@@ -92,6 +95,7 @@ static void resolve(void) {
   s_pal.horizon = s_pal.ink = s_pal.accent = GColorWhite;
   s_pal.muted = s_pal.scale = GColorWhite;
   s_pal.terrain = s_pal.now = s_pal.sleep = GColorWhite;
+  s_pal.unlit = GColorBlack;   // no third tone to ghost with
   return;
 #endif
 
@@ -104,6 +108,7 @@ static void resolve(void) {
       is_custom && g_cfg.c_now != COL_INHERIT ? g_cfg.c_now : t->ink);
   s_pal.sleep   = GColorFromHEX(
       is_custom && g_cfg.c_sleep != COL_INHERIT ? g_cfg.c_sleep : t->muted);
+  s_pal.unlit   = GColorFromHEX(t->unlit);
 }
 
 const Palette *palette(void) { return &s_pal; }
@@ -158,6 +163,9 @@ static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.c_terrain = tup_col(it, MESSAGE_KEY_ColTerrain, g_cfg.c_terrain);
   g_cfg.c_now     = tup_col(it, MESSAGE_KEY_ColNow, g_cfg.c_now);
   g_cfg.c_sleep   = tup_col(it, MESSAGE_KEY_ColSleep, g_cfg.c_sleep);
+  g_cfg.c_unlit   = tup_col(it, MESSAGE_KEY_ColUnlit, g_cfg.c_unlit);
+  g_cfg.text_font = tup_int(it, MESSAGE_KEY_TextFont, g_cfg.text_font);
+  if (g_cfg.text_font >= TF_COUNT) g_cfg.text_font = TF_MONT;
   Tuple *wt = dict_find(it, MESSAGE_KEY_WeatherTemp);   // phone-side fetch
   if (wt) face_set_temp((int)wt->value->int32);
   g_cfg.version = SETTINGS_VERSION;

@@ -1,7 +1,7 @@
 {
   "name": "emberline",
   "author": "thejambi",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -51,7 +51,9 @@
       "Layout",
       "ColTerrain",
       "ColNow",
-      "ColSleep"
+      "ColSleep",
+      "TextFont",
+      "ColUnlit"
     ],
     "resources": {
       "media": [
@@ -695,6 +697,166 @@
           "name": "FONT_DSEG_B_33",
           "file": "fonts/DSEG7Classic-Bold.ttf",
           "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IVAL_22",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IVAL_16",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IUNI_14",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IUNI_10",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICAP_15",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICAP_11",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICPS_11",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICPS_9",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SVAL_22",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SVAL_16",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SUNI_14",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SUNI_10",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SCAP_15",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SCAP_11",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SCPS_11",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SCPS_9",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[A-Z]",
           "targetPlatforms": [
             "basalt",
             "diorite",

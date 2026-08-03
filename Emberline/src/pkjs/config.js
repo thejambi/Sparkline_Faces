@@ -72,6 +72,18 @@ module.exports = [
         ]
       },
       {
+        type: 'select',
+        messageKey: 'TextFont',
+        defaultValue: '0',
+        label: 'Everything else',
+        description: 'The face used for the step count, the date column, the pulse and the labels. Inter has the tallest x-height of the three, so it reads largest at the same size; Source Sans 3 is the narrowest.',
+        options: [
+          { label: 'Montserrat', value: '0' },
+          { label: 'Inter', value: '1' },
+          { label: 'Source Sans 3', value: '2' }
+        ]
+      },
+      {
         type: 'toggle',
         messageKey: 'BoldClock',
         defaultValue: true,
@@ -222,7 +234,8 @@ module.exports = [
       { type: 'color', messageKey: 'ColNow', label: 'The newest bar', defaultValue: 0xFFFFFF, sunlight: false },
       { type: 'color', messageKey: 'ColMuted', label: 'Date, weather, pulse', defaultValue: 0xAAAAFF, sunlight: false },
       { type: 'color', messageKey: 'ColSleep', label: 'Sleep', defaultValue: 0xAAAAFF, sunlight: false },
-      { type: 'color', messageKey: 'ColScale', label: 'Chart scale and labels', defaultValue: 0x5555AA, sunlight: false }
+      { type: 'color', messageKey: 'ColScale', label: 'Chart scale and labels', defaultValue: 0x5555AA, sunlight: false },
+      { type: 'color', messageKey: 'ColUnlit', label: 'Unlit segments (DSEG7 only)', defaultValue: 0x000055, sunlight: false }
     ]
   },
   {

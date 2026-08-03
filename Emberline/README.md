@@ -148,11 +148,33 @@ Whichever face is chosen, the minutes' baseline and the horizon do not move —
 only the hour rises — so the terrain and the day column are identical across
 all eight.
 
-**DSEG7 wants a black sky.** It is a seven-segment face, and what makes a real
-LCD read as one is the *unlit* segments. Drawing them needs a colour between
-the background and the lit ink, and on Dusk's navy the Pebble 64 has nothing
-there — every candidate reads as `88` rather than `9`. On Phosphor it works:
-`550000` unlit against `FF5500` lit. That pairing is not wired up yet.
+**DSEG7 draws its unlit segments**, which is most of what makes a display read
+as a display rather than as a typeface: an `8` goes down in a darker tone under
+every digit, in both slots, so the hour does not go dark when it is one digit.
+
+It needs somewhere to put that tone — between the sky and the ink — and above
+a *lit* sky the Pebble 64 has nothing there. On Dusk every candidate reads as
+`88` rather than `9`. So `unlit` is an eighth theme colour, and the themes with
+no room for it set it to their own sky, where it quietly draws nothing:
+
+| | unlit | against |
+| --- | --- | --- |
+| **Phosphor** | `550000` | `FF5500` on black — the real thing |
+| **Noir** | `555555` | white on black |
+| **Paper** | `AAAAAA` | black on white |
+| **Moss** / **Tide** | `00AA00` / `00AAAA` | white on a dark ground |
+| **Dusk** | *its own sky* | nothing to spend; the ghosts vanish |
+
+Black and white gets nothing either: two colours have no third tone to ghost
+with. Custom exposes it as an eleventh role, defaulting to the sky.
+
+### The rest of the type
+
+The face used for everything that is not the clock is selectable too —
+Montserrat, Inter or Source Sans 3, across all four roles at once. Inter has
+the tallest x-height of the three, so it reads largest at the same pixel size;
+Source Sans 3 is the narrowest. Only the chosen family is resident, and it is
+unloaded and reloaded when the setting changes rather than kept alongside.
 
 Two things worth knowing:
 
