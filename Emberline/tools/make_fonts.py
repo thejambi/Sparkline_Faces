@@ -24,7 +24,11 @@ FAMILIES = [
     ('CF_MONT',    'CLOCK', 'Montserrat-Light.ttf',   'Montserrat-Bold.ttf'),
     ('CF_INTER',   'INTR',  'Inter-Light.ttf',        'Inter-Bold.ttf'),
     ('CF_DSEG',    'DSEG',  'DSEG7Classic-Light.ttf', 'DSEG7Classic-Bold.ttf'),
-    ('CF_MONO',    'RMON',  'RobotoMono-Light.ttf',   'RobotoMono-Bold.ttf'),
+    ('CF_KODE',    'KODE',  'KodeMono-Regular.ttf',   'KodeMono-Bold.ttf'),
+    ('CF_MRTN',    'MRTN',  'MartianMono-Light.ttf',  'MartianMono-Bold.ttf'),
+    # Jersey 25 ships one weight only, so bold and light are the same file and
+    # the bold toggle has nothing to say about it — as with LECO.
+    ('CF_JRSY',    'JRSY',  'Jersey25-Regular.ttf',   'Jersey25-Regular.ttf'),
 ]
 
 SMALL = ['basalt', 'diorite', 'flint']
@@ -52,7 +56,8 @@ def slot(f):
 # which is ground truth. Re-derive with tools/probe_glyph_ceiling.py if a face
 # is added or the SDK changes.
 CEILING = {                     # family stem -> (emery 512B, 144x168 256B)
-    'CLOCK': (94, 66), 'INTR': (96, 67), 'DSEG': (81, 57), 'RMON': (104, 73),
+    'CLOCK': (94, 66), 'INTR': (96, 67), 'DSEG': (81, 57),
+    'KODE': (89, 63), 'MRTN': (87, 62), 'JRSY': (130, 91),
 }
 
 

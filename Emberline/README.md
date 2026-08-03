@@ -124,7 +124,9 @@ because it is what survives brighter sun:
 | --- | --- | --- |
 | **Montserrat** | 94 | geometric, round counters |
 | **Inter** | 91 | tall x-height, very clean |
-| **Roboto Mono** | 93 | tabular by design; a slashed zero |
+| **Kode Mono** | 89 | squared with chamfered corners |
+| **Martian Mono** | 82 | heavy and wide |
+| **Jersey 25** | 113 | a pixel display; one weight only |
 | **DSEG7 Classic** | 68 | a real seven-segment display |
 | **LECO** | 60 | squared LCD; system face |
 
@@ -136,9 +138,14 @@ block width, and a ceiling that is easy to miss.
 `MAX_FONT_GLYPH_SIZE`, which is 512 bytes on Emery and 256 on the 144x168
 watches. The glyph that hits it is almost never a digit — it is `U+25AF`, the
 wildcard box, which `fontgen` embeds in every font whether the charset asks
-for it or not. Azeret Mono was rejected on exactly that: the only mono of
-seven with an unmarked zero, and capped at cap 47 against everyone else's 68
-by a glyph the face would never draw. Space Grotesk hits that before it runs out of screen, which is why it
+for it or not. Azeret Mono was rejected on exactly that: the only mono of seven with an
+unmarked zero, and capped at cap 47 against everyone else's 68 by a glyph the
+face would never draw.
+
+**Monospace is beside the point here.** The clock is drawn one digit per
+fixed-width slot, which makes any face tabular — which is why proportional
+Montserrat works at all. So the blocky faces were chosen for their shapes,
+not their spacing, and Jersey 25 is a display face rather than a mono. Space Grotesk hits that before it runs out of screen, which is why it
 sits at cap 56 where everything else reaches 68 — visibly smaller, and not a
 mistake. Those ceilings were bisected with the SDK's own `font.fontgen` rather
 than modelled: two attempts to predict them from a rasteriser here produced

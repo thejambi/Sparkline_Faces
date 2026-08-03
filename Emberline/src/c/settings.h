@@ -14,12 +14,12 @@ enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
 //
 // Append-only, like every other persisted enum here: a saved 2 has to keep
 // meaning Roboto.
-// CF_ROBOTO, CF_GROTESK, CF_SOURCE and CF_PLEX were dropped after wrist
+// CF_ROBOTO, CF_GROTESK, CF_SOURCE, CF_PLEX and CF_MONO were dropped after wrist
 // testing. Their slots stay: a watch on 1.1.0 has Roboto persisted as 2, and
 // renumbering would hand it somebody else's font. Their grid rows are zeroed
 // and fall back to Montserrat.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
-       CF_DSEG, CF_MONO, CF_COUNT };
+       CF_DSEG, CF_MONO, CF_KODE, CF_MRTN, CF_JRSY, CF_COUNT };
 // Two ways to set the same information. Stacked buys a much larger numeral;
 // the single line buys back the colon and a calmer header.
 enum { LAY_STACK, LAY_LINE, LAY_COUNT };
