@@ -43,7 +43,7 @@ two groups swap sides: the day's values on the left, the body's on the right.
 
 Both layouts keep the day's values together and the body's values together.
 They differ in which margin each group takes, and in how much of the screen
-that leaves for the clock: stacked buys 88px numerals and pays for them with
+that leaves for the clock: stacked buys 94px numerals and pays for them with
 a shorter terrain, while one line buys back the colon and a calmer header.
 Every element is the same in both.
 
@@ -91,7 +91,7 @@ One family, three ranks, and no centering anywhere.
 
 | Rank | Element | Face |
 | --- | --- | --- |
-| Hero | clock | Montserrat Bold 88 |
+| Hero | clock | Montserrat Bold 94 |
 | Secondary | steps, sleep, pulse, day number, temperature | Montserrat Bold 22 |
 | Label | date on one line | Montserrat Bold 15, caps, tracked |
 | Label | weekday, month, BPM, sleep units | Montserrat Bold 11/14 |
@@ -120,27 +120,39 @@ having:
 The clock face is selectable, each with a bold option — bold by default,
 because it is what survives brighter sun:
 
-| Face | Stacked | One line | Character |
-| --- | --- | --- | --- |
-| **Montserrat** | 88 | 60 | geometric, round counters |
-| **Roboto** | 88 | 68 | narrower, so it has width to spare |
-| **LECO** | 60 | 60 | squared LCD; already tabular |
+| Face | Emery stacked | Character |
+| --- | --- | --- |
+| **Montserrat** | 94 | geometric, round counters |
+| **Roboto** | 93 | neutral grotesque |
+| **Inter** | 91 | tall x-height, very clean |
+| **Space Grotesk** | 77 | geometric with quirks — see below |
+| **Source Sans 3** | 103 | humanist, narrow figures |
+| **IBM Plex Mono** | 95 | naturally tabular, engineered |
+| **DSEG7 Classic** | 68 | a real seven-segment display |
+| **LECO** | 60 | squared LCD; system face |
 
-Each size is the largest that face can reach before it collides — with the
-horizon when stacked, with the margins on one line. Once the day column
-freed the right margin, height rather than width became the binding
-constraint stacked, and the two bundled faces both land on 88 and share a
-grid. Roboto still has width in hand; spending it would cost terrain rows,
-which is not a trade worth making twice. A 60px LECO and an 88px Roboto
-cannot share a grid, so every (layout, face) pair carries its own baselines
-in `GRID[][]`.
+The sizes are not round because the faces are not the same width, and they are
+not chosen by eye — `tools/make_fonts.py` solves each one against cap height,
+block width, and a ceiling that is easy to miss.
 
-LECO is a system face and cannot go past 60, so in the stacked layout it sits
-noticeably smaller and quieter than the two bundled ones — more instrument
-than poster, and its horizon sits 24 rows higher, which buys a much taller
-terrain. On one line it is level with Montserrat. Only the chosen clock face
-is resident: the other seven would cost RAM for nothing, so it loads on
-demand and the previous one is unloaded.
+**Pebble caps a single glyph's packed bitmap**: `(w*h+7)/8` must fit
+`MAX_FONT_GLYPH_SIZE`, which is 512 bytes on Emery and 256 on the 144x168
+watches. Space Grotesk hits that before it runs out of screen, which is why it
+sits at cap 56 where everything else reaches 68 — visibly smaller, and not a
+mistake. Those ceilings were bisected with the SDK's own `font.fontgen` rather
+than modelled: two attempts to predict them from a rasteriser here produced
+sizes that still failed to build. `tools/probe_glyph_ceiling.py` re-derives
+them.
+
+Whichever face is chosen, the minutes' baseline and the horizon do not move —
+only the hour rises — so the terrain and the day column are identical across
+all eight.
+
+**DSEG7 wants a black sky.** It is a seven-segment face, and what makes a real
+LCD read as one is the *unlit* segments. Drawing them needs a colour between
+the background and the lit ink, and on Dusk's navy the Pebble 64 has nothing
+there — every candidate reads as `88` rather than `9`. On Phosphor it works:
+`550000` unlit against `FF5500` lit. That pairing is not wired up yet.
 
 Two things worth knowing:
 

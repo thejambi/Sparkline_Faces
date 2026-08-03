@@ -9,9 +9,13 @@ enum { DIST_AUTO, DIST_KM, DIST_MI };
 // turn a saved Custom into a preset. The config page lists it first regardless.
 enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
        TH_COUNT };
-// Montserrat is proportional, so the clock is drawn into fixed slots to make
-// it tabular; LECO already is. Either way the digits cannot shuffle.
-enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_COUNT };
+// Clock faces. Proportional ones are drawn into fixed slots to make them
+// tabular; LECO and DSEG already are. Either way the digits cannot shuffle.
+//
+// Append-only, like every other persisted enum here: a saved 2 has to keep
+// meaning Roboto.
+enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
+       CF_DSEG, CF_COUNT };
 // Two ways to set the same information. Stacked buys a much larger numeral;
 // the single line buys back the colon and a calmer header.
 enum { LAY_STACK, LAY_LINE, LAY_COUNT };

@@ -1,7 +1,7 @@
 {
   "name": "emberline",
   "author": "thejambi",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "keywords": [
     "pebble-watchface"
   ],
@@ -63,24 +63,6 @@
         },
         {
           "type": "font",
-          "name": "FONT_CLOCK_88",
-          "file": "fonts/Montserrat-Light.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_CLOCK_B_88",
-          "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
           "name": "FONT_VALUE_22",
           "file": "fonts/Montserrat-Bold.ttf",
           "characterRegex": "[0-9,.]",
@@ -117,25 +99,51 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_88",
-          "file": "fonts/Roboto-Light.ttf",
-          "characterRegex": "[0-9:]",
+          "name": "FONT_VALUE_16",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[0-9,.]",
           "targetPlatforms": [
-            "emery"
+            "basalt",
+            "diorite",
+            "flint"
           ]
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_B_88",
-          "file": "fonts/Roboto-Bold.ttf",
-          "characterRegex": "[0-9:]",
+          "name": "FONT_UNIT_10",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[hm]",
           "targetPlatforms": [
-            "emery"
+            "basalt",
+            "diorite",
+            "flint"
           ]
         },
         {
           "type": "font",
-          "name": "FONT_CLOCK_60",
+          "name": "FONT_DATE_11",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CAPS_9",
+          "file": "fonts/Montserrat-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_CLOCK_94",
           "file": "fonts/Montserrat-Light.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
@@ -144,7 +152,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_CLOCK_B_60",
+          "name": "FONT_CLOCK_B_94",
           "file": "fonts/Montserrat-Bold.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
@@ -153,8 +161,8 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_68",
-          "file": "fonts/Roboto-Light.ttf",
+          "name": "FONT_CLOCK_57",
+          "file": "fonts/Montserrat-Light.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "emery"
@@ -162,8 +170,8 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_B_68",
-          "file": "fonts/Roboto-Bold.ttf",
+          "name": "FONT_CLOCK_B_57",
+          "file": "fonts/Montserrat-Bold.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "emery"
@@ -215,7 +223,43 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_60",
+          "name": "FONT_ROBO_93",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_93",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_67",
+          "file": "fonts/Roboto-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_B_67",
+          "file": "fonts/Roboto-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ROBO_58",
           "file": "fonts/Roboto-Light.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
@@ -226,7 +270,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_ROBO_B_60",
+          "name": "FONT_ROBO_B_58",
           "file": "fonts/Roboto-Bold.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
@@ -259,9 +303,45 @@
         },
         {
           "type": "font",
-          "name": "FONT_VALUE_16",
-          "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[0-9,.]",
+          "name": "FONT_GROT_77",
+          "file": "fonts/SpaceGrotesk-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_GROT_B_77",
+          "file": "fonts/SpaceGrotesk-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_GROT_59",
+          "file": "fonts/SpaceGrotesk-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_GROT_B_59",
+          "file": "fonts/SpaceGrotesk-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_GROT_54",
+          "file": "fonts/SpaceGrotesk-Light.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -270,9 +350,9 @@
         },
         {
           "type": "font",
-          "name": "FONT_UNIT_10",
-          "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[hm]",
+          "name": "FONT_GROT_B_54",
+          "file": "fonts/SpaceGrotesk-Bold.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -281,9 +361,9 @@
         },
         {
           "type": "font",
-          "name": "FONT_DATE_11",
-          "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[A-Z0-9-]",
+          "name": "FONT_GROT_40",
+          "file": "fonts/SpaceGrotesk-Light.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -292,9 +372,329 @@
         },
         {
           "type": "font",
-          "name": "FONT_CAPS_9",
-          "file": "fonts/Montserrat-Bold.ttf",
-          "characterRegex": "[A-Z]",
+          "name": "FONT_GROT_B_40",
+          "file": "fonts/SpaceGrotesk-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_91",
+          "file": "fonts/Inter-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_B_91",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_56",
+          "file": "fonts/Inter-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_B_56",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_56",
+          "file": "fonts/Inter-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_B_56",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_37",
+          "file": "fonts/Inter-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_INTR_B_37",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_103",
+          "file": "fonts/SourceSans3-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_B_103",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_71",
+          "file": "fonts/SourceSans3-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_B_71",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_65",
+          "file": "fonts/SourceSans3-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_B_65",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_48",
+          "file": "fonts/SourceSans3-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_SRCE_B_48",
+          "file": "fonts/SourceSans3-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_95",
+          "file": "fonts/IBMPlexMono-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_B_95",
+          "file": "fonts/IBMPlexMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_57",
+          "file": "fonts/IBMPlexMono-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_B_57",
+          "file": "fonts/IBMPlexMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_59",
+          "file": "fonts/IBMPlexMono-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_B_59",
+          "file": "fonts/IBMPlexMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_39",
+          "file": "fonts/IBMPlexMono-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_PLEX_B_39",
+          "file": "fonts/IBMPlexMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_68",
+          "file": "fonts/DSEG7Classic-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_B_68",
+          "file": "fonts/DSEG7Classic-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_49",
+          "file": "fonts/DSEG7Classic-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_B_49",
+          "file": "fonts/DSEG7Classic-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_43",
+          "file": "fonts/DSEG7Classic-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_B_43",
+          "file": "fonts/DSEG7Classic-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_33",
+          "file": "fonts/DSEG7Classic-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DSEG_B_33",
+          "file": "fonts/DSEG7Classic-Bold.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",

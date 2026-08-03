@@ -92,37 +92,57 @@ typedef struct {
 } ClockGrid;
 
 #if defined(PBL_PLATFORM_EMERY)
+// Stacked sits at cap 68 with the horizon at 188: the clock is height-bound,
+// not width-bound — every face leaves 16 to 54px unused beside the day column
+// — so the only way to grow it was to spend terrain, 42 rows down to 34.
+//
+// Sizes come from tools/make_fonts.py, which solves each face for that cap and
+// for the widest one-line set that clears the margins. They are not round
+// numbers because the faces are not the same width.
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
-    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_88, RESOURCE_ID_FONT_CLOCK_B_88,
-                    102, 174, 0, 180 },
-    [CF_LECO]   = { 0, 0, 92, 150, 0, 156 },
-    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_88, RESOURCE_ID_FONT_ROBO_B_88,
-                    102, 174, 0, 180 },
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_94, RESOURCE_ID_FONT_CLOCK_B_94, 106, 182, 0, 188 },
+    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_93,  RESOURCE_ID_FONT_ROBO_B_93,  106, 182, 0, 188 },
+    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_77,  RESOURCE_ID_FONT_GROT_B_77,  118, 182, 0, 188 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_91,  RESOURCE_ID_FONT_INTR_B_91,  106, 182, 0, 188 },
+    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_103, RESOURCE_ID_FONT_SRCE_B_103, 106, 182, 0, 188 },
+    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_95,  RESOURCE_ID_FONT_PLEX_B_95,  106, 182, 0, 188 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
+    // LECO is a system face and cannot grow, so it keeps its taller terrain
+    [CF_LECO]    = { 0, 0, 92, 150, 0, 156 },
   },
   [LAY_LINE] = {
-    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_60, RESOURCE_ID_FONT_CLOCK_B_60,
-                    0, 0, 130, 156 },
-    [CF_LECO]   = { 0, 0, 0, 0, 130, 156 },
-    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_68, RESOURCE_ID_FONT_ROBO_B_68,
-                    0, 0, 132, 158 },
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_57, RESOURCE_ID_FONT_CLOCK_B_57, 0, 0, 130, 156 },
+    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_67,  RESOURCE_ID_FONT_ROBO_B_67,  0, 0, 132, 158 },
+    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_59,  RESOURCE_ID_FONT_GROT_B_59,  0, 0, 130, 156 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  0, 0, 130, 156 },
+    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_71,  RESOURCE_ID_FONT_SRCE_B_71,  0, 0, 132, 158 },
+    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_57,  RESOURCE_ID_FONT_PLEX_B_57,  0, 0, 130, 156 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_49,  RESOURCE_ID_FONT_DSEG_B_49,  0, 0, 130, 156 },
+    [CF_LECO]    = { 0, 0, 0, 0, 130, 156 },
   },
 };
 #else   // 144x168: width binds here, not height
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
   [LAY_STACK] = {
-    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58,
-                    72, 120, 0, 126 },
-    [CF_LECO]   = { 0, 0, 62, 98, 0, 104 },
-    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_60, RESOURCE_ID_FONT_ROBO_B_60,
-                    74, 122, 0, 128 },
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58, 75, 122, 0, 128 },
+    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_58,  RESOURCE_ID_FONT_ROBO_B_58,  74, 122, 0, 128 },
+    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_54,  RESOURCE_ID_FONT_GROT_B_54,  77, 122, 0, 128 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
+    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_65,  RESOURCE_ID_FONT_SRCE_B_65,  74, 122, 0, 128 },
+    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_59,  RESOURCE_ID_FONT_PLEX_B_59,  74, 122, 0, 128 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
+    [CF_LECO]    = { 0, 0, 62, 98, 0, 104 },
   },
   [LAY_LINE] = {
-    [CF_MONT]   = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38,
-                    0, 0, 94, 114 },
-    [CF_LECO]   = { 0, 0, 0, 0, 94, 114 },
-    [CF_ROBOTO] = { RESOURCE_ID_FONT_ROBO_44, RESOURCE_ID_FONT_ROBO_B_44,
-                    0, 0, 96, 116 },
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38, 0, 0, 94, 114 },
+    [CF_ROBOTO]  = { RESOURCE_ID_FONT_ROBO_44,  RESOURCE_ID_FONT_ROBO_B_44,  0, 0, 96, 116 },
+    [CF_GROTESK] = { RESOURCE_ID_FONT_GROT_40,  RESOURCE_ID_FONT_GROT_B_40,  0, 0, 94, 114 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_37,  RESOURCE_ID_FONT_INTR_B_37,  0, 0, 94, 114 },
+    [CF_SOURCE]  = { RESOURCE_ID_FONT_SRCE_48,  RESOURCE_ID_FONT_SRCE_B_48,  0, 0, 96, 116 },
+    [CF_PLEX]    = { RESOURCE_ID_FONT_PLEX_39,  RESOURCE_ID_FONT_PLEX_B_39,  0, 0, 94, 114 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_33,  RESOURCE_ID_FONT_DSEG_B_33,  0, 0, 94, 114 },
+    [CF_LECO]    = { 0, 0, 0, 0, 94, 114 },
   },
 };
 #endif
