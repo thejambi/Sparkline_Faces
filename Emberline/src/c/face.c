@@ -673,38 +673,77 @@ static void draw_status(GContext *ctx) {
   }
 }
 
-// The clock's field, and the rule around it.
+// The info as a card, and the rule that bounds it.
 //
-// The sky is filled with the info tone and then the clock's own rectangle is
-// laid back over it in the sky tone — cheaper and simpler than working out the
-// L-shaped complement, and it means one rounded corner does the whole job.
+// The card is an L: a strip along the top and a column down the right, joined
+// at an elbow. Three of its corners are rounded and they do not all round the
+// same way, which is the whole character of it —
 //
-// The rectangle runs off the left edge and past the horizon on purpose: only
-// its top edge, its right edge and the corner between them are ever on screen,
-// so the other three corners can be rounded without anyone seeing them. On one
-// line there is no day column to divide, so the field is full width and the
-// rule is a plain horizontal run.
-static GRect clock_field(void) {
-  bool line = g_cfg.layout == LAY_LINE;
-  int top = line ? SEP_Y_LINE : SEP_Y;
-  int right = line ? SCREEN_W + SEP_R : SEP_X;
-  return GRect(-SEP_R, top, right + SEP_R, horizon_y() - top + SEP_R);
+//   - the elbow, where the strip meets the column, is convex toward the clock:
+//     the rule turns through it as it did when this was a plain bracket
+//   - the strip's free end curves *up* into the left bezel, so the card lifts
+//     away from the screen edge once it is past the step count
+//   - the column's free end curves *right* into the horizon, so it lifts away
+//     again once it is past the temperature
+//
+// An L with a concave elbow is not something Pebble's rounded-rect primitives
+// can express, so it is built by hand: fill the region, then cut each corner
+// with a square of the opposite tone and put a disc back. Six fills and three
+// arcs, which is cheaper than it sounds and exact at any radius.
+//
+// On one line there is no column to divide, so the card is the strip alone.
+static void fill_corner(GContext *ctx, int cx, int cy, int qx, int qy,
+                        GColor cut, GColor keep) {
+  // Round one corner: paint the quadrant in `cut`, then a disc of `keep`.
+  graphics_context_set_fill_color(ctx, cut);
+  graphics_fill_rect(ctx, GRect(qx, qy, SEP_R, SEP_R), 0, GCornerNone);
+  graphics_context_set_fill_color(ctx, keep);
+  graphics_fill_circle(ctx, GPoint(cx, cy), SEP_R);
 }
 
 static void draw_field(GContext *ctx) {
   const Palette *p = palette();
-  GRect f = clock_field();
-  if (!gcolor_equal(p->info_bg, p->sky)) {
+  bool line = g_cfg.layout == LAY_LINE;
+  int top = line ? SEP_Y_LINE : SEP_Y;
+  int hz = horizon_y();
+  bool tinted = !gcolor_equal(p->info_bg, p->sky);
+
+  if (tinted) {
     graphics_context_set_fill_color(ctx, p->info_bg);
-    graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, horizon_y()), 0, GCornerNone);
-    graphics_context_set_fill_color(ctx, p->sky);
-    graphics_fill_rect(ctx, f, SEP_R, GCornersAll);
+    graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, top), 0, GCornerNone);
+    if (!line)
+      graphics_fill_rect(ctx, GRect(SEP_X, top, SCREEN_W - SEP_X, hz - top), 0,
+                         GCornerNone);
+    // the strip lifts off the left bezel
+    fill_corner(ctx, SEP_R, top - SEP_R, 0, top - SEP_R, p->sky, p->info_bg);
+    if (!line) {
+      // the elbow turns toward the clock
+      fill_corner(ctx, SEP_X - SEP_R, top + SEP_R, SEP_X - SEP_R, top,
+                  p->info_bg, p->sky);
+      // and the column lifts off the horizon
+      fill_corner(ctx, SEP_X + SEP_R, hz - SEP_R, SEP_X, hz - SEP_R,
+                  p->sky, p->info_bg);
+    }
   }
-  if (g_cfg.show_sep) {
-    graphics_context_set_stroke_color(ctx, p->sep);
-    graphics_context_set_stroke_width(ctx, 1);
-    graphics_draw_round_rect(ctx, f, SEP_R);
-  }
+
+  if (!g_cfg.show_sep) return;
+  graphics_context_set_stroke_color(ctx, p->sep);
+  graphics_context_set_stroke_width(ctx, 1);
+  int right = line ? SCREEN_W : SEP_X;
+
+  graphics_draw_line(ctx, GPoint(SEP_R, top), GPoint(right - SEP_R, top));
+  graphics_draw_arc(ctx, GRect(0, top - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
+                    TRIG_MAX_ANGLE * 3 / 4);
+  if (line) return;
+
+  graphics_draw_arc(ctx, GRect(SEP_X - 2 * SEP_R, top, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, 0, TRIG_MAX_ANGLE / 4);
+  graphics_draw_line(ctx, GPoint(SEP_X, top + SEP_R),
+                    GPoint(SEP_X, hz - SEP_R));
+  graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
+                    TRIG_MAX_ANGLE * 3 / 4);
 }
 
 static void draw(Layer *layer, GContext *ctx) {

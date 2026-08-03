@@ -202,6 +202,33 @@ Two things worth knowing:
   charset and lets the ring hang past the right margin, so the numerals stay
   optically aligned with the row beneath.
 
+### The info card
+
+The header and the day column are one object: an L, a strip along the top and
+a column down the right, joined at an elbow. It can take a background of its
+own, and a rule bounds it.
+
+Three of its corners are rounded and **they do not all round the same way**,
+which is the whole character of the thing:
+
+- the **elbow**, where the strip meets the column, turns convex toward the
+  clock — the rule bends through it
+- the strip's **free end curves up** into the left bezel, so the card lifts
+  away from the screen edge once it is past the step count
+- the column's **free end curves right** into the horizon, so it lifts away
+  again once it is past the temperature
+
+An L with a concave elbow is not something Pebble's rounded-rect primitives can
+express — `graphics_fill_rect` rounds convex corners only. So it is built by
+hand: fill the region, then cut each corner with a square of the opposite tone
+and put a disc back. Six fills and three arcs, exact at any radius.
+
+On one line there is no column to divide, so the card is the strip alone.
+
+Nothing about this has to be visible. With the info background left at the sky
+tone it is a rule and nothing more, and with the rule off it is not there at
+all — which is the point: it is a separation some will want and others will not.
+
 ### Color
 
 Six themes plus Custom. Five of them are built the same way: a lit sky over
