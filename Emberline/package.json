@@ -150,6 +150,86 @@
         },
         {
           "type": "font",
+          "name": "FONT_IVAL_22",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IVAL_16",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IUNI_14",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_IUNI_10",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICAP_15",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICAP_11",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICPS_11",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_ICPS_9",
+          "file": "fonts/Inter-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
           "name": "FONT_CLOCK_94",
           "file": "fonts/Montserrat-Light.ttf",
           "characterRegex": "[0-9:]",
@@ -390,18 +470,45 @@
         },
         {
           "type": "font",
-          "name": "FONT_IVAL_22",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[0-9,.]",
+          "name": "FONT_RMON_93",
+          "file": "fonts/RobotoMono-Light.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "emery"
           ]
         },
         {
           "type": "font",
-          "name": "FONT_IVAL_16",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[0-9,.]",
+          "name": "FONT_RMON_B_93",
+          "file": "fonts/RobotoMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_RMON_57",
+          "file": "fonts/RobotoMono-Light.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_RMON_B_57",
+          "file": "fonts/RobotoMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_RMON_58",
+          "file": "fonts/RobotoMono-Light.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -410,18 +517,9 @@
         },
         {
           "type": "font",
-          "name": "FONT_IUNI_14",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[hm]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_IUNI_10",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[hm]",
+          "name": "FONT_RMON_B_58",
+          "file": "fonts/RobotoMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -430,18 +528,9 @@
         },
         {
           "type": "font",
-          "name": "FONT_ICAP_15",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[A-Z0-9-]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_ICAP_11",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[A-Z0-9-]",
+          "name": "FONT_RMON_39",
+          "file": "fonts/RobotoMono-Light.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",
@@ -450,18 +539,9 @@
         },
         {
           "type": "font",
-          "name": "FONT_ICPS_11",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[A-Z]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_ICPS_9",
-          "file": "fonts/Inter-Bold.ttf",
-          "characterRegex": "[A-Z]",
+          "name": "FONT_RMON_B_39",
+          "file": "fonts/RobotoMono-Bold.ttf",
+          "characterRegex": "[0-9:]",
           "targetPlatforms": [
             "basalt",
             "diorite",

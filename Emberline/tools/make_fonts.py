@@ -22,12 +22,9 @@ R = 'resources/fonts/'
 # (settings enum, resource stem, light file, bold file, label)
 FAMILIES = [
     ('CF_MONT',    'CLOCK', 'Montserrat-Light.ttf',   'Montserrat-Bold.ttf'),
-    ('CF_ROBOTO',  'ROBO',  'Roboto-Light.ttf',       'Roboto-Bold.ttf'),
-    ('CF_GROTESK', 'GROT',  'SpaceGrotesk-Light.ttf', 'SpaceGrotesk-Bold.ttf'),
     ('CF_INTER',   'INTR',  'Inter-Light.ttf',        'Inter-Bold.ttf'),
-    ('CF_SOURCE',  'SRCE',  'SourceSans3-Light.ttf',  'SourceSans3-Bold.ttf'),
-    ('CF_PLEX',    'PLEX',  'IBMPlexMono-Light.ttf',  'IBMPlexMono-Bold.ttf'),
     ('CF_DSEG',    'DSEG',  'DSEG7Classic-Light.ttf', 'DSEG7Classic-Bold.ttf'),
+    ('CF_MONO',    'RMON',  'RobotoMono-Light.ttf',   'RobotoMono-Bold.ttf'),
 ]
 
 SMALL = ['basalt', 'diorite', 'flint']
@@ -55,8 +52,7 @@ def slot(f):
 # which is ground truth. Re-derive with tools/probe_glyph_ceiling.py if a face
 # is added or the SDK changes.
 CEILING = {                     # family stem -> (emery 512B, 144x168 256B)
-    'CLOCK': (94, 66), 'ROBO': (105, 74), 'GROT': (77, 54), 'INTR': (96, 67),
-    'SRCE': (108, 76), 'PLEX': (99, 69),  'DSEG': (81, 57),
+    'CLOCK': (94, 66), 'INTR': (96, 67), 'DSEG': (81, 57), 'RMON': (104, 73),
 }
 
 

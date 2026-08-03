@@ -124,6 +124,7 @@ because it is what survives brighter sun:
 | --- | --- | --- |
 | **Montserrat** | 94 | geometric, round counters |
 | **Inter** | 91 | tall x-height, very clean |
+| **Roboto Mono** | 93 | tabular by design; a slashed zero |
 | **DSEG7 Classic** | 68 | a real seven-segment display |
 | **LECO** | 60 | squared LCD; system face |
 
@@ -133,7 +134,11 @@ block width, and a ceiling that is easy to miss.
 
 **Pebble caps a single glyph's packed bitmap**: `(w*h+7)/8` must fit
 `MAX_FONT_GLYPH_SIZE`, which is 512 bytes on Emery and 256 on the 144x168
-watches. Space Grotesk hits that before it runs out of screen, which is why it
+watches. The glyph that hits it is almost never a digit — it is `U+25AF`, the
+wildcard box, which `fontgen` embeds in every font whether the charset asks
+for it or not. Azeret Mono was rejected on exactly that: the only mono of
+seven with an unmarked zero, and capped at cap 47 against everyone else's 68
+by a glyph the face would never draw. Space Grotesk hits that before it runs out of screen, which is why it
 sits at cap 56 where everything else reaches 68 — visibly smaller, and not a
 mistake. Those ceilings were bisected with the SDK's own `font.fontgen` rather
 than modelled: two attempts to predict them from a rasteriser here produced

@@ -63,6 +63,7 @@ module.exports = [
         options: [
           { label: 'Montserrat — geometric', value: '0' },
           { label: 'Inter — tall and clean', value: '4' },
+          { label: 'Roboto Mono — tabular by nature', value: '8' },
           { label: 'DSEG7 — seven-segment', value: '7' },
           { label: 'LECO — small, system', value: '1' }
         ]
