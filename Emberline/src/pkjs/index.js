@@ -3,7 +3,57 @@
 // fails the build's platform check, but the bundle itself is plain JS.
 var Clay = require('./clay');
 var clayConfig = require('./config');
-var clay = new Clay(clayConfig);
+
+// Runs inside the config page, not here — Clay stringifies it — so it can
+// close over nothing and has to look everything up through clayConfig.
+//
+// Simple mode hides the roles that were split out of others and keeps them
+// following their parent. Hiding alone is not enough: a hidden Clay item still
+// submits its value, so a parent changing while its child sits at a stale
+// default would silently break the tie the mode is promising.
+function colourMode() {
+  var cfg = this;
+  var TIED = {
+    ColAccent: ['ColTerrain'],
+    ColInk: ['ColNow'],
+    ColMuted: ['ColSleep'],
+    ColScale: ['ColLabel', 'ColSep'],
+    ColSky: ['ColInfoBg', 'ColUnlit']
+  };
+  var ADVANCED = ['ColTerrain', 'ColNow', 'ColSleep', 'ColLabel', 'ColSep',
+                  'ColInfoBg', 'ColUnlit'];
+
+  cfg.on(cfg.EVENTS.AFTER_BUILD, function () {
+    var mode = cfg.getItemByMessageKey('ColorMode');
+    if (!mode) return;
+
+    function simple() { return String(mode.get()) === '0'; }
+
+    function apply() {
+      ADVANCED.forEach(function (key) {
+        var item = cfg.getItemByMessageKey(key);
+        if (item) { simple() ? item.hide() : item.show(); }
+      });
+    }
+
+    Object.keys(TIED).forEach(function (parent) {
+      var p = cfg.getItemByMessageKey(parent);
+      if (!p) return;
+      p.on('change', function () {
+        if (!simple()) return;
+        TIED[parent].forEach(function (childKey) {
+          var c = cfg.getItemByMessageKey(childKey);
+          if (c) c.set(p.get());
+        });
+      });
+    });
+
+    mode.on('change', apply);
+    apply();
+  });
+}
+
+var clay = new Clay(clayConfig, colourMode);
 
 // ---------------------------------------------------------------------------
 // Weather — Open-Meteo, no API key. The standard courtesies: the enabled

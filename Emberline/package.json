@@ -53,7 +53,12 @@
       "ColNow",
       "ColSleep",
       "TextFont",
-      "ColUnlit"
+      "ColUnlit",
+      "ShowSep",
+      "ColLabel",
+      "ColSep",
+      "ColInfoBg",
+      "ColorMode"
     ],
     "resources": {
       "media": [

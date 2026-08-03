@@ -217,7 +217,7 @@ step count and the terrain — because those three are one idea seen three ways.
 | **Moss** | dark green | black | chartreuse |
 | **Tide** | teal | black | cyan |
 
-Three meanings rather than seven colors: **the ink is time, the accent is
+Three meanings rather than fourteen colors: **the ink is time, the accent is
 movement, the muted tone is context.** Every preset value is already on the
 Pebble 64 — each channel 00/55/AA/FF — so nothing is quantized out from under
 the design.
@@ -226,8 +226,17 @@ A preset ties three roles together on purpose. The newest bar takes the
 clock's color because the current minute *is* the time; the terrain takes the
 step count's because both *are* movement; and the whole sleep state borrows
 the muted tone, because before you are up everything on the face is context.
-Custom can cut all three loose — it is the one place where breaking the rule
-is the point — so it exposes ten roles rather than seven.
+Custom can cut them loose — it is the one place where breaking the rule is the
+point — so it exposes fourteen roles rather than seven, in two levels. Simple
+shows the seven and keeps the rest following their parent; Advanced separates
+every one. The labels in the sky were the last to be split off the chart's
+tone: one names a value you are reading, the other is ruling behind a plot,
+and they were only ever the same colour by accident of both being quiet.
+
+Hiding the advanced pickers is not enough on its own — a hidden Clay item
+still submits its value, so a parent changing while its child sat at a stale
+default would silently break the tie that Simple is promising. The config
+page copies a parent's value down to its children while Simple is selected.
 
 The three latecomers default to a sentinel meaning **still shared**, which is
 also what a settings blob saved before they existed reads as. So adding them

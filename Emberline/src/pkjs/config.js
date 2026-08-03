@@ -86,6 +86,13 @@ module.exports = [
       },
       {
         type: 'toggle',
+        messageKey: 'ShowSep',
+        defaultValue: true,
+        label: 'Separator rule',
+        description: 'A rule around the clock\u2019s field — along under the health row, then down between the clock and the date column, turning through a rounded corner. On one line it is just the horizontal run.'
+      },
+      {
+        type: 'toggle',
         messageKey: 'BoldClock',
         defaultValue: true,
         label: 'Bold clock',
@@ -224,19 +231,40 @@ module.exports = [
       { type: 'heading', defaultValue: 'Custom colors' },
       {
         type: 'text',
-        defaultValue: 'Used only when Theme is set to Custom. The presets tie three of these together on purpose — the newest bar is the clock’s color because it is the time, and the terrain is the step color because both are movement. Here you can cut them loose.'
+        defaultValue: 'Used only when Theme is set to Custom. Simple keeps the roles that mean the same thing tied together — the terrain follows the step count, the newest bar follows the clock, the rule follows the chart. Advanced cuts every one of them loose.'
       },
+      {
+        type: 'select',
+        messageKey: 'ColorMode',
+        defaultValue: '0',
+        label: 'Detail',
+        options: [
+          { label: 'Simple — seven colors', value: '0' },
+          { label: 'Advanced — all fourteen', value: '1' }
+        ]
+      },
+
+      { type: 'heading', defaultValue: 'Ground and sky' },
       { type: 'color', messageKey: 'ColSky', label: 'Sky', defaultValue: 0x000055, sunlight: false },
       { type: 'color', messageKey: 'ColGround', label: 'Ground', defaultValue: 0x000000, sunlight: false },
       { type: 'color', messageKey: 'ColHorizon', label: 'Horizon line', defaultValue: 0xFFAA00, sunlight: false },
+      { type: 'color', messageKey: 'ColInfoBg', label: 'Behind the info', defaultValue: 0x000055, sunlight: false },
+      { type: 'color', messageKey: 'ColSep', label: 'Separator rule', defaultValue: 0x5555AA, sunlight: false },
+
+      { type: 'heading', defaultValue: 'Time' },
       { type: 'color', messageKey: 'ColInk', label: 'Clock', defaultValue: 0xFFFFFF, sunlight: false },
+      { type: 'color', messageKey: 'ColNow', label: 'The newest bar', defaultValue: 0xFFFFFF, sunlight: false },
+      { type: 'color', messageKey: 'ColUnlit', label: 'Unlit segments (DSEG7)', defaultValue: 0x000055, sunlight: false },
+
+      { type: 'heading', defaultValue: 'Movement' },
       { type: 'color', messageKey: 'ColAccent', label: 'Step count', defaultValue: 0xFFAA00, sunlight: false },
       { type: 'color', messageKey: 'ColTerrain', label: 'Terrain', defaultValue: 0xFFAA00, sunlight: false },
-      { type: 'color', messageKey: 'ColNow', label: 'The newest bar', defaultValue: 0xFFFFFF, sunlight: false },
+
+      { type: 'heading', defaultValue: 'Context' },
       { type: 'color', messageKey: 'ColMuted', label: 'Date, weather, pulse', defaultValue: 0xAAAAFF, sunlight: false },
       { type: 'color', messageKey: 'ColSleep', label: 'Sleep', defaultValue: 0xAAAAFF, sunlight: false },
-      { type: 'color', messageKey: 'ColScale', label: 'Chart scale and labels', defaultValue: 0x5555AA, sunlight: false },
-      { type: 'color', messageKey: 'ColUnlit', label: 'Unlit segments (DSEG7 only)', defaultValue: 0x000055, sunlight: false }
+      { type: 'color', messageKey: 'ColLabel', label: 'Labels and battery', defaultValue: 0x5555AA, sunlight: false },
+      { type: 'color', messageKey: 'ColScale', label: 'Chart scale', defaultValue: 0x5555AA, sunlight: false }
     ]
   },
   {

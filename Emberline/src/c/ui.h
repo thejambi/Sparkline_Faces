@@ -57,6 +57,13 @@
 #define INK_CAPS_S    8             // ...and of a cap at F_CAPS_S
 #define DEG_SIZE      5             // the drawn degree ring
 #define DEG_SIZE_S    4
+// The rule around the clock's field: along under the header, then down between
+// the clock and the day column, turning through a rounded corner. On one line
+// there is no column to divide, so only the horizontal run is drawn.
+#define SEP_Y         33
+#define SEP_X         152
+#define SEP_R         8
+#define SEP_Y_LINE    62
 
 #else   // basalt, diorite, flint — 144x168
 
@@ -76,6 +83,10 @@
 #define INK_CAPS_S    7
 #define DEG_SIZE      4
 #define DEG_SIZE_S    3
+#define SEP_Y         25
+#define SEP_X         99
+#define SEP_R         6
+#define SEP_Y_LINE    46
 
 #endif
 

@@ -49,6 +49,8 @@ typedef struct {
   uint32_t c_terrain, c_now, c_sleep;
   uint8_t text_font;
   uint32_t c_unlit;              // DSEG's dark segments; COL_INHERIT = the sky
+  bool show_sep;                 // the rule around the clock's field
+  uint32_t c_label, c_sep, c_info_bg;
 } Settings;
 
 #define COL_INHERIT 0xFF000000u
@@ -72,6 +74,12 @@ typedef struct {
   // between the sky and the ink, and on a lit sky the Pebble 64 has nothing
   // there. Where there is nothing, this is the sky and the ghosts vanish.
   GColor unlit;
+  // The labels in the sky used to share the chart's tone. They are different
+  // jobs — one names a value you are reading, the other is the ruling behind a
+  // plot — so they are separate roles even though the presets still tie them.
+  GColor label;
+  GColor sep;                    // the rule between the clock and the rest
+  GColor info_bg;                // behind everything that is not the clock
 } Palette;
 
 const Palette *palette(void);

@@ -496,7 +496,7 @@ static void draw_sky(GContext *ctx) {
       snprintf(buf, sizeof buf, "%d", s_mday);
       graphics_context_set_text_color(ctx, p->muted);
       draw_right(ctx, buf, F_VAL, MARGIN_R, b_day);
-      graphics_context_set_text_color(ctx, p->scale);
+      graphics_context_set_text_color(ctx, p->label);
       const char *wd = WD[s_wday], *mo = MO[s_mon];
       draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R - tracked_w(wd, F_CAPS_S),
                    b_day - LABEL_RISE);
@@ -557,11 +557,11 @@ static void draw_sky(GContext *ctx) {
     int x = line ? MARGIN_R - total : MARGIN_L;
     graphics_context_set_text_color(ctx, p->sleep);
     x += draw_base(ctx, a, F_VAL, x, b_val) + 2;
-    graphics_context_set_text_color(ctx, p->scale);
+    graphics_context_set_text_color(ctx, p->label);
     x += draw_base(ctx, "h", F_UNIT, x, b_val) + 7;
     graphics_context_set_text_color(ctx, p->sleep);
     x += draw_base(ctx, b, F_VAL, x, b_val) + 2;
-    graphics_context_set_text_color(ctx, p->scale);
+    graphics_context_set_text_color(ctx, p->label);
     draw_base(ctx, "m", F_UNIT, x, b_val);
   } else {
     fmt_thousands(buf, sizeof buf, hl_steps());
@@ -585,7 +585,7 @@ static void draw_sky(GContext *ctx) {
   if (lbl) {
     graphics_context_set_text_color(ctx, p->muted);
     int vw = draw_right(ctx, buf, F_VAL, MARGIN_R, b_bpm);
-    graphics_context_set_text_color(ctx, p->scale);
+    graphics_context_set_text_color(ctx, p->label);
     draw_tracked(ctx, lbl, F_CAPS_S,
                  MARGIN_R - vw - 8 - tracked_w(lbl, F_CAPS_S), b_bpm);
   }
@@ -664,7 +664,7 @@ static void draw_status(GContext *ctx) {
   const Palette *p = palette();
   if (g_cfg.show_battery) {
     int w = (SCREEN_W * s_batt) / 100;
-    graphics_context_set_fill_color(ctx, s_batt <= 20 ? GColorRed : p->scale);
+    graphics_context_set_fill_color(ctx, s_batt <= 20 ? GColorRed : p->label);
     graphics_fill_rect(ctx, GRect(0, 0, w, 2), 0, GCornerNone);
   }
   if (!s_bt_ok) {
@@ -673,10 +673,45 @@ static void draw_status(GContext *ctx) {
   }
 }
 
+// The clock's field, and the rule around it.
+//
+// The sky is filled with the info tone and then the clock's own rectangle is
+// laid back over it in the sky tone — cheaper and simpler than working out the
+// L-shaped complement, and it means one rounded corner does the whole job.
+//
+// The rectangle runs off the left edge and past the horizon on purpose: only
+// its top edge, its right edge and the corner between them are ever on screen,
+// so the other three corners can be rounded without anyone seeing them. On one
+// line there is no day column to divide, so the field is full width and the
+// rule is a plain horizontal run.
+static GRect clock_field(void) {
+  bool line = g_cfg.layout == LAY_LINE;
+  int top = line ? SEP_Y_LINE : SEP_Y;
+  int right = line ? SCREEN_W + SEP_R : SEP_X;
+  return GRect(-SEP_R, top, right + SEP_R, horizon_y() - top + SEP_R);
+}
+
+static void draw_field(GContext *ctx) {
+  const Palette *p = palette();
+  GRect f = clock_field();
+  if (!gcolor_equal(p->info_bg, p->sky)) {
+    graphics_context_set_fill_color(ctx, p->info_bg);
+    graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, horizon_y()), 0, GCornerNone);
+    graphics_context_set_fill_color(ctx, p->sky);
+    graphics_fill_rect(ctx, f, SEP_R, GCornersAll);
+  }
+  if (g_cfg.show_sep) {
+    graphics_context_set_stroke_color(ctx, p->sep);
+    graphics_context_set_stroke_width(ctx, 1);
+    graphics_draw_round_rect(ctx, f, SEP_R);
+  }
+}
+
 static void draw(Layer *layer, GContext *ctx) {
   const Palette *p = palette();
   graphics_context_set_fill_color(ctx, p->sky);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+  draw_field(ctx);
   draw_sky(ctx);
   draw_ground(ctx);
   draw_status(ctx);
