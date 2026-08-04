@@ -390,166 +390,6 @@
         },
         {
           "type": "font",
-          "name": "FONT_KODE_89",
-          "file": "fonts/KodeMono-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_B_89",
-          "file": "fonts/KodeMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_57",
-          "file": "fonts/KodeMono-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_B_57",
-          "file": "fonts/KodeMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_60",
-          "file": "fonts/KodeMono-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_B_60",
-          "file": "fonts/KodeMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_39",
-          "file": "fonts/KodeMono-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_KODE_B_39",
-          "file": "fonts/KodeMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_82",
-          "file": "fonts/MartianMono-Light.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_B_82",
-          "file": "fonts/MartianMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_49",
-          "file": "fonts/MartianMono-Light.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_B_49",
-          "file": "fonts/MartianMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_52",
-          "file": "fonts/MartianMono-Light.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_B_52",
-          "file": "fonts/MartianMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_33",
-          "file": "fonts/MartianMono-Light.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_MRTN_B_33",
-          "file": "fonts/MartianMono-Bold.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
           "name": "FONT_JRSY_113",
           "file": "fonts/Jersey25-Regular.ttf",
           "characterRegex": "[0-9:]",
@@ -559,25 +399,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_JRSY_B_113",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
           "name": "FONT_JRSY_78",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_JRSY_B_78",
           "file": "fonts/Jersey25-Regular.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
@@ -597,29 +419,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_JRSY_B_72",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
           "name": "FONT_JRSY_54",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_JRSY_B_54",
           "file": "fonts/Jersey25-Regular.ttf",
           "characterRegex": "[0-9:]",
           "targetPlatforms": [
