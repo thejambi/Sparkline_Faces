@@ -37,21 +37,11 @@ static int s_ascent[F_COUNT];
 #if defined(PBL_PLATFORM_EMERY)
 #define T_MONT   RESOURCE_ID_FONT_VALUE_22, RESOURCE_ID_FONT_UNIT_14, \
                  RESOURCE_ID_FONT_CAPS_15,  RESOURCE_ID_FONT_CAPS_11
-#define T_INTER  RESOURCE_ID_FONT_IVAL_22,  RESOURCE_ID_FONT_IUNI_14, \
-                 RESOURCE_ID_FONT_ICAP_15,  RESOURCE_ID_FONT_ICPS_11
-#define T_JRSY   RESOURCE_ID_FONT_JVAL_32,  RESOURCE_ID_FONT_JUNI_20, \
-                 RESOURCE_ID_FONT_JCAP_20,  RESOURCE_ID_FONT_JCPS_14
-// Fourteen segments, which is what it takes to spell — seven cannot manage
-// most of the alphabet, so DSEG7 is a clock face only.
 #define T_DSEG   RESOURCE_ID_FONT_DVAL_17,  RESOURCE_ID_FONT_DUNI_11, \
                  RESOURCE_ID_FONT_DCAP_11,  RESOURCE_ID_FONT_DCPS_11
 #else
 #define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
                  RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
-#define T_INTER  RESOURCE_ID_FONT_IVAL_16,  RESOURCE_ID_FONT_IUNI_10, \
-                 RESOURCE_ID_FONT_ICAP_11,  RESOURCE_ID_FONT_ICPS_9
-#define T_JRSY   RESOURCE_ID_FONT_JVAL_22,  RESOURCE_ID_FONT_JUNI_14, \
-                 RESOURCE_ID_FONT_JCAP_14,  RESOURCE_ID_FONT_JCPS_13
 #define T_DSEG   RESOURCE_ID_FONT_DVAL_13,  RESOURCE_ID_FONT_DUNI_6, \
                  RESOURCE_ID_FONT_DCAP_8,   RESOURCE_ID_FONT_DCPS_8
 #endif
@@ -60,9 +50,7 @@ static int s_ascent[F_COUNT];
 // same order whichever family is chosen, so only the resource ids change.
 static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
   [TF_MONT]   = { T_MONT },
-  [TF_INTER]  = { T_INTER },
   [TF_SYSTEM] = { 0, 0, 0, 0 },
-  [TF_JRSY]   = { T_JRSY },
   [TF_DSEG]   = { T_DSEG },
 };
 
@@ -119,11 +107,9 @@ typedef struct { uint8_t val_ink, caps_ink, track; } TextMetrics;
 static const TextMetrics TEXT_INK[TF_COUNT] = {
 #if defined(PBL_PLATFORM_EMERY)
   [TF_MONT] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
-  [TF_INTER] = {15, 8, 2}, [TF_JRSY] = {16, 8, 2},
   [TF_DSEG] = {16, 11, 0}, [TF_SYSTEM] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
 #else
   [TF_MONT] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
-  [TF_INTER] = {12, 7, 1}, [TF_JRSY] = {13, 7, 1},
   [TF_DSEG] = {12, 7, 0}, [TF_SYSTEM] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
 #endif
 };

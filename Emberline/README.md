@@ -187,7 +187,7 @@ capability stays available through Custom.
 ### The rest of the type
 
 The face used for everything that is not the clock is selectable too, across
-all four roles at once: Montserrat, Inter, Jersey, DSEG14, or Gothic. Inter has
+all four roles at once: Montserrat, DSEG14, or Gothic. Inter has
 the taller x-height of the two bundled ones, so it reads largest at the same
 pixel size. Only the chosen family is resident, and it is unloaded and
 reloaded when the setting changes rather than kept alongside — which means
@@ -230,6 +230,11 @@ largest role here is 22, while its 18 and 34 cuts are reduced-charset subsets.
 LECO and the Bitham numerals are digits-only, which rules them out for the
 caps. Gothic only comes in 09/14/18/24 against the 11/14/15/22 the layout
 wants, so the proportions are near rather than exact.
+
+Inter and Jersey were tried here and dropped after wrist testing; they remain
+clock faces. Their slots stay in the enum and their rows are zeroed, so a
+setting still pointing at one falls back to Montserrat — the same discipline
+the clock faces use.
 
 **Ink heights and tracking are per text face**, not global. They place the day
 column and the degree ring, and taking them from Montserrat quietly made every

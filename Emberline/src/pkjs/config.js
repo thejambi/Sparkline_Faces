@@ -75,11 +75,9 @@ module.exports = [
         messageKey: 'TextFont',
         defaultValue: '0',
         label: 'Everything else',
-        description: 'The face used for the step count, the date column, the pulse and the labels. Inter has the tallest x-height, so it reads largest at the same size; Source Sans 3 is the narrowest. Gothic is Pebble\u2019s own — it only comes in 9/14/18/24, so the proportions are near rather than exact, but it costs no space at all.',
+        description: 'The face used for the step count, the date column, the pulse and the labels. DSEG14 is a fourteen-segment display face — seven segments cannot spell, which is why DSEG7 is a clock face only. Gothic is Pebble\u2019s own — it only comes in 9/14/18/24, so the proportions are near rather than exact, but it costs no space at all.',
         options: [
           { label: 'Montserrat', value: '0' },
-          { label: 'Inter', value: '1' },
-          { label: 'Jersey — pixel', value: '4' },
           { label: 'DSEG14 — fourteen-segment', value: '5' },
           { label: 'Gothic — the system face', value: '3' }
         ]
