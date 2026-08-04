@@ -1,15 +1,13 @@
 Your hour drawn as landscape - and last night's sleep, before you get up.
 
-The bottom of the screen is the last sixty minutes: one column a minute, standing on the very bottom edge, with a quarter-hour graticule behind it and a dotted line at walking pace. The newest minute is drawn in the clock's own color, so now is always findable. Above it is the clock, as large as a 200-pixel screen will allow. Between them is one warm line: the horizon.
+The bottom of the screen is the last sixty minutes: one column a minute, standing on the very bottom edge, with a quarter-hour graticule behind it and a dotted line at walking pace. Above it is the clock, as large as a 200-pixel screen will allow. Between them is one warm line: the horizon.
 
-Before you get up, the face shows you the night instead. Last night's sleep holds the step slot until you have actually moved - 500 steps by default, and adjustable. While it does, the chart's window becomes the night itself: sixty columns from the moment you fell asleep to the moment you woke, each one how much you moved, scaled so the most restless stretch fills the plot. The whole face runs cool until you cross that threshold, then warms the moment steps take the slot back.
+Before you get up, the face shows you the night instead. Last night's sleep holds the step slot until you have actually moved - 350 steps by default, and adjustable. While it does, the chart's window becomes the night itself: sixty columns from the moment you fell asleep to the moment you woke, each one how much you moved, scaled so the most restless stretch fills the plot. The whole face runs cool until you cross that threshold, then warms the moment steps take the slot back.
 
-* Two layouts. Stacked sets the hours over the minutes at the largest numeral the screen allows, runs the health values along the top and gives the right margin to a narrow day column. One line brings back the colon, pinned to the dead center of the screen
-* Six themes plus your own - Dusk, Phosphor, Noir, Paper, Moss and Tide. Each is a lit sky over land in shadow, with one bright color spent only on the horizon, the step count and the terrain. Phosphor is the odd one out: no sky at all, the time in orange and everything your body reports in green. Custom exposes all seven color roles
-* Four clock faces - Montserrat, Inter, DSEG7 and Blocky Digits - all drawn one digit at a time into fixed-width slots so the numerals never shuffle sideways as the minutes change. DSEG7 is a real seven-segment display, and on the dark themes it draws its unlit segments behind the lit ones. Blocky Digits is not a typeface at all: it is drawn pixel by pixel for this watchface
-* The rest of the type is selectable too: Montserrat, DSEG14, or Pebble's own Gothic. Fourteen segments is what it takes to spell, so DSEG7 and DSEG14 together turn the whole face into one instrument
-* An optional rule around the clock's field, turning through a rounded corner, with its own background behind everything that is not the clock
+* Two layouts
+* Six built-in themes, plus full custom colors
+* Four clock faces, including a real seven-segment display and a set drawn pixel by pixel for this watchface. The rest of the type is selectable too
 * Steps, heart rate - or the day's distance when there is no reading - the date, the temperature, and a two-pixel battery bar along the very top edge
 * Weather from Open-Meteo: no account and no API key. It follows your phone, or a city or postal code you type in, in which case it never touches phone location at all
 
-For Pebble Time 2, Pebble Time and Time Steel, Pebble 2 and Pebble 2 Duo. The layout is derived for each screen rather than scaled, and on the black-and-white watches the hierarchy moves into size and position instead of color.
+Built for Pebble Time 2 - every number in the layout is chosen for its 200x228 color screen - and derived again for Pebble Time and Time Steel, Pebble 2 and Pebble 2 Duo.
