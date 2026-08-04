@@ -158,11 +158,12 @@ static void fonts_load(void) {
   clock_resolve();
 }
 
-// The clock is the one place a system face can appear, so it is resolved
-// separately from the bundled set. `slot` is the width of the widest digit:
+// The clock is resolved separately from the bundled text set, because it is
+// the one place a face can be geometry rather than a font. `slot` is the
+// width of the widest digit:
 // Montserrat is proportional, and drawing into a fixed slot is what stops the
-// minutes shuffling sideways when the digits change. LECO is already tabular
-// and simply agrees.
+// minutes shuffling sideways when the digits change. DSEG and the drawn face
+// are already tabular and simply agree.
 static GFont s_clock, s_clock_custom;
 static uint32_t s_clock_res;
 static int s_clock_asc, s_clock_slot;
@@ -170,8 +171,8 @@ static int s_clock_asc, s_clock_slot;
 // GFont behind it and every draw below branches on this.
 static int s_clock_scale, s_clock_air;
 
-// A 60px LECO and an 88px Roboto cannot share a grid, so every (layout, face)
-// pair carries its own. A `light` of 0 means the system LECO. In the stacked
+// A 68px DSEG and a 94px Montserrat cannot share a grid, so every (layout,
+// face) pair carries its own. In the stacked
 // layout the clock is as large as each face can go before it runs out of
 // height, which is why the horizon — and so the terrain — sits lower there.
 // That is the trade, made explicit.
@@ -195,8 +196,7 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_94, RESOURCE_ID_FONT_CLOCK_B_94, 106, 182, 0, 188 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_91,  RESOURCE_ID_FONT_INTR_B_91,  106, 182, 0, 188 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
-    // LECO is a system face and cannot grow, so it keeps its taller terrain
-    [CF_LECO]    = { 0, 0, 92, 150, 0, 156 },
+    [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     // The drawn face carries a scale, not a resource: 13 rows x5 is a cap of
     // 65 against the 68 the layout allows, so it shares Montserrat's grid.
     [CF_GRID]    = { 5, 5, 106, 182, 0, 188 },
@@ -205,7 +205,7 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_57, RESOURCE_ID_FONT_CLOCK_B_57, 0, 0, 130, 156 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  0, 0, 130, 156 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_49,  RESOURCE_ID_FONT_DSEG_B_49,  0, 0, 130, 156 },
-    [CF_LECO]    = { 0, 0, 0, 0, 130, 156 },
+    [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     // x4 spans 191 of the 200, which is what caps the gap here at 3 rather
     // than the 5 the stacked layout gets. x5 would not fit at all.
     [CF_GRID]    = { 4, 4, 0, 0, 130, 156 },
@@ -217,7 +217,7 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58, 75, 122, 0, 128 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
-    [CF_LECO]    = { 0, 0, 62, 98, 0, 104 },
+    [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     // x4 would clear the day column but a cap of 52 puts the hour's
     // top 5 rows under the header, so x3 it is.
     [CF_GRID]    = { 3, 3, 75, 122, 0, 128 },
@@ -226,7 +226,7 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38, 0, 0, 94, 114 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_37,  RESOURCE_ID_FONT_INTR_B_37,  0, 0, 94, 114 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_33,  RESOURCE_ID_FONT_DSEG_B_33,  0, 0, 94, 114 },
-    [CF_LECO]    = { 0, 0, 0, 0, 94, 114 },
+    [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     [CF_GRID]    = { 2, 2, 0, 0, 94, 114 },
   },
 };
@@ -294,17 +294,12 @@ static void clock_resolve(void) {
     s_clock_slot = ink + s_clock_air;
     return;
   }
-  uint32_t want = g_cfg.bold_clock ? g->bold : g->light;
-  if (!want)
-#if defined(PBL_PLATFORM_EMERY)
-    s_clock = fonts_get_system_font(g_cfg.bold_clock
-        ? FONT_KEY_LECO_60_BOLD_NUMBERS_AM_PM
-        : FONT_KEY_LECO_60_NUMBERS_AM_PM);
-#else
-    // 42 is as far as LECO goes on these, and there is no bold cut at that
-    // size, so the bold toggle simply has nothing to say about LECO here.
-    s_clock = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-#endif
+  // Always the bold cut. It is what survives bright sun, it is what every
+  // build has shipped set to, and a toggle nobody moves is a row on the
+  // config page paying no rent. `light` stays in the struct because
+  // make_fonts.py still emits both weights and a later face may want the
+  // choice back.
+  uint32_t want = g->bold;
   if (want != s_clock_res) {
     if (s_clock_custom) {
       fonts_unload_custom_font(s_clock_custom);

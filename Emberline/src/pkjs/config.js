@@ -59,13 +59,12 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',
-        description: 'Customize your clock digit font. DSEG7 is a real seven-segment face and supports unlit segments behind the lit ones. LECO is a system face that is smaller and leaves a taller terrain.',
+        description: 'Customize your clock digit font. DSEG7 is a real seven-segment face and supports unlit segments behind the lit ones. Blocky Digits is drawn for this watchface rather than set in a typeface.',
         options: [
           { label: 'Montserrat — geometric', value: '0' },
           { label: 'Inter — tall and clean', value: '4' },
           { label: 'DSEG7 — seven-segment', value: '7' },
-          { label: 'Blocky Digits — drawn for this face', value: '12' },
-          { label: 'LECO — small, system', value: '1' }
+          { label: 'Blocky Digits — drawn for this face', value: '12' }
         ]
       },
       {
@@ -86,13 +85,6 @@ module.exports = [
         defaultValue: true,
         label: 'Separator rule',
         description: 'A rule line separating the clock from the rest of the face info.'
-      },
-      {
-        type: 'toggle',
-        messageKey: 'BoldClock',
-        defaultValue: true,
-        label: 'Bold clock',
-        description: 'Whether to bold the clock face font.'
       }
     ]
   },

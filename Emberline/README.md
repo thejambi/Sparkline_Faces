@@ -117,16 +117,26 @@ having:
   digit, rather than hanging off the left. The block stays where it is; only
   the alignment inside it changes.
 
-The clock face is selectable, each with a bold option — bold by default,
-because it is what survives brighter sun:
+The clock face is selectable. Always the bold cut — it is what survives
+brighter sun, and the toggle that used to offer the light one was a row on the
+config page nobody ever moved:
 
 | Face | Emery stacked | Character |
 | --- | --- | --- |
 | **Montserrat** | 94 | geometric, round counters |
 | **Inter** | 91 | tall x-height, very clean |
-
 | **DSEG7 Classic** | 68 | a real seven-segment display |
-| **LECO** | 60 | squared LCD; system face |
+| **Blocky Digits** | cap 65 | not a font: see below |
+
+**Blocky Digits is drawn, not set.** It is a 10x13 grid of cells scaled by a
+whole number — 5 on the Emery stacked layout, down to 2 on a 144x168 one-liner
+— and every row is emitted as runs of `graphics_fill_rect`, so it is crisp at
+every size instead of being hinted down to one. The whole set is 286 bytes
+against roughly 8KB for one size of one bundled font. Draw it in
+`tools/digitgrid.py`, preview it in the real layouts, then `--emit-c` writes
+`src/c/digits.c`; nothing is ever hand-copied into C. The gap between digits is
+one grid column rather than a pixel count, because two pixels beside a 50px
+digit is not the same gap as two beside a 20px one.
 
 The sizes are not round because the faces are not the same width, and they are
 not chosen by eye — `tools/make_fonts.py` solves each one against cap height,

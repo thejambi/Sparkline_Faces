@@ -166,7 +166,6 @@ static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.wake_threshold = (uint16_t)wake;
   g_cfg.clock_font   = tup_int(it, MESSAGE_KEY_ClockFont, g_cfg.clock_font);
   if (g_cfg.clock_font >= CF_COUNT) g_cfg.clock_font = CF_MONT;
-  g_cfg.bold_clock   = tup_int(it, MESSAGE_KEY_BoldClock, g_cfg.bold_clock);
   g_cfg.layout       = tup_int(it, MESSAGE_KEY_Layout, g_cfg.layout);
   if (g_cfg.layout >= LAY_COUNT) g_cfg.layout = LAY_STACK;
   g_cfg.c_sky     = tup_col(it, MESSAGE_KEY_ColSky, g_cfg.c_sky);

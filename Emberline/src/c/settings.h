@@ -10,14 +10,15 @@ enum { DIST_AUTO, DIST_KM, DIST_MI };
 enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
        TH_COUNT };
 // Clock faces. Proportional ones are drawn into fixed slots to make them
-// tabular; LECO and DSEG already are. Either way the digits cannot shuffle.
+// tabular; DSEG and the drawn face already are. Either way digits cannot
+// shuffle.
 //
 // Append-only, like every other persisted enum here: a saved 2 has to keep
 // meaning Roboto.
-// CF_ROBOTO, CF_GROTESK, CF_SOURCE, CF_PLEX and CF_MONO were dropped after wrist
-// testing. Their slots stay: a watch on 1.1.0 has Roboto persisted as 2, and
-// renumbering would hand it somebody else's font. Their grid rows are zeroed
-// and fall back to Montserrat.
+// CF_ROBOTO, CF_GROTESK, CF_SOURCE, CF_PLEX, CF_MONO and now CF_LECO were
+// dropped after wrist testing. Their slots stay: a watch on 1.1.0 has Roboto
+// persisted as 2, and renumbering would hand it somebody else's font. Their
+// grid rows are zeroed and fall back to Montserrat.
 // CF_GRID is "Blocky Digits" on the config page. It is not a font at all: it
 // is a 10x13 grid scaled by whole numbers and drawn as rectangles, which is
 // why it has one weight and ignores the bold toggle. See src/c/digits.h, and
@@ -50,6 +51,9 @@ typedef struct {
   // Custom theme, packed 0xRRGGBB. Only read when theme == TH_CUSTOM.
   uint32_t c_sky, c_ground, c_horizon, c_ink, c_accent, c_muted, c_scale;
   uint8_t clock_font;
+  // Dead since the bold toggle was removed: the clock is always the bold cut.
+  // The field stays because this struct is persisted whole and removing a byte
+  // from the middle would reinterpret everything after it on every saved watch.
   bool bold_clock;
   uint8_t layout;
   // Roles that used to be shared. COL_INHERIT means "still shared", which is
