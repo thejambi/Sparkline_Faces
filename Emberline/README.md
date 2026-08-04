@@ -231,12 +231,18 @@ LECO and the Bitham numerals are digits-only, which rules them out for the
 caps. Gothic only comes in 09/14/18/24 against the 11/14/15/22 the layout
 wants, so the proportions are near rather than exact.
 
-One approximation worth knowing: `INK_VAL` and `INK_CAPS_S` are Montserrat's
-ink heights, and they place the day column and the degree ring. The other
-three families differ by a pixel or two, so those sit marginally off where
-they would if measured per face. Deriving them on the device would mean
-measuring ink rather than the box height Pebble reports, which it does not
-offer.
+**Ink heights and tracking are per text face**, not global. They place the day
+column and the degree ring, and taking them from Montserrat quietly made every
+other family a pixel or two wrong. It is also what lets DSEG14 carry a taller
+caption than the rest: fourteen segments need more than eight rows before the
+diagonals break up, and its tracking is zero because segment forms already hold
+their own air — which makes its captions *narrower* than Montserrat's despite
+being half again as tall.
+
+Montserrat's row is the pair measured off the device by scanning ink rows in a
+screenshot. The others come from a local rasteriser, which reports one row
+taller than the device does, so they carry that correction — and Montserrat is
+referenced rather than re-derived, because the default layout must not move.
 
 Two things worth knowing:
 

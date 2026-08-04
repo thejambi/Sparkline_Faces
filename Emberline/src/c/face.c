@@ -44,7 +44,7 @@ static int s_ascent[F_COUNT];
 // Fourteen segments, which is what it takes to spell — seven cannot manage
 // most of the alphabet, so DSEG7 is a clock face only.
 #define T_DSEG   RESOURCE_ID_FONT_DVAL_17,  RESOURCE_ID_FONT_DUNI_11, \
-                 RESOURCE_ID_FONT_DCAP_11,  RESOURCE_ID_FONT_DCPS_8
+                 RESOURCE_ID_FONT_DCAP_11,  RESOURCE_ID_FONT_DCPS_11
 #else
 #define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
                  RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
@@ -53,7 +53,7 @@ static int s_ascent[F_COUNT];
 #define T_JRSY   RESOURCE_ID_FONT_JVAL_22,  RESOURCE_ID_FONT_JUNI_14, \
                  RESOURCE_ID_FONT_JCAP_14,  RESOURCE_ID_FONT_JCPS_13
 #define T_DSEG   RESOURCE_ID_FONT_DVAL_13,  RESOURCE_ID_FONT_DUNI_6, \
-                 RESOURCE_ID_FONT_DCAP_8,   RESOURCE_ID_FONT_DCPS_6
+                 RESOURCE_ID_FONT_DCAP_8,   RESOURCE_ID_FONT_DCPS_8
 #endif
 
 // The face used for everything that is not the clock. Same four roles in the
@@ -97,6 +97,38 @@ static GSize tsz(const char *s, FontId f) {
 
 static void clock_resolve(void);
 
+// Ink heights and tracking, per text face.
+//
+// These place the day column and the degree ring, and they were global
+// constants taken from Montserrat — which quietly made every other family a
+// couple of pixels wrong. They are per-face now, which is also what lets
+// DSEG14 carry a taller caption: fourteen segments need more than eight rows
+// before the diagonals stop breaking up, and its own tracking is zero because
+// segment forms already hold their own air.
+//
+// Montserrat's row is the pair already in ui.h, which was measured off the
+// device by scanning ink rows in a screenshot. The others are derived from a
+// local rasteriser, which reports one row taller than the device does — so
+// they carry that correction. Montserrat is left exactly as it was rather than
+// re-derived, because the default layout must not move.
+//
+// Gothic is a system face and cannot be measured here, so it borrows
+// Montserrat's — near enough, and the same approximation it had before.
+typedef struct { uint8_t val_ink, caps_ink, track; } TextMetrics;
+
+static const TextMetrics TEXT_INK[TF_COUNT] = {
+#if defined(PBL_PLATFORM_EMERY)
+  [TF_MONT] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
+  [TF_INTER] = {15, 8, 2}, [TF_JRSY] = {16, 8, 2},
+  [TF_DSEG] = {16, 11, 0}, [TF_SYSTEM] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
+#else
+  [TF_MONT] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
+  [TF_INTER] = {12, 7, 1}, [TF_JRSY] = {13, 7, 1},
+  [TF_DSEG] = {12, 7, 0}, [TF_SYSTEM] = {INK_VAL, INK_CAPS_S, TRACK_CAPS},
+#endif
+};
+static uint8_t s_ink_val = INK_VAL, s_ink_caps = INK_CAPS_S, s_track = TRACK_CAPS;
+
 static uint8_t s_text_loaded = 0xFF;
 // A system font must never be handed to fonts_unload_custom_font, so which of
 // the four are ours has to be remembered rather than assumed.
@@ -128,6 +160,9 @@ static void text_load(void) {
     }
     s_ascent[i] = tsz(FONT_PROBE[i], (FontId)i).h;
   }
+  s_ink_val = TEXT_INK[want].val_ink;
+  s_ink_caps = TEXT_INK[want].caps_ink;
+  s_track = TEXT_INK[want].track;
   s_text_loaded = want;
 }
 
@@ -232,7 +267,8 @@ static const ClockGrid *grid(void) {
 // hour's baseline would have put it, and 45 of clear sky on either side of the
 // block instead of 34 above and 56 below.
 static int date_foot(void) {
-  return (grid()->b_min - INK_VAL + DATE_BLOCK_H + BASE_ROW1) / 2;
+  int block = LABEL_RISE + LABEL_DROP + s_ink_caps;
+  return (grid()->b_min - s_ink_val + block + BASE_ROW1) / 2;
 }
 
 static int horizon_y(void) { return grid()->horizon; }
@@ -407,17 +443,17 @@ static int space_w(FontId f) { return tsz("0", f).w / 2; }
 static int tracked_w(const char *s, FontId f) {
   int w = 0;
   for (const char *c = s; *c; c++) {
-    w += (*c == ' ' ? space_w(f) : tsz((char[2]){ *c, 0 }, f).w) + TRACK_CAPS;
+    w += (*c == ' ' ? space_w(f) : tsz((char[2]){ *c, 0 }, f).w) + s_track;
   }
-  return w > 0 ? w - TRACK_CAPS : 0;
+  return w > 0 ? w - s_track : 0;
 }
 
 static void draw_tracked(GContext *ctx, const char *s, FontId f, int x,
                          int baseline) {
   for (const char *c = s; *c; c++) {
-    if (*c == ' ') { x += space_w(f) + TRACK_CAPS; continue; }
+    if (*c == ' ') { x += space_w(f) + s_track; continue; }
     char one[2] = { *c, 0 };
-    x += draw_base(ctx, one, f, x, baseline) + TRACK_CAPS;
+    x += draw_base(ctx, one, f, x, baseline) + s_track;
   }
 }
 
@@ -524,11 +560,11 @@ static void draw_sky(GContext *ctx) {
     if (line) {
       int w = tracked_w(buf, F_CAPS);
       draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW2);
-      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - INK_CAPS_S - 3,
+      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - s_ink_caps - 3,
                   DEG_SIZE_S, p->muted);
     } else {
       draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_min);
-      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - INK_VAL, DEG_SIZE,
+      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - s_ink_val, DEG_SIZE,
                   p->muted);
     }
   }

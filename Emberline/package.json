@@ -830,7 +830,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_DCPS_8",
+          "name": "FONT_DCPS_11",
           "file": "fonts/DSEG14Classic-Bold.ttf",
           "characterRegex": "[A-Z]",
           "targetPlatforms": [
@@ -839,7 +839,7 @@
         },
         {
           "type": "font",
-          "name": "FONT_DCPS_6",
+          "name": "FONT_DCPS_8",
           "file": "fonts/DSEG14Classic-Bold.ttf",
           "characterRegex": "[A-Z]",
           "targetPlatforms": [
