@@ -59,7 +59,7 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',
-        description: 'All of them are drawn one digit at a time into fixed-width slots, so the numerals never shuffle sideways as the minutes change. DSEG7 is a real seven-segment face. Noir and Paper draw its unlit segments behind the lit ones; the other themes have no tone dim enough to spare and leave them off. LECO is the system face and cannot grow, so it sits much smaller and leaves a taller terrain.',
+        description: 'Customize your clock digit font. DSEG7 is a real seven-segment face and supports unlit segments behind the lit ones. LECO is a system face that is smaller and leaves a taller terrain.',
         options: [
           { label: 'Montserrat — geometric', value: '0' },
           { label: 'Inter — tall and clean', value: '4' },
@@ -72,7 +72,7 @@ module.exports = [
         messageKey: 'TextFont',
         defaultValue: '0',
         label: 'Everything else',
-        description: 'The face used for the step count, the date column, the pulse and the labels. DSEG14 is a fourteen-segment display face — seven segments cannot spell, which is why DSEG7 is a clock face only. Gothic is Pebble\u2019s own — it only comes in 9/14/18/24, so the proportions are near rather than exact, but it costs no space at all.',
+        description: 'The face used for the step count, the date column, the pulse and the labels.',
         options: [
           { label: 'Montserrat', value: '0' },
           { label: 'DSEG14 — fourteen-segment', value: '5' },
@@ -84,7 +84,7 @@ module.exports = [
         messageKey: 'ShowSep',
         defaultValue: true,
         label: 'Separator rule',
-        description: 'A rule around the clock\u2019s field — along under the health row, then down between the clock and the date column, turning through a rounded corner. On one line it is just the horizontal run.'
+        description: 'A rule line separating the clock from the rest of the face info.'
       },
       {
         type: 'toggle',
@@ -123,7 +123,7 @@ module.exports = [
         messageKey: 'ShowBpm',
         defaultValue: true,
         label: 'Heart rate',
-        description: 'Turned off, or whenever there is no reading, that slot shows the day’s distance instead.'
+        description: 'When off, or whenever there is no reading, that slot shows your walking distance instead.'
       },
       {
         type: 'select',
@@ -155,12 +155,12 @@ module.exports = [
         messageKey: 'ShowSleep',
         defaultValue: true,
         label: 'Show sleep on waking',
-        description: 'Before you get moving, the step slot shows last night’s sleep as 6h 32m. Step count displays once it passes the wake threshold below, and the colors warm at the same moment.'
+        description: 'Before you get moving, the step slot shows last night’s sleep as 7h 32m. Step count displays once it passes the wake threshold below, and the colors warm at the same moment.'
       },
       {
         type: 'slider',
         messageKey: 'WakeThreshold',
-        defaultValue: 500,
+        defaultValue: 350,
         label: 'Wake threshold',
         description: 'Show sleep until this many steps have been taken today.',
         min: 0,
@@ -192,7 +192,7 @@ module.exports = [
         messageKey: 'WeatherLoc',
         defaultValue: '',
         label: 'Location',
-        description: 'A city or postal code. Left empty, weather follows your phone; filled in, it never reads for your phone’s location at all.',
+        description: 'A city or postal code. When empty, weather follows your phone; when filled in, it never reads for your phone’s location.',
         attributes: { placeholder: 'e.g. Minneapolis or 55401' }
       },
       {
@@ -226,7 +226,7 @@ module.exports = [
       { type: 'heading', defaultValue: 'Custom colors' },
       {
         type: 'text',
-        defaultValue: 'Used only when Theme is set to Custom. Simple keeps the roles that mean the same thing tied together — the terrain follows the step count, the newest bar follows the clock, the rule follows the chart. Advanced cuts every one of them loose.'
+        defaultValue: 'Used only when Theme is set to Custom. Simple keeps the roles that mean the same thing tied together — the terrain follows the step count, the newest bar follows the clock, the rule follows the chart. Advanced gives full control.'
       },
       {
         type: 'select',

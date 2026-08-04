@@ -97,6 +97,11 @@ platform name — the tool keys off that to know where a shot belongs.
 | `screenshots/emery_4_phosphor.png` | theming |
 | `screenshots/emery_5_paper.png` | the light theme |
 
+**`--screenshots` appends, it does not replace.** Every publish that passes
+them adds another full set to the listing, and the old ones have to be deleted
+by hand in the dashboard. So pass them only when a shot has actually changed —
+a release that only touches code or copy should leave the flag off entirely.
+
 Run from this directory, with the `.pbw` freshly built and the repo pushed
 (the source URL is part of the listing):
 

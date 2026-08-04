@@ -18,7 +18,7 @@ static void defaults(void) {
   g_cfg.show_sleep = true;
   g_cfg.sleep_terrain = true;
   g_cfg.weather_on = true;
-  g_cfg.wake_threshold = 500;
+  g_cfg.wake_threshold = 350;
   g_cfg.clock_font = CF_MONT;
   g_cfg.bold_clock = true;
   g_cfg.layout = LAY_STACK;
