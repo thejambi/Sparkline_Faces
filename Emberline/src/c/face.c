@@ -1,5 +1,6 @@
 #include "ui.h"
 #include "settings.h"
+#include "digits.h"
 #include "health.h"
 
 // Emberline. See ui.h for the layout and why the clock is stacked.
@@ -165,6 +166,9 @@ static void fonts_load(void) {
 static GFont s_clock, s_clock_custom;
 static uint32_t s_clock_res;
 static int s_clock_asc, s_clock_slot;
+// Nonzero only for CF_GRID, and then it is the whole face: there is no
+// GFont behind it and every draw below branches on this.
+static int s_clock_scale;
 
 // A 60px LECO and an 88px Roboto cannot share a grid, so every (layout, face)
 // pair carries its own. A `light` of 0 means the system LECO. In the stacked
@@ -193,12 +197,18 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
     // LECO is a system face and cannot grow, so it keeps its taller terrain
     [CF_LECO]    = { 0, 0, 92, 150, 0, 156 },
+    // The drawn face carries a scale, not a resource: 13 rows x5 is a cap of
+    // 65 against the 68 the layout allows, so it shares Montserrat's grid.
+    [CF_GRID]    = { 5, 5, 106, 182, 0, 188 },
   },
   [LAY_LINE] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_57, RESOURCE_ID_FONT_CLOCK_B_57, 0, 0, 130, 156 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  0, 0, 130, 156 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_49,  RESOURCE_ID_FONT_DSEG_B_49,  0, 0, 130, 156 },
     [CF_LECO]    = { 0, 0, 0, 0, 130, 156 },
+    // x4 spans 190 of the 200: one pixel tighter to the edges than
+    // DSEG already runs at its own maximum. x5 would not fit at all.
+    [CF_GRID]    = { 4, 4, 0, 0, 130, 156 },
   },
 };
 #else   // 144x168: width binds here, not height
@@ -208,12 +218,16 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
     [CF_LECO]    = { 0, 0, 62, 98, 0, 104 },
+    // x4 would clear the day column but a cap of 52 puts the hour's
+    // top 5 rows under the header, so x3 it is.
+    [CF_GRID]    = { 3, 3, 75, 122, 0, 128 },
   },
   [LAY_LINE] = {
     [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_38, RESOURCE_ID_FONT_CLOCK_B_38, 0, 0, 94, 114 },
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_37,  RESOURCE_ID_FONT_INTR_B_37,  0, 0, 94, 114 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_33,  RESOURCE_ID_FONT_DSEG_B_33,  0, 0, 94, 114 },
     [CF_LECO]    = { 0, 0, 0, 0, 94, 114 },
+    [CF_GRID]    = { 2, 2, 0, 0, 94, 114 },
   },
 };
 #endif
@@ -251,6 +265,22 @@ static int bar_max(void) { return PLOT_BOT - ground_y() - 3; }
 
 static void clock_resolve(void) {
   const ClockGrid *g = grid();
+  // The drawn face takes this before the resource machinery gets a look in:
+  // its row holds a scale, and handing that to resource_get_handle would be a
+  // very confusing crash. It has one weight, so the bold toggle says nothing.
+  s_clock_scale = 0;
+  if (g_cfg.clock_font == CF_GRID && g->horizon) {
+    if (s_clock_custom) {
+      fonts_unload_custom_font(s_clock_custom);
+      s_clock_custom = NULL;
+      s_clock_res = 0;
+    }
+    s_clock = NULL;
+    s_clock_scale = (int)g->light;
+    s_clock_asc = DIGIT_H * s_clock_scale;
+    s_clock_slot = DIGIT_W * s_clock_scale + 2;
+    return;
+  }
   uint32_t want = g_cfg.bold_clock ? g->bold : g->light;
   if (!want)
 #if defined(PBL_PLATFORM_EMERY)
@@ -296,23 +326,60 @@ void face_fonts_changed(void) { text_load(); clock_resolve(); }
 // sit between the sky and the ink, and above a lit sky the Pebble 64 has
 // nothing there — on Dusk every candidate reads as 88 rather than 9. Those
 // themes set unlit to their own sky, and this quietly draws nothing.
-static void draw_ghost(GContext *ctx, int x, int slot_w, int baseline) {
-  const Palette *p = palette();
-  if (g_cfg.clock_font != CF_DSEG || gcolor_equal(p->unlit, p->sky)) return;
-  GSize sz = graphics_text_layout_get_content_size("8", s_clock,
+// One character into its slot, whichever face is in play. The text faces are
+// centred on their own ink, because Montserrat is proportional and a fixed
+// slot is the only thing stopping the minutes shuffling sideways. The drawn
+// face is tabular already and simply lands on the grid.
+static void clock_glyph(GContext *ctx, char c, int x, int slot_w, int baseline,
+                        GColor col) {
+  if (s_clock_scale) {
+    int idx = (c == ':') ? DIGIT_COLON : c - '0';
+    graphics_context_set_fill_color(ctx, col);
+    digit_draw(ctx, idx, x + (slot_w - DIGIT_W * s_clock_scale) / 2,
+               baseline - s_clock_asc, s_clock_scale);
+    return;
+  }
+  char one[2] = { c, 0 };
+  GSize sz = graphics_text_layout_get_content_size(one, s_clock,
       GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
       GTextAlignmentLeft);
-  graphics_context_set_text_color(ctx, p->unlit);
-  graphics_draw_text(ctx, "8", s_clock,
+  graphics_context_set_text_color(ctx, col);
+  graphics_draw_text(ctx, one, s_clock,
       GRect(x + (slot_w - sz.w) / 2, baseline - s_clock_asc, sz.w + 12,
             sz.h + 8),
       GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
-  graphics_context_set_text_color(ctx, p->ink);
+}
+
+// What the colon occupies on the one line. It is far narrower than a digit in
+// either face, and lending it a digit's slot would open a gap on both sides.
+static int colon_slot(void) {
+  if (s_clock_scale)
+    return (DIGIT_COLON_R - DIGIT_COLON_L + 1) * s_clock_scale + 6;
+  return graphics_text_layout_get_content_size(":", s_clock,
+      GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
+      GTextAlignmentLeft).w + 8;
+}
+
+// A seven-segment display shows the segments it is *not* lighting, and that is
+// most of what makes one read as a display rather than as a typeface. Both
+// segment faces draw them by setting an 8 underneath every digit in a darker
+// tone.
+//
+// It only happens where the palette has somewhere to put that tone: it must
+// sit between the sky and the ink, and above a lit sky the Pebble 64 has
+// nothing there — on Dusk every candidate reads as 88 rather than 9. Those
+// themes set unlit to their own sky, and this quietly draws nothing.
+static void draw_ghost(GContext *ctx, int x, int slot_w, int baseline) {
+  const Palette *p = palette();
+  if (g_cfg.clock_font != CF_DSEG && g_cfg.clock_font != CF_GRID) return;
+  if (gcolor_equal(p->unlit, p->sky)) return;
+  clock_glyph(ctx, '8', x, slot_w, baseline, p->unlit);
 }
 
 // Right-aligned within the block, one digit per slot. A single-digit hour
 // therefore sits above the minutes' second digit rather than above the first.
 static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
+  GColor ink = palette()->ink;
   int n = strlen(s);
   int right = MARGIN_L + 2 * s_clock_slot;
   // Both slots get their unlit 8, even the one no digit lands in — a real
@@ -321,14 +388,7 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
     draw_ghost(ctx, MARGIN_L + i * s_clock_slot, s_clock_slot, baseline);
   int x = right - n * s_clock_slot;
   for (int i = 0; i < n; i++) {
-    char one[2] = { s[i], 0 };
-    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
-        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
-        GTextAlignmentLeft);
-    graphics_draw_text(ctx, one, s_clock,
-        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
-              sz.w + 12, sz.h + 8),
-        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    clock_glyph(ctx, s[i], x, s_clock_slot, baseline, ink);
     x += s_clock_slot;
   }
 }
@@ -338,10 +398,8 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
 // however the digits change.
 static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
                             int baseline) {
-  GSize cs = graphics_text_layout_get_content_size(":", s_clock,
-      GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
-      GTextAlignmentLeft);
-  int cslot = cs.w + 8;
+  GColor ink = palette()->ink;
+  int cslot = colon_slot();
   int cx0 = SCREEN_W / 2 - cslot / 2;
 
   for (int i = 0; i < 2; i++) {
@@ -350,30 +408,13 @@ static void draw_clock_line(GContext *ctx, const char *hh, const char *mm,
   }
   int x = cx0 - (int)strlen(hh) * s_clock_slot;
   for (const char *c = hh; *c; c++) {
-    char one[2] = { *c, 0 };
-    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
-        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
-        GTextAlignmentLeft);
-    graphics_draw_text(ctx, one, s_clock,
-        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
-              sz.w + 12, sz.h + 8),
-        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    clock_glyph(ctx, *c, x, s_clock_slot, baseline, ink);
     x += s_clock_slot;
   }
-  graphics_draw_text(ctx, ":", s_clock,
-      GRect(cx0 + (cslot - cs.w) / 2, baseline - s_clock_asc, cs.w + 12,
-            cs.h + 8),
-      GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+  clock_glyph(ctx, ':', cx0, cslot, baseline, ink);
   x = cx0 + cslot;
   for (const char *c = mm; *c; c++) {
-    char one[2] = { *c, 0 };
-    GSize sz = graphics_text_layout_get_content_size(one, s_clock,
-        GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
-        GTextAlignmentLeft);
-    graphics_draw_text(ctx, one, s_clock,
-        GRect(x + (s_clock_slot - sz.w) / 2, baseline - s_clock_asc,
-              sz.w + 12, sz.h + 8),
-        GTextOverflowModeTrailingEllipsis, GTextAlignmentLeft, NULL);
+    clock_glyph(ctx, *c, x, s_clock_slot, baseline, ink);
     x += s_clock_slot;
   }
 }

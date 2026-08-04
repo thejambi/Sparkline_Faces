@@ -64,6 +64,7 @@ module.exports = [
           { label: 'Montserrat — geometric', value: '0' },
           { label: 'Inter — tall and clean', value: '4' },
           { label: 'DSEG7 — seven-segment', value: '7' },
+          { label: 'Emberline — drawn for this face', value: '12' },
           { label: 'LECO — small, system', value: '1' }
         ]
       },
