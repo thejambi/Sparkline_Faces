@@ -18,8 +18,10 @@ enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
 // testing. Their slots stay: a watch on 1.1.0 has Roboto persisted as 2, and
 // renumbering would hand it somebody else's font. Their grid rows are zeroed
 // and fall back to Montserrat.
-// CF_GRID is not a font at all: it is Emberline's own digits, a 10x13 grid
-// scaled by whole numbers, drawn as rectangles. See src/c/digits.h.
+// CF_GRID is "Blocky Digits" on the config page. It is not a font at all: it
+// is a 10x13 grid scaled by whole numbers and drawn as rectangles, which is
+// why it has one weight and ignores the bold toggle. See src/c/digits.h, and
+// tools/digitgrid.py for the drawing itself.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
        CF_DSEG, CF_MONO, CF_KODE, CF_MRTN, CF_JRSY, CF_GRID, CF_COUNT };
 // Two ways to set the same information. Stacked buys a much larger numeral;
