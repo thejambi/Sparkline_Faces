@@ -59,7 +59,7 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '0',
         label: 'Clock face',
-        description: 'All of them are drawn one digit at a time into fixed-width slots, so the numerals never shuffle sideways as the minutes change. DSEG7 is a real seven-segment face — it looks its best on Phosphor, against a black sky. LECO is the system face and cannot grow, so it sits much smaller and leaves a taller terrain.',
+        description: 'All of them are drawn one digit at a time into fixed-width slots, so the numerals never shuffle sideways as the minutes change. DSEG7 is a real seven-segment face. Noir and Paper draw its unlit segments behind the lit ones; the other themes have no tone dim enough to spare and leave them off. LECO is the system face and cannot grow, so it sits much smaller and leaves a taller terrain.',
         options: [
           { label: 'Montserrat — geometric', value: '0' },
           { label: 'Inter — tall and clean', value: '4' },

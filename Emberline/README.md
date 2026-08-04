@@ -167,7 +167,7 @@ no room for it set it to their own sky, where it quietly draws nothing:
 
 | | unlit | against |
 | --- | --- | --- |
-| **Phosphor** | `550000` | `FF5500` on black — the real thing |
+| **Phosphor** | *its own sky* | off by default — see below |
 | **Noir** | `555555` | white on black |
 | **Paper** | `AAAAAA` | black on white |
 | **Moss** / **Tide** | `00AA00` / `00AAAA` | white on a dark ground |
@@ -175,6 +175,14 @@ no room for it set it to their own sky, where it quietly draws nothing:
 
 Black and white gets nothing either: two colours have no third tone to ghost
 with. Custom exposes it as an eleventh role, defaulting to the sky.
+
+**Phosphor was the theme this was built for, and it is the one where it
+failed.** `550000` against black read correctly in the emulator and vanished on
+the wrist. The arithmetic says why: red carries 21% of perceived luminance, so
+one step of red above black is 7% apart, where the same step in green — Moss —
+is 24%. It was the dimmest pairing the Pebble 64 can make, and the emulator's
+LCD simulation flattered it. Phosphor's unlit tone is now its own sky, and the
+capability stays available through Custom.
 
 ### The rest of the type
 

@@ -46,7 +46,13 @@ static void defaults(void) {
 //
 // Phosphor is the exception. It spends two hues on an unlit screen rather than
 // one on a lit one: the time in orange, everything the body reports in green,
-// and no sky at all. The horizon follows the clock there instead of the
+// and no sky at all.
+//
+// Its unlit tone is its own sky, so DSEG's ghost segments are off here. 0x550000
+// against black looked right in the emulator and vanished on the wrist, and the
+// arithmetic says why: red carries 21% of perceived luminance, so one step of
+// red above black is 7% apart where one step of green is 24%. It was the
+// dimmest pairing the Pebble 64 can make. Custom can still set one. The horizon follows the clock there instead of the
 // terrain, which is the opposite of the others — it reads as the line the
 // numerals stand on rather than the edge of the plot. Dusk is the default
 // because it is the only theme that depicts what the face is about.
@@ -68,7 +74,7 @@ static const Theme THEMES[TH_COUNT] = {
   [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA , 0x00AAAA , 0x55AAAA },
   // TH_CUSTOM is a hole in this table: it comes from g_cfg instead
   // phosphor — two phosphors on a dead screen, orange for time, green for body
-  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 , 0x550000 , 0x005555 },
+  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 , 0x000000 , 0x005555 },
 };
 
 static void resolve(void) {
