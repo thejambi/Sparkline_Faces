@@ -390,46 +390,6 @@
         },
         {
           "type": "font",
-          "name": "FONT_JRSY_113",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_JRSY_78",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "emery"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_JRSY_72",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
-          "name": "FONT_JRSY_54",
-          "file": "fonts/Jersey25-Regular.ttf",
-          "characterRegex": "[0-9:]",
-          "targetPlatforms": [
-            "basalt",
-            "diorite",
-            "flint"
-          ]
-        },
-        {
-          "type": "font",
           "name": "FONT_DVAL_17",
           "file": "fonts/DSEG14Classic-Bold.ttf",
           "characterRegex": "[0-9,.]",

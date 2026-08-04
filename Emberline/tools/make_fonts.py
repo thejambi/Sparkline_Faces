@@ -24,11 +24,6 @@ FAMILIES = [
     ('CF_MONT',    'CLOCK', 'Montserrat-Light.ttf',   'Montserrat-Bold.ttf'),
     ('CF_INTER',   'INTR',  'Inter-Light.ttf',        'Inter-Bold.ttf'),
     ('CF_DSEG',    'DSEG',  'DSEG7Classic-Light.ttf', 'DSEG7Classic-Bold.ttf'),
-    # Jersey 25 ships one weight only, so bold and light are the same file and
-    # the bold toggle has nothing to say about it — as with LECO. The grid
-    # points both slots at the light resource; generating a B_ twin would be a
-    # byte-identical second copy.
-    ('CF_JRSY',    'JRSY',  'Jersey25-Regular.ttf',   'Jersey25-Regular.ttf'),
 ]
 
 SMALL = ['basalt', 'diorite', 'flint']
@@ -57,7 +52,7 @@ def slot(f):
 # is added or the SDK changes.
 CEILING = {                     # family stem -> (emery 512B, 144x168 256B)
     'CLOCK': (94, 66), 'INTR': (96, 67), 'DSEG': (81, 57),
-    'JRSY': (130, 91),
+   
 }
 
 

@@ -124,13 +124,7 @@ because it is what survives brighter sun:
 | --- | --- | --- |
 | **Montserrat** | 94 | geometric, round counters |
 | **Inter** | 91 | tall x-height, very clean |
-| **Jersey 25** | 113 | a pixel display; one weight only |
 
-Jersey ships a single weight, so both grid slots point at the *same* resource
-rather than generating a byte-identical bold twin — which is what the table did
-at first, and it doubled the family's cost for nothing. It is 8.3KB on Emery
-and 4.9KB on the smaller screens: four subset sizes of `[0-9:]`, not the 139KB
-the TTF weighs on disk.
 | **DSEG7 Classic** | 68 | a real seven-segment display |
 | **LECO** | 60 | squared LCD; system face |
 
