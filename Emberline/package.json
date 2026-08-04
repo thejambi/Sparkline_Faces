@@ -787,6 +787,86 @@
             "diorite",
             "flint"
           ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DVAL_17",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DVAL_13",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DCAP_11",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DCAP_8",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DCPS_8",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DCPS_6",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DUNI_11",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_DUNI_6",
+          "file": "fonts/DSEG14Classic-Bold.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
         }
       ]
     }

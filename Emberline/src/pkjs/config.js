@@ -80,6 +80,7 @@ module.exports = [
           { label: 'Montserrat', value: '0' },
           { label: 'Inter', value: '1' },
           { label: 'Jersey — pixel', value: '4' },
+          { label: 'DSEG14 — fourteen-segment', value: '5' },
           { label: 'Gothic — the system face', value: '3' }
         ]
       },

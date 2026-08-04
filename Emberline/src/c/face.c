@@ -41,6 +41,10 @@ static int s_ascent[F_COUNT];
                  RESOURCE_ID_FONT_ICAP_15,  RESOURCE_ID_FONT_ICPS_11
 #define T_JRSY   RESOURCE_ID_FONT_JVAL_32,  RESOURCE_ID_FONT_JUNI_20, \
                  RESOURCE_ID_FONT_JCAP_20,  RESOURCE_ID_FONT_JCPS_14
+// Fourteen segments, which is what it takes to spell — seven cannot manage
+// most of the alphabet, so DSEG7 is a clock face only.
+#define T_DSEG   RESOURCE_ID_FONT_DVAL_17,  RESOURCE_ID_FONT_DUNI_11, \
+                 RESOURCE_ID_FONT_DCAP_11,  RESOURCE_ID_FONT_DCPS_8
 #else
 #define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
                  RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
@@ -48,6 +52,8 @@ static int s_ascent[F_COUNT];
                  RESOURCE_ID_FONT_ICAP_11,  RESOURCE_ID_FONT_ICPS_9
 #define T_JRSY   RESOURCE_ID_FONT_JVAL_22,  RESOURCE_ID_FONT_JUNI_14, \
                  RESOURCE_ID_FONT_JCAP_14,  RESOURCE_ID_FONT_JCPS_13
+#define T_DSEG   RESOURCE_ID_FONT_DVAL_13,  RESOURCE_ID_FONT_DUNI_6, \
+                 RESOURCE_ID_FONT_DCAP_8,   RESOURCE_ID_FONT_DCPS_6
 #endif
 
 // The face used for everything that is not the clock. Same four roles in the
@@ -57,6 +63,7 @@ static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
   [TF_INTER]  = { T_INTER },
   [TF_SYSTEM] = { 0, 0, 0, 0 },
   [TF_JRSY]   = { T_JRSY },
+  [TF_DSEG]   = { T_DSEG },
 };
 
 // Gothic is the only system family that reaches these sizes at all. Bitham has

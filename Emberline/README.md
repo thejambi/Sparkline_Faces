@@ -187,12 +187,26 @@ capability stays available through Custom.
 ### The rest of the type
 
 The face used for everything that is not the clock is selectable too, across
-all four roles at once: Montserrat, Inter, Jersey 25, or Gothic. Inter has
+all four roles at once: Montserrat, Inter, Jersey, DSEG14, or Gothic. Inter has
 the taller x-height of the two bundled ones, so it reads largest at the same
 pixel size. Only the chosen family is resident, and it is unloaded and
 reloaded when the setting changes rather than kept alongside — which means
 remembering which of the four are *ours*, since handing a system font to
 `fonts_unload_custom_font` is not a thing to do twice.
+
+**DSEG7 is a clock face only, and DSEG14 is why.** Seven segments cannot form
+most of the alphabet: DSEG7 has glyphs for A-Z, so a charset check passes, but
+`WED MAR AUG` comes out as `ЬEd ΠAr AuG` — the W a broken H, the M a Π, and D,
+R and U silently dropping to lowercase because the capitals are impossible. It
+would fail at any size. Fourteen segments exist precisely to spell, so DSEG14
+takes the text roles and the two together make one instrument rather than a
+mixed metaphor.
+
+Its captions are the weak point, and knowing why matters: at an eight-row cap
+the diagonal segments are one pixel and break up, so `A` leans toward `R` and
+`O` reads as a box. That is survivable only because these captions are a closed
+set — weekday, month, `BPM` — recognised rather than read. It would not do for
+arbitrary text.
 
 **The Jersey family is four pixel grids, and the text roles use the coarsest.**
 Jersey 10, 15, 20 and 25 are the same design drawn at rising resolutions. The
