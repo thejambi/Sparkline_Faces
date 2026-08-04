@@ -39,11 +39,15 @@ static int s_ascent[F_COUNT];
                  RESOURCE_ID_FONT_CAPS_15,  RESOURCE_ID_FONT_CAPS_11
 #define T_INTER  RESOURCE_ID_FONT_IVAL_22,  RESOURCE_ID_FONT_IUNI_14, \
                  RESOURCE_ID_FONT_ICAP_15,  RESOURCE_ID_FONT_ICPS_11
+#define T_JRSY   RESOURCE_ID_FONT_JVAL_27,  RESOURCE_ID_FONT_JUNI_16, \
+                 RESOURCE_ID_FONT_JCAP_16,  RESOURCE_ID_FONT_JCPS_12
 #else
 #define T_MONT   RESOURCE_ID_FONT_VALUE_16, RESOURCE_ID_FONT_UNIT_10, \
                  RESOURCE_ID_FONT_DATE_11,  RESOURCE_ID_FONT_CAPS_9
 #define T_INTER  RESOURCE_ID_FONT_IVAL_16,  RESOURCE_ID_FONT_IUNI_10, \
                  RESOURCE_ID_FONT_ICAP_11,  RESOURCE_ID_FONT_ICPS_9
+#define T_JRSY   RESOURCE_ID_FONT_JVAL_21,  RESOURCE_ID_FONT_JUNI_12, \
+                 RESOURCE_ID_FONT_JCAP_12,  RESOURCE_ID_FONT_JCPS_10
 #endif
 
 // The face used for everything that is not the clock. Same four roles in the
@@ -52,6 +56,7 @@ static const uint32_t TEXT_RES[TF_COUNT][F_COUNT] = {
   [TF_MONT]   = { T_MONT },
   [TF_INTER]  = { T_INTER },
   [TF_SYSTEM] = { 0, 0, 0, 0 },
+  [TF_JRSY]   = { T_JRSY },
 };
 
 // Gothic is the only system family that reaches these sizes at all. Bitham has

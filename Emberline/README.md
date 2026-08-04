@@ -187,12 +187,20 @@ capability stays available through Custom.
 ### The rest of the type
 
 The face used for everything that is not the clock is selectable too, across
-all four roles at once: Montserrat, Inter, or Gothic. Inter has
+all four roles at once: Montserrat, Inter, Jersey 25, or Gothic. Inter has
 the taller x-height of the two bundled ones, so it reads largest at the same
 pixel size. Only the chosen family is resident, and it is unloaded and
 reloaded when the setting changes rather than kept alongside — which means
 remembering which of the four are *ours*, since handing a system font to
 `fonts_unload_custom_font` is not a thing to do twice.
+
+**Jersey 25 is sized by ink height, not by point size.** It is a pixel face,
+and at Montserrat's point sizes it comes out visibly smaller — but `INK_VAL`
+and `INK_CAPS_S` place the day column and the degree ring, so a family whose
+ink does not match would shift the layout under itself. Matching the ink
+instead puts it at 27/16/16/12 against Montserrat's 22/14/15/11, and as a
+side effect lands it near its own pixel grid, so the stems stay even rather
+than resampling to mush.
 
 **Gothic is the only system family that reaches these sizes**, and it costs no
 resource bytes at all. Bitham cannot: its smallest full cut is 30 and the

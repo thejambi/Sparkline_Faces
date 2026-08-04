@@ -79,6 +79,7 @@ module.exports = [
         options: [
           { label: 'Montserrat', value: '0' },
           { label: 'Inter', value: '1' },
+          { label: 'Jersey 25 — pixel', value: '4' },
           { label: 'Gothic — the system face', value: '3' }
         ]
       },

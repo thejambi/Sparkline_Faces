@@ -707,6 +707,86 @@
             "diorite",
             "flint"
           ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JVAL_27",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JVAL_21",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[0-9,.]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JUNI_16",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JUNI_12",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[hm]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JCAP_16",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JCAP_12",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[A-Z0-9-]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JCPS_12",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "emery"
+          ]
+        },
+        {
+          "type": "font",
+          "name": "FONT_JCPS_10",
+          "file": "fonts/Jersey25-Regular.ttf",
+          "characterRegex": "[A-Z]",
+          "targetPlatforms": [
+            "basalt",
+            "diorite",
+            "flint"
+          ]
         }
       ]
     }
