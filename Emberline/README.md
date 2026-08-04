@@ -194,11 +194,19 @@ reloaded when the setting changes rather than kept alongside — which means
 remembering which of the four are *ours*, since handing a system font to
 `fonts_unload_custom_font` is not a thing to do twice.
 
-**Jersey 25 is sized by ink height, not by point size.** It is a pixel face,
+**The Jersey family is four pixel grids, and the text roles use the coarsest.**
+Jersey 10, 15, 20 and 25 are the same design drawn at rising resolutions. The
+clock takes 25 — at a 68px cap there is grid to spare and the fine cut holds
+detail. The text roles take **10**: a capital is eight rows there, and a face
+designed for twenty-five of them squeezed into eight gives stems of one pixel
+and two at random, which is what "mangled" looks like. The coarse cut was
+drawn for exactly that size.
+
+**Jersey is sized by ink height, not by point size.** It is a pixel face,
 and at Montserrat's point sizes it comes out visibly smaller — but `INK_VAL`
 and `INK_CAPS_S` place the day column and the degree ring, so a family whose
 ink does not match would shift the layout under itself. Matching the ink
-instead puts it at 27/16/16/12 against Montserrat's 22/14/15/11, and as a
+instead puts it at 32/20/20/14 against Montserrat's 22/14/15/11, and as a
 side effect lands it near its own pixel grid, so the stems stay even rather
 than resampling to mush.
 
