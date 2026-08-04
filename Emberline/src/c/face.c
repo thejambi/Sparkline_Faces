@@ -168,7 +168,7 @@ static uint32_t s_clock_res;
 static int s_clock_asc, s_clock_slot;
 // Nonzero only for CF_GRID, and then it is the whole face: there is no
 // GFont behind it and every draw below branches on this.
-static int s_clock_scale;
+static int s_clock_scale, s_clock_air;
 
 // A 60px LECO and an 88px Roboto cannot share a grid, so every (layout, face)
 // pair carries its own. A `light` of 0 means the system LECO. In the stacked
@@ -206,8 +206,8 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  0, 0, 130, 156 },
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_49,  RESOURCE_ID_FONT_DSEG_B_49,  0, 0, 130, 156 },
     [CF_LECO]    = { 0, 0, 0, 0, 130, 156 },
-    // x4 spans 190 of the 200: one pixel tighter to the edges than
-    // DSEG already runs at its own maximum. x5 would not fit at all.
+    // x4 spans 191 of the 200, which is what caps the gap here at 3 rather
+    // than the 5 the stacked layout gets. x5 would not fit at all.
     [CF_GRID]    = { 4, 4, 0, 0, 130, 156 },
   },
 };
@@ -278,7 +278,20 @@ static void clock_resolve(void) {
     s_clock = NULL;
     s_clock_scale = (int)g->light;
     s_clock_asc = DIGIT_H * s_clock_scale;
-    s_clock_slot = DIGIT_W * s_clock_scale + 2;
+    // The gap between slots is one grid column, so the digits breathe by the
+    // design's own unit. A fixed pixel count cannot: two pixels beside a 50px
+    // digit is not the same gap as two beside a 20px one, and the drawn face
+    // spans both. The one line has to hold four of these plus the colon
+    // inside the screen, so there it takes whatever is left over instead.
+    int ink = DIGIT_W * s_clock_scale;
+    int cw = (DIGIT_COLON_R - DIGIT_COLON_L + 1) * s_clock_scale;
+    s_clock_air = s_clock_scale;
+    if (g_cfg.layout == LAY_LINE) {
+      int fit = (SCREEN_W - 8 - 4 * ink - cw) / 5;
+      if (fit < 1) fit = 1;
+      if (fit < s_clock_air) s_clock_air = fit;
+    }
+    s_clock_slot = ink + s_clock_air;
     return;
   }
   uint32_t want = g_cfg.bold_clock ? g->bold : g->light;
@@ -354,16 +367,20 @@ static void clock_glyph(GContext *ctx, char c, int x, int slot_w, int baseline,
 // either face, and lending it a digit's slot would open a gap on both sides.
 static int colon_slot(void) {
   if (s_clock_scale)
-    return (DIGIT_COLON_R - DIGIT_COLON_L + 1) * s_clock_scale + 6;
+    return (DIGIT_COLON_R - DIGIT_COLON_L + 1) * s_clock_scale + s_clock_air;
   return graphics_text_layout_get_content_size(":", s_clock,
       GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
       GTextAlignmentLeft).w + 8;
 }
 
 // A seven-segment display shows the segments it is *not* lighting, and that is
-// most of what makes one read as a display rather than as a typeface. Both
-// segment faces draw them by setting an 8 underneath every digit in a darker
-// tone.
+// most of what makes one read as a display rather than as a typeface. DSEG
+// draws them by setting an 8 underneath every digit in a darker tone.
+//
+// The drawn face is laid out on the same seven segments but does not separate
+// them — its bars run into each other at the corners — so an 8 behind it is
+// not a row of dark segments, it is a lit rectangle with a few notches. It is
+// deliberately left out of this.
 //
 // It only happens where the palette has somewhere to put that tone: it must
 // sit between the sky and the ink, and above a lit sky the Pebble 64 has
@@ -371,8 +388,7 @@ static int colon_slot(void) {
 // themes set unlit to their own sky, and this quietly draws nothing.
 static void draw_ghost(GContext *ctx, int x, int slot_w, int baseline) {
   const Palette *p = palette();
-  if (g_cfg.clock_font != CF_DSEG && g_cfg.clock_font != CF_GRID) return;
-  if (gcolor_equal(p->unlit, p->sky)) return;
+  if (g_cfg.clock_font != CF_DSEG || gcolor_equal(p->unlit, p->sky)) return;
   clock_glyph(ctx, '8', x, slot_w, baseline, p->unlit);
 }
 

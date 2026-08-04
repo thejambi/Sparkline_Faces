@@ -263,7 +263,17 @@ def face(role):
     name, W, H, ml, mr, S, stacked, b1, b2, hz = role
     im = Image.new('RGB', (W, H), P['sky']); d = ImageDraw.Draw(im)
     gw, gh = GRID_W*S, GRID_H*S
-    slot = gw + 2
+    cols = [c for c in range(GRID_W) if any(r[c] == '#' for r in DIGITS[':'])]
+    c0, c1 = (cols[0], cols[-1]) if cols else (0, 0)
+    cw = (c1 - c0 + 1)*S
+    # The gap between slots is one grid column, so the digits breathe by the
+    # design's own unit rather than by a pixel count that means one thing at
+    # x5 and something else entirely at x2. The one line has to hold four of
+    # those plus the colon inside the screen, so there it takes what is left.
+    air = S
+    if not stacked:
+        air = min(air, max(1, (W - 8 - 4*gw - cw)//5))
+    slot = gw + air
 
     def txt(s, size, x, base, col, track=None):
         f = ImageFont.truetype(MB, size)
@@ -301,13 +311,10 @@ def face(role):
         # to its ink rather than to the grid — it only uses a couple of the
         # eight columns, and padding it to full width would open a gap the
         # real draw_clock_line does not have.
-        cols = [c for c in range(GRID_W)
-                if any(r[c] == '#' for r in DIGITS[':'])]
-        c0, c1 = (cols[0], cols[-1]) if cols else (0, 0)
-        cslot = (c1 - c0 + 1)*S + 6
+        cslot = cw + air
         cx0 = W//2 - cslot//2
         glyph(d, '9', cx0 - slot, b1 - gh, S, P['ink'])
-        glyph(d, ':', cx0 + (cslot - (c1-c0+1)*S)//2 - c0*S, b1 - gh, S,
+        glyph(d, ':', cx0 + (cslot - cw)//2 - c0*S, b1 - gh, S,
               P['ink'])
         for i, ch in enumerate('41'):
             glyph(d, ch, cx0 + cslot + i*slot, b1 - gh, S, P['ink'])
@@ -321,7 +328,7 @@ def face(role):
         if h:
             d.rectangle([px+cw_*i, bot-h+1, px+cw_*i+cw_-1, bot],
                         fill=P['ink'] if i == 59 else P['accent'])
-    return im, name, GRID_H*S, slot
+    return im, name, GRID_H*S, slot, air
 
 
 ORDER = '0123456789:'          # ':' lands at DIGIT_COLON, one past the digits
@@ -417,9 +424,10 @@ def main():
 
     ims, pad = [], 8
     for role in ROLES:
-        im, name, cap, slot = face(role)
+        im, name, cap, slot, air = face(role)
         ims.append(im)
-        print('  %-15s x%d  cap %2d  slot %2d' % (name, role[5], cap, slot))
+        print('  %-15s x%d  cap %2d  slot %2d  air %d'
+              % (name, role[5], cap, slot, air))
     wsum = sum(i.width for i in ims) + pad*(len(ims)+1)
     hmax = max(i.height for i in ims) + pad*2
     s = Image.new('RGB', (wsum, hmax), (24, 24, 24))
