@@ -1027,21 +1027,34 @@ static void draw_field_cards(GContext *ctx) {
   int hz = horizon_y();
   int dx = side_dx(), dy = step_dy();
   int top = side_top();
+  int hy = SEP_Y - dy;          // the header's bottom edge, wherever it is now
 
   if (!gcolor_equal(p->info_bg, p->sky)) {
     graphics_context_set_fill_color(ctx, p->info_bg);
     graphics_fill_rect(ctx, GRect(0, -dy, SCREEN_W, SEP_Y), 0, GCornerNone);
     graphics_fill_rect(ctx, GRect(SEP_X + dx, top, SCREEN_W - SEP_X, hz - top),
                        SEP_R, GCornerTopLeft | GCornerBottomLeft);
+    // both ends of the header lift off their bezel
+    fill_corner(ctx, SEP_R, hy - SEP_R, 0, hy - SEP_R, p->sky, p->info_bg);
+    fill_corner(ctx, SCREEN_W - 1 - SEP_R, hy - SEP_R, SCREEN_W - SEP_R,
+                hy - SEP_R, p->sky, p->info_bg);
   }
 
   if (!g_cfg.show_sep) return;
   graphics_context_set_stroke_color(ctx, p->sep);
   graphics_context_set_stroke_width(ctx, 1);
 
-  // the header: bezel to bezel, so only its bottom edge is ever on screen
-  graphics_draw_line(ctx, GPoint(0, SEP_Y - dy),
-                     GPoint(SCREEN_W - 1, SEP_Y - dy));
+  // The header curves away from both bezels rather than running into them, so
+  // the only rule that crosses the whole screen is the horizon — which is the
+  // one line on this face that is supposed to.
+  graphics_draw_line(ctx, GPoint(SEP_R, hy), GPoint(SCREEN_W - 1 - SEP_R, hy));
+  graphics_draw_arc(ctx, GRect(0, hy - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
+                    TRIG_MAX_ANGLE * 3 / 4);
+  graphics_draw_arc(ctx, GRect(SCREEN_W - 1 - 2 * SEP_R, hy - 2 * SEP_R,
+                               2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 4,
+                    TRIG_MAX_ANGLE / 2);
 
   // the column: in from the right bezel, round down, and along to the horizon
   if (SEP_X + dx + SEP_R < SCREEN_W - 1)
