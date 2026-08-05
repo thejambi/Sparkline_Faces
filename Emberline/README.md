@@ -15,18 +15,22 @@ to draw there.
 
 Two of them, and which one is a setting.
 
-**Stacked** — the default. Hours over minutes, and the biggest numeral the
-screen allows.
+**Stacked** — the default. Hours over minutes, the biggest numeral the screen
+allows, and everything else in two panels.
 
 ```
-  0   ▔▔▔▔▔▔▔▔▔▔▔▔                      battery, 2px, top edge
- 24   8,842               BPM 68        the health header
- 77                          THU        the day column, whole, and
- 98                           30        floating: 45 rows of clear sky
-102   9                                 above it and 45 below
-113                          JUL
-174   41                     76°
-180   ────────────────────────────      the horizon
+  0   ▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔▔      battery, 2px, top edge
+ 24   8,842              MI 4.2       the header: what you have moved
+ 33   ╰────────────────────────╯      ...curving off both bezels
+                       ╭──────────
+ 67                        62         the column: the pulse, with
+ 82                       BPM         its caption underneath
+108                       WED
+129   09                    5         the date, whole
+144                       AUG
+178                       74°
+182   41
+188   ────────────────────────────     the horizon
 227   ground, then the terrain
 ```
 
@@ -43,47 +47,96 @@ two groups swap sides: the day's values on the left, the body's on the right.
 
 Both layouts keep the day's values together and the body's values together.
 They differ in which margin each group takes, and in how much of the screen
-that leaves for the clock: stacked buys 94px numerals and pays for them with
-a shorter terrain, while one line buys back the colon and a calmer header.
-Every element is the same in both.
+that leaves for the clock: stacked buys 94px numerals and pays for them with a
+shorter terrain, while one line buys back the colon and a calmer header.
 
-**The stacked layout's day column is the thing that pays for its clock.** The
-obvious arrangement — date and temperature along the top, health down the
-right margin — puts `8,842` beside the numerals and caps them at 76px. Swap
-the two and the widest thing beside the clock becomes the weekday, so long as
-the date is set as a column rather than a line: `WED 29` set as one line is
-73px wide, which is wider than the step count it replaced and would have made
-the clock smaller, not larger. Stacked into `THU` / `30` / `JUL` it is 36px,
-and the clock gains twelve.
+**The two panels are two objects, not one shape that got cut.** The header
+carries the two figures that are about movement — the step count and the day's
+distance. The column carries everything else: the pulse, the date, the
+temperature. Each panel is anchored to exactly one bezel and rounded on every
+edge that faces inward, so the only rule crossing the whole screen is the
+horizon, which is the one line here that should.
 
-Setting it as a column also buys back a whole part of the date. On one line
-the weekday and the month compete for the same row and one of them has to go,
-which is what the date setting chooses between; a column has room for all
-three, so stacked it shows the lot and ignores the setting.
+That shape is what the pulse's caption pays for. Set inboard of its number it
+needs a row to itself and the header has to span the width; set underneath, the
+pulse joins the column and the header drops to a single row — and a row that
+short can curve away at both ends instead of running bezel to bezel.
 
-The block does not tie to the hour's baseline. As three lines it is tall
-enough that its own rhythm down the right margin matters more than an
-alignment nothing else in that column shares, so its foot is placed where the
-gap up to the header equals the gap down to the temperature — 45 rows either
-side, against 34 and 56 when it hung off the hour. Ink heights are measured
-off the device to do that arithmetic, because the box height Pebble reports
-carries leading above the cap and is not the ink.
+**The column's day block is what pays for the clock.** The obvious arrangement
+— date and temperature along the top, health down the right margin — puts
+`8,842` beside the numerals and caps them at 76px. Swap the two and the widest
+thing beside the clock becomes the weekday, so long as the date is set as a
+column rather than a line: `WED 29` on one line is 73px, wider than the step
+count it replaced, and would have made the clock smaller rather than larger.
+Stacked into `THU` / `30` / `JUL` it is 36px, and the clock gains twelve.
 
-The step count carries no label there. Two labels will not fit on one row
-with two values, and an accent-colored number with a comma in it needs no
-telling — whereas a bare `68` does, so the pulse keeps `BPM` inboard of it in
-both layouts.
+Setting it as a column also buys back a whole part of the date. On one line the
+weekday and the month compete for the same row and one has to go, which is what
+the date setting chooses between; a column has room for all three, so stacked
+shows the lot and ignores the setting.
 
-Two alignment axes and nothing centered: everything begins at x=10 or ends at
-x=189. Only the horizon and the ground run to the bezel.
+**The column's openings are divided, not chosen.** Whatever height its groups
+do not use is split between the gaps and the margins, so losing the pulse
+re-spaces the column rather than leaving a hole where it was. The margins are
+half-spaces: a gap between two groups has to carry the eye across and read as a
+division, while a margin only has to hold a group off the panel edge, and
+giving both the same room crowds the middle. On Emery that is 10/18/18/10 with
+a pulse and 22/43/22 without.
 
-**The clock is stacked, and that is the whole design.** Set on one line it
-tops out at 44px of cap height on a 200px screen, and the face stops being
-about the time. Stacked, the numerals are 64px, and the clock owns the field
-the way it does on the faces people actually love — TimeStyle gives 82% of
-its vertical to the time and nothing else competes.
+**The clock is centered in what the panels leave it**, not pinned to the left
+margin. A two-slot block runs from 110px to 145px depending on the face, so a
+fixed anchor leaves the narrow ones stranded a long way from the column while
+the wide ones nearly touch it. Centering is what makes the font setting feel
+like a choice rather than a different layout.
+
+The step count carries no label. Two labels will not fit on one row with two
+values, and an accent-colored number with a comma in it needs no telling —
+whereas a bare `62` does, so the pulse keeps `BPM` with it in both layouts.
+
+**The clock is stacked, and that is the whole design.** Set on one line it tops
+out at 44px of cap height on a 200px screen, and the face stops being about the
+time. Stacked, the numerals reach 68px, and the clock owns the field the way it
+does on the faces people actually love — TimeStyle gives 82% of its vertical to
+the time and nothing else competes.
 
 The cost is the colon, which stacking removes. That is the trade.
+
+### Hiding the panels
+
+Stacked can park both panels off-screen and bring them back on a shake, for
+seven seconds. It is off by default and it is the reason the panels are panels:
+with them gone the clock has the whole sky rather than the band between the
+header and the horizon.
+
+Everything that moves is drawn from one number — `s_reveal`, 0 parked and 100
+in — so there is a single thing to reason about rather than a position per
+panel. The header leaves upward and the column rightward, each exactly its own
+size, so neither is left peeking at a bezel. The frame timer runs only while
+something is travelling, and the tap service is subscribed only while a layout
+is using it.
+
+What the clock does with the freed space is a second setting, because only one
+face can take it as *size*:
+
+- **Grow** — Blocky Digits steps up a whole scale, ×5 to ×6, cap 65 to 78. Its
+  baselines move with it: the hour rises to clear the top edge while the
+  minutes stay on the horizon. Whole-number scaling is the only way to grow
+  without resampling, so the bundled faces cannot follow — they each ship one
+  size per role.
+- **Keep the size** — the block rises into the sky instead, until the gap above
+  it matches the gap down to the horizon. That is 18px for Blocky Digits and 16
+  for Montserrat, derived from each face's own cap rather than fixed, since a
+  constant would center exactly one of them.
+
+Position glides either way: the clock's field has its right edge travel out to
+the bezel as the column leaves and its left margin close at the same rate, so
+it stays centered in the space it actually has at that instant. Scale cannot be
+interpolated, so growing *snaps* — at the halfway point, while the eye is
+following the panels, which is the least conspicuous moment on offer.
+
+Auto-hide does not reach a watch that already had settings saved. Its blob
+stops short of the field, so it would otherwise inherit the new default and
+hide the face somebody had been wearing until they happened to shake it.
 
 ### Type
 
@@ -91,7 +144,7 @@ One family, three ranks, and no centering anywhere.
 
 | Rank | Element | Face |
 | --- | --- | --- |
-| Hero | clock | Montserrat Bold 94 |
+| Hero | clock | Blocky Digits, cap 65 *(default)* |
 | Secondary | steps, sleep, pulse, day number, temperature | Montserrat Bold 22 |
 | Label | date on one line | Montserrat Bold 15, caps, tracked |
 | Label | weekday, month, BPM, sleep units | Montserrat Bold 11/14 |
@@ -102,9 +155,10 @@ headlines — but the hierarchy is already carried by color there, accent
 against muted, and on a screen with no light of its own the hairline strokes
 are the first thing to go. Color survives the panel; stroke weight does not.
 
-Only the caps are tracked — tracked figures look broken. Every face is
-subsetted by `characterRegex` to the handful of glyphs it actually draws, so
-twelve faces cost 43KB.
+Only the caps are tracked — tracked figures look broken. Every bundled face is
+subsetted by `characterRegex` to the handful of glyphs it actually draws; three
+families across two weights, two layouts and two screens come to 43KB, and the
+default clock face costs none of it.
 
 **The clock is drawn one digit at a time, into fixed-width slots**, and the
 hours and minutes are right-aligned to the same edge. Two consequences worth
@@ -123,20 +177,36 @@ config page nobody ever moved:
 
 | Face | Emery stacked | Character |
 | --- | --- | --- |
+| **Blocky Digits** *(default)* | cap 65, or 78 grown | not a font: see below |
 | **Montserrat** | 94 | geometric, round counters |
 | **Inter** | 91 | tall x-height, very clean |
 | **DSEG7 Classic** | 68 | a real seven-segment display |
-| **Blocky Digits** | cap 65 | not a font: see below |
 
 **Blocky Digits is drawn, not set.** It is a 10x13 grid of cells scaled by a
-whole number — 5 on the Emery stacked layout, down to 2 on a 144x168 one-liner
-— and every row is emitted as runs of `graphics_fill_rect`, so it is crisp at
-every size instead of being hinted down to one. The whole set is 286 bytes
+whole number — 5 on the Emery stacked layout, 6 with the panels hidden, down to
+2 on a 144x168 one-liner — and every row is emitted as runs of
+`graphics_fill_rect`, so it is crisp at every size instead of being hinted down
+to one. The whole set is 286 bytes
 against roughly 8KB for one size of one bundled font. Draw it in
 `tools/digitgrid.py`, preview it in the real layouts, then `--emit-c` writes
-`src/c/digits.c`; nothing is ever hand-copied into C. The gap between digits is
-one grid column rather than a pixel count, because two pixels beside a 50px
-digit is not the same gap as two beside a 20px one.
+`src/c/digits.c`; nothing is ever hand-copied into C. Running `--emit-c` is a
+deliberate step, not a build hook — the previews are the review, and a drawing
+is not finished until it has been looked at.
+
+The gap between digits is one grid column rather than a pixel count, because
+two pixels beside a 50px digit is not the same gap as two beside a 20px one.
+Glyphs are centered on their **ink**, not their box: the drawing carries a
+blank column down one side, which is where that gap comes from, and centering
+the box would count the blank as glyph and shove the whole clock half a column
+across. `DIGIT_INK_L/R` are emitted from the drawing so redrawing cannot
+reintroduce it.
+
+The set follows one rule: **chamfer where the letterform curves, leave square
+where a stroke is cut off.** That is why `0` and `8` are eased on all four
+corners, `5` has a square top bar but a chamfered bottom bowl, and `1`, `4` and
+`7` — the digits made only of straight strokes — are square everywhere. The
+closest pair is `5` against `6` at three rows and seven cells; every other pair
+has at least nine cells between them.
 
 The sizes are not round because the faces are not the same width, and they are
 not chosen by eye — `tools/make_fonts.py` solves each one against cap height,
@@ -152,17 +222,18 @@ face would never draw.
 
 **Monospace is beside the point here.** The clock is drawn one digit per
 fixed-width slot, which makes any face tabular — which is why proportional
-Montserrat works at all. So the blocky faces were chosen for their shapes,
-not their spacing, and Jersey 25 is a display face rather than a mono. Space Grotesk hits that before it runs out of screen, which is why it
-sits at cap 56 where everything else reaches 68 — visibly smaller, and not a
-mistake. Those ceilings were bisected with the SDK's own `font.fontgen` rather
-than modelled: two attempts to predict them from a rasteriser here produced
-sizes that still failed to build. `tools/probe_glyph_ceiling.py` re-derives
-them.
+Montserrat works at all. So the faces that were tried got chosen for their
+shapes rather than their spacing, and the search for a blocky terminal one
+ended by drawing it instead.
+
+Those ceilings were bisected with the SDK's own `font.fontgen` rather than
+modelled: two attempts to predict them from a rasteriser here produced sizes
+that still failed to build. `tools/probe_glyph_ceiling.py` re-derives them.
 
 Whichever face is chosen, the minutes' baseline and the horizon do not move —
-only the hour rises — so the terrain and the day column are identical across
-all eight.
+only the hour rises — so the terrain and the column are identical across all
+four. Growing Blocky Digits is the one exception, and it only happens with the
+panels already gone.
 
 **DSEG7 draws its unlit segments**, which is most of what makes a display read
 as a display rather than as a typeface: an `8` goes down in a darker tone under
@@ -182,7 +253,12 @@ no room for it set it to their own sky, where it quietly draws nothing:
 | **Dusk** | *its own sky* | nothing to spend; the ghosts vanish |
 
 Black and white gets nothing either: two colours have no third tone to ghost
-with. Custom exposes it as an eleventh role, defaulting to the sky.
+with. Custom exposes it as its own role, defaulting to the sky.
+
+Blocky Digits does not draw them, and its own geometry is why. It is laid out
+on the same seven segments but does not separate them — its bars run together
+at the corners — so an `8` behind it is not a row of dark segments, it is a lit
+rectangle with a few notches in it.
 
 **Phosphor was the theme this was built for, and it is the one where it
 failed.** `550000` against black read correctly in the emulator and vanished on
@@ -195,9 +271,8 @@ capability stays available through Custom.
 ### The rest of the type
 
 The face used for everything that is not the clock is selectable too, across
-all four roles at once: Montserrat, DSEG14, or Gothic. Inter has
-the taller x-height of the two bundled ones, so it reads largest at the same
-pixel size. Only the chosen family is resident, and it is unloaded and
+all four roles at once: Montserrat, DSEG14, or Gothic. Only the chosen family
+is resident, and it is unloaded and
 reloaded when the setting changes rather than kept alongside — which means
 remembering which of the four are *ours*, since handing a system font to
 `fonts_unload_custom_font` is not a thing to do twice.
@@ -216,22 +291,6 @@ the diagonal segments are one pixel and break up, so `A` leans toward `R` and
 set — weekday, month, `BPM` — recognised rather than read. It would not do for
 arbitrary text.
 
-**The Jersey family is four pixel grids, and the text roles use the coarsest.**
-Jersey 10, 15, 20 and 25 are the same design drawn at rising resolutions. The
-clock takes 25 — at a 68px cap there is grid to spare and the fine cut holds
-detail. The text roles take **10**: a capital is eight rows there, and a face
-designed for twenty-five of them squeezed into eight gives stems of one pixel
-and two at random, which is what "mangled" looks like. The coarse cut was
-drawn for exactly that size.
-
-**Jersey is sized by ink height, not by point size.** It is a pixel face,
-and at Montserrat's point sizes it comes out visibly smaller — but `INK_VAL`
-and `INK_CAPS_S` place the day column and the degree ring, so a family whose
-ink does not match would shift the layout under itself. Matching the ink
-instead puts it at 32/20/20/14 against Montserrat's 22/14/15/11, and as a
-side effect lands it near its own pixel grid, so the stems stay even rather
-than resampling to mush.
-
 **Gothic is the only system family that reaches these sizes**, and it costs no
 resource bytes at all. Bitham cannot: its smallest full cut is 30 and the
 largest role here is 22, while its 18 and 34 cuts are reduced-charset subsets.
@@ -239,10 +298,11 @@ LECO and the Bitham numerals are digits-only, which rules them out for the
 caps. Gothic only comes in 09/14/18/24 against the 11/14/15/22 the layout
 wants, so the proportions are near rather than exact.
 
-Inter and Jersey were tried here and dropped after wrist testing; they remain
-clock faces. Their slots stay in the enum and their rows are zeroed, so a
-setting still pointing at one falls back to Montserrat — the same discipline
-the clock faces use.
+Inter and Jersey were tried here and dropped after wrist testing — Inter
+remains a clock face, Jersey is gone from both. Their slots stay in the enum
+and their rows are zeroed, so a setting still pointing at one falls back to
+Montserrat, which is the same discipline the clock faces use for LECO and the
+five monos that were dropped before it.
 
 **Ink heights and tracking are per text face**, not global. They place the day
 column and the degree ring, and taking them from Montserrat quietly made every
@@ -267,28 +327,31 @@ Two things worth knowing:
   charset and lets the ring hang past the right margin, so the numerals stay
   optically aligned with the row beneath.
 
-### The info card
+### The panels
 
-The header and the day column are one object: an L, a strip along the top and
-a column down the right, joined at an elbow. It can take a background of its
-own, and a rule bounds it.
+The header and the column are two panels. Each can take a background of its own
+and a rule bounds it, and each is anchored to exactly one bezel — the header to
+the top, the column to the right — with every inward-facing edge rounded.
 
-Three of its corners are rounded and **they do not all round the same way**,
-which is the whole character of the thing:
+That anchoring is the whole discipline. A panel that runs off a bezel needs no
+corner there, so what gets rounded is exactly what faces the clock, and no rule
+ever reaches an edge. Only the horizon crosses the screen.
 
-- the **elbow**, where the strip meets the column, turns convex toward the
-  clock — the rule bends through it
-- the strip's **free end curves up** into the left bezel, so the card lifts
-  away from the screen edge once it is past the step count
-- the column's **free end curves right** into the horizon, so it lifts away
-  again once it is past the temperature
+They were one object once: an L, joined at a concave elbow, which is not
+something Pebble's primitives can express — `graphics_fill_rect` rounds convex
+corners only. It had to be built by hand, cutting each corner with a square of
+the opposite tone and putting a disc back. Two convex panels need none of that
+for the fill; only `fill_corner` survives, for the two places the header lifts
+off its bezels.
 
-An L with a concave elbow is not something Pebble's rounded-rect primitives can
-express — `graphics_fill_rect` rounds convex corners only. So it is built by
-hand: fill the region, then cut each corner with a square of the opposite tone
-and put a disc back. Six fills and three arcs, exact at any radius.
+The column's free end still curves right into the horizon and stops, because
+the horizon closes it — two lines meeting is one edge, and drawing both would
+thicken it. Painted the same colour as the sky the horizon closes nothing, so
+in that case the rule runs on to the bezel and encloses the panel itself. It
+has to be drawn after the ground, which fills the horizon band across the full
+width and would otherwise paint over it in exactly the case it exists for.
 
-On one line there is no column to divide, so the card is the strip alone.
+On one line there is no column, so the card is the header alone.
 
 Nothing about this has to be visible. With the info background left at the sky
 tone it is a rule and nothing more, and with the rule off it is not there at
@@ -354,12 +417,21 @@ stand on. A useful accident falls out of it — asleep, the horizon and the
 value drop to the muted green, so the face is entirely green until you get up
 and the time turns orange.
 
+**Dusk spends two more steps of its own blue on the panels**: `000055` sky,
+`0000AA` behind the panels, `5555FF` for the rule. The rule is deliberately not
+`0000FF`, which is what one more step of the same pure blue would be — blue
+carries seven percent of perceived luminance, so `0000FF` sits about two points
+above the panel it is drawn on and would disappear on the wrist the same way
+Phosphor's unlit segments did. `5555FF` is the next step the eye actually
+resolves. Every other preset leaves its panels at its own sky, where they are a
+rule and nothing more.
+
 Red is not a theme color. It appears only on a flat battery and a lost phone.
 
 ## Sleep, and the morning
 
 Last night's sleep holds the value slot until you have actually got up and
-moved past the wake threshold — 500 steps by default. That much is ActiveHour's
+moved past the wake threshold — 350 steps by default. That much is ActiveHour's
 rule, by way of Solfarer.
 
 The problem with only doing that much: for the first stretch of every morning

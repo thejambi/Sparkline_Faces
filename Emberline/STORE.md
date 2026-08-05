@@ -52,6 +52,12 @@ upload candidates. Only `store/screenshots/` goes to the store.
 | `screenshots/basalt_{1,2}_*.png` | the same two on a 144x168 color screen |
 | `screenshots/diorite_{1,2}_*.png`, `flint_{1,2}_*.png` | and in black and white |
 
+**Every shot in `store/screenshots/` predates the panels.** They were taken of
+the stacked layout as it was before the header and the column became two cards,
+while the clock was still pinned to the left margin and Montserrat was the
+default face. They need retaking before the next publish, and that is the one
+change that genuinely warrants passing `--screenshots` again.
+
 **`--screenshots` appends, it does not replace.** Every publish that passes
 them adds another full set to the listing, and the old ones have to be deleted
 by hand in the dashboard. So pass them only when a shot has actually changed —

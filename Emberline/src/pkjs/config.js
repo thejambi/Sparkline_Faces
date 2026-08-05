@@ -15,7 +15,7 @@ module.exports = [
   },
   {
     type: 'text',
-    defaultValue: 'Sky over ground, with one line where they meet. The terrain along the bottom is the last hour of your movement, a column a minute — and last night’s sleep before you get up.'
+    defaultValue: 'Sky over ground, with the glow of the horizon as the emberline where they meet. The terrain along the bottom is the last hour of your movement — and last night’s sleep before you get up.'
   },
   {
     type: 'section',
