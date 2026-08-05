@@ -737,9 +737,9 @@ static void draw_side(GContext *ctx) {
   if (lbl) {
     int b = y + s_ink_val;
     graphics_context_set_text_color(ctx, p->muted);
-    draw_right(ctx, val, F_VAL, MARGIN_R + dx, b);
+    draw_right(ctx, val, F_VAL, CARD_R + dx, b);
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, lbl, F_CAPS_S, MARGIN_R + dx - tracked_w(lbl, F_CAPS_S),
+    draw_tracked(ctx, lbl, F_CAPS_S, CARD_R + dx - tracked_w(lbl, F_CAPS_S),
                  b + LABEL_DROP);
     y = b + LABEL_DROP + gap;
   }
@@ -749,20 +749,20 @@ static void draw_side(GContext *ctx) {
     int b_day = b_wd + LABEL_RISE;
     int b_mo = b_day + LABEL_DROP;
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R + dx - tracked_w(wd, F_CAPS_S), b_wd);
+    draw_tracked(ctx, wd, F_CAPS_S, CARD_R + dx - tracked_w(wd, F_CAPS_S), b_wd);
     graphics_context_set_text_color(ctx, p->muted);
     snprintf(buf, sizeof buf, "%d", s_mday);
-    draw_right(ctx, buf, F_VAL, MARGIN_R + dx, b_day);
+    draw_right(ctx, buf, F_VAL, CARD_R + dx, b_day);
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R + dx - tracked_w(mo, F_CAPS_S), b_mo);
+    draw_tracked(ctx, mo, F_CAPS_S, CARD_R + dx - tracked_w(mo, F_CAPS_S), b_mo);
     y = b_mo + gap;
   }
   if (has_temp) {
     int b = y + s_ink_val;
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
-    draw_right(ctx, buf, F_VAL, MARGIN_R + dx, b);
-    draw_degree(ctx, MARGIN_R + dx + 3, b - s_ink_val, DEG_SIZE, p->muted);
+    draw_right(ctx, buf, F_VAL, CARD_R + dx, b);
+    draw_degree(ctx, CARD_R + dx + 2, b - s_ink_val, DEG_SIZE_S, p->muted);
   }
 }
 
@@ -861,10 +861,10 @@ static void draw_sky(GContext *ctx) {
                                       : hl_walked_m() / 1000.0);
     const char *u = use_miles() ? "MI" : "KM";
     graphics_context_set_text_color(ctx, p->muted);
-    int vw = draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
+    int vw = draw_right(ctx, buf, F_VAL, CARD_R, b_val);
     graphics_context_set_text_color(ctx, p->label);
     draw_tracked(ctx, u, F_CAPS_S,
-                 MARGIN_R - vw - 8 - tracked_w(u, F_CAPS_S), b_val);
+                 CARD_R - vw - 8 - tracked_w(u, F_CAPS_S), b_val);
     return;
   }
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;

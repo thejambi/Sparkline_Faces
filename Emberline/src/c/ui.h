@@ -60,6 +60,12 @@
 // The rule around the clock's field: along under the header, then down between
 // the clock and the day column, turning through a rounded corner. On one line
 // there is no column to divide, so only the horizontal run is drawn.
+// The right axis inside the panels. MARGIN_R is the optical margin for open
+// sky, and it is too generous here: between the column's rule at SEP_X and
+// MARGIN_R there are 37px, while a three-digit value at 22pt is 39. A filled
+// panel needs less margin than open sky anyway — its own fill does the
+// containing — so the stacked layout right-aligns to this instead.
+#define CARD_R        193
 #define SEP_Y         33
 #define SEP_X         152
 #define SEP_R         8
@@ -91,6 +97,7 @@
 #define INK_CAPS_S    7
 #define DEG_SIZE      4
 #define DEG_SIZE_S    3
+#define CARD_R        138
 #define SEP_Y         25
 #define SEP_X         99
 #define SEP_R         6

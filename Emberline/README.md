@@ -83,6 +83,14 @@ division, while a margin only has to hold a group off the panel edge, and
 giving both the same room crowds the middle. On Emery that is 10/18/18/10 with
 a pulse and 22/43/22 without.
 
+**The panels right-align to `CARD_R`, not to `MARGIN_R`.** The screen's optical
+margin is too generous inside a filled panel: between the column's rule and
+`MARGIN_R` there are 37px, and a three-digit pulse at 22pt is 39, so `188` used
+to cross the rule while 10px of panel sat unused on the other side. A panel's
+own fill does the containing that open sky needs a margin for, so the stacked
+layout pulls its right axis in — and the header's distance comes with it, since
+the two sit on the same line.
+
 **The clock is centered in what the panels leave it**, not pinned to the left
 margin. A two-slot block runs from 110px to 145px depending on the face, so a
 fixed anchor leaves the narrow ones stranded a long way from the column while
@@ -324,8 +332,10 @@ Two things worth knowing:
   baseline once, on the device, from a probe glyph. Guessing that offset is
   how rows end up three pixels out of alignment.
 - **The degree mark is drawn, not set.** It keeps the glyph off the bundled
-  charset and lets the ring hang past the right margin, so the numerals stay
-  optically aligned with the row beneath.
+  charset and lets the ring hang past the numerals' own right edge, so they
+  stay optically aligned with the rows above and below it. In the panels it
+  takes the smaller ring: at 22pt a three-digit temperature plus a full-size
+  one does not fit the column at all.
 
 ### The panels
 

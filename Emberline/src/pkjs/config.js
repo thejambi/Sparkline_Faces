@@ -98,7 +98,7 @@ module.exports = [
         messageKey: 'GrowClock',
         defaultValue: true,
         label: 'Grow the clock',
-        description: 'While the panels are hidden, Blocky Digits grows to fill the sky. Other faces keep their size and rise into the middle either way.'
+        description: 'While the panels are hidden, Blocky Digits grows to fill the sky. Other faces keep their size.'
       }
     ]
   },
