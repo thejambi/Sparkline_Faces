@@ -389,14 +389,26 @@ static void draw_ghost(GContext *ctx, int x, int slot_w, int baseline) {
 
 // Right-aligned within the block, one digit per slot. A single-digit hour
 // therefore sits above the minutes' second digit rather than above the first.
+//
+// The block itself is centered in the clock's field rather than pinned to the
+// left margin. The faces are nowhere near the same width — a two-slot block
+// runs from 110px to 145px on Emery — so a fixed left anchor leaves the narrow
+// ones stranded a long way from the separator while the wide ones nearly touch
+// it. Centering makes every face sit the same way in the same space, which is
+// the only thing that makes the choice feel like a choice rather than a
+// different layout. Clamped, so a face wider than the field still starts at
+// the margin instead of walking off the left bezel.
 static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   GColor ink = palette()->ink;
   int n = strlen(s);
-  int right = MARGIN_L + 2 * s_clock_slot;
+  int block = 2 * s_clock_slot;
+  int left = MARGIN_L + (SEP_X - MARGIN_L - block) / 2;
+  if (left < MARGIN_L) left = MARGIN_L;
+  int right = left + block;
   // Both slots get their unlit 8, even the one no digit lands in — a real
   // display does not go dark where the hour happens to be one digit.
   for (int i = 0; i < 2; i++)
-    draw_ghost(ctx, MARGIN_L + i * s_clock_slot, s_clock_slot, baseline);
+    draw_ghost(ctx, left + i * s_clock_slot, s_clock_slot, baseline);
   int x = right - n * s_clock_slot;
   for (int i = 0; i < n; i++) {
     clock_glyph(ctx, s[i], x, s_clock_slot, baseline, ink);
@@ -819,6 +831,14 @@ static void draw_field(GContext *ctx) {
   graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
                     TRIG_MAX_ANGLE * 3 / 4);
+  // The free end lands on the horizon and stops, because the horizon takes
+  // over from there: two lines meeting is one edge, and drawing both would
+  // thicken it. Set the horizon to the sky and there is nothing to hand off
+  // to — the card is left hanging open under the temperature. So it closes
+  // itself, running on to the right bezel.
+  if (gcolor_equal(p->horizon, p->sky))
+    graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, hz),
+                       GPoint(SCREEN_W - 1, hz));
 }
 
 static void draw(Layer *layer, GContext *ctx) {
