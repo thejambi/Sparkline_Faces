@@ -51,7 +51,8 @@ module.exports = [
         description: 'Stacked gives the largest digits the screen allows and a shorter terrain.',
         options: [
           { label: 'Stacked — hours over minutes', value: '0' },
-          { label: 'One line — with the colon', value: '1' }
+          { label: 'One line — with the colon', value: '1' },
+          { label: 'Cards — the info in its own panels', value: '2' }
         ]
       },
       {

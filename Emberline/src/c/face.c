@@ -210,6 +210,14 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     // than the 5 the stacked layout gets. x5 would not fit at all.
     [CF_GRID]    = { 4, 4, 0, 0, 130, 156 },
   },
+  // Cards keeps the stacked numerals and horizon exactly. It rearranges what
+  // is around the clock, not the clock.
+  [LAY_CARDS] = {
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_94, RESOURCE_ID_FONT_CLOCK_B_94, 106, 182, 0, 188 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_91,  RESOURCE_ID_FONT_INTR_B_91,  106, 182, 0, 188 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
+    [CF_GRID]    = { 5, 5, 106, 182, 0, 188 },
+  },
 };
 #else   // 144x168: width binds here, not height
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
@@ -228,6 +236,12 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_33,  RESOURCE_ID_FONT_DSEG_B_33,  0, 0, 94, 114 },
     [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     [CF_GRID]    = { 2, 2, 0, 0, 94, 114 },
+  },
+  [LAY_CARDS] = {
+    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58, 75, 122, 0, 128 },
+    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
+    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
+    [CF_GRID]    = { 3, 3, 75, 122, 0, 128 },
   },
 };
 #endif
@@ -556,6 +570,76 @@ static void draw_degree(GContext *ctx, int x, int top, int size, GColor col) {
   graphics_draw_rect(ctx, GRect(x, top, size, size));
 }
 
+// The right column in the Cards layout. Everything that is not the clock or
+// the step count lives here, and the pulse brings its caption underneath the
+// number rather than inboard of it — which is the whole move: with the pulse
+// out of the header, the header is one value wide, and the two survivors can
+// be drawn as two panels instead of one continuous L.
+//
+// The gaps are divided, not chosen. Whatever height the groups do not use is
+// split evenly between them, so turning the date or the weather off re-spaces
+// the column rather than leaving a hole where they used to be.
+static void draw_side(GContext *ctx) {
+  const Palette *p = palette();
+  char buf[16], val[16];
+
+  // what the pulse slot has to show, if anything
+  int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
+  const char *lbl = NULL;
+  if (bpm > 0) {
+    snprintf(val, sizeof val, "%d", bpm);
+    lbl = "BPM";
+  } else if (!hl_sleeping()) {
+    fmt1(val, sizeof val, use_miles() ? hl_walked_m() / 1609.344
+                                      : hl_walked_m() / 1000.0);
+    lbl = use_miles() ? "MI" : "KM";
+  }
+  bool has_date = g_cfg.date_format != DATE_OFF;
+  bool has_temp = temp_fresh();
+  int n = (lbl ? 1 : 0) + (has_date ? 1 : 0) + (has_temp ? 1 : 0);
+  if (!n) return;
+
+  int used = (lbl ? s_ink_val + LABEL_DROP : 0)
+           + (has_date ? s_ink_caps + LABEL_RISE + LABEL_DROP : 0)
+           + (has_temp ? s_ink_val : 0);
+  int top = SEP_Y, bot = horizon_y();
+  int gap = n > 1 ? (bot - top - 2 * SEP_R - used) / (n - 1) : 0;
+  if (gap < 4) gap = 4;
+  // a lone group has nothing to be evenly spaced against, so it centers
+  int y = n > 1 ? top + SEP_R : (top + bot - used) / 2;
+
+  if (lbl) {
+    int b = y + s_ink_val;
+    graphics_context_set_text_color(ctx, p->muted);
+    draw_right(ctx, val, F_VAL, MARGIN_R, b);
+    graphics_context_set_text_color(ctx, p->label);
+    draw_tracked(ctx, lbl, F_CAPS_S, MARGIN_R - tracked_w(lbl, F_CAPS_S),
+                 b + LABEL_DROP);
+    y = b + LABEL_DROP + gap;
+  }
+  if (has_date) {
+    const char *wd = WD[s_wday], *mo = MO[s_mon];
+    int b_wd = y + s_ink_caps;
+    int b_day = b_wd + LABEL_RISE;
+    int b_mo = b_day + LABEL_DROP;
+    graphics_context_set_text_color(ctx, p->label);
+    draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R - tracked_w(wd, F_CAPS_S), b_wd);
+    graphics_context_set_text_color(ctx, p->muted);
+    snprintf(buf, sizeof buf, "%d", s_mday);
+    draw_right(ctx, buf, F_VAL, MARGIN_R, b_day);
+    graphics_context_set_text_color(ctx, p->label);
+    draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R - tracked_w(mo, F_CAPS_S), b_mo);
+    y = b_mo + gap;
+  }
+  if (has_temp) {
+    int b = y + s_ink_val;
+    snprintf(buf, sizeof buf, "%d", (int)s_temp);
+    graphics_context_set_text_color(ctx, p->muted);
+    draw_right(ctx, buf, F_VAL, MARGIN_R, b);
+    draw_degree(ctx, MARGIN_R + 3, b - s_ink_val, DEG_SIZE, p->muted);
+  }
+}
+
 static void draw_sky(GContext *ctx) {
   const Palette *p = palette();
   char buf[24];
@@ -570,8 +654,13 @@ static void draw_sky(GContext *ctx) {
   // ignores the weekday-or-month setting entirely; on one line the two would
   // crowd the row, which is what the setting is there to choose between.
   bool line = g_cfg.layout == LAY_LINE;
+  bool cards = g_cfg.layout == LAY_CARDS;
 
-  if (g_cfg.date_format != DATE_OFF) {
+  // Cards puts the date, the temperature and the pulse in one column, spaced
+  // against each other rather than against the rows they used to share.
+  if (cards) draw_side(ctx);
+
+  if (!cards && g_cfg.date_format != DATE_OFF) {
     if (line) {
       const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
       snprintf(buf, sizeof buf, "%s %d", l, s_mday);
@@ -592,7 +681,7 @@ static void draw_sky(GContext *ctx) {
     }
   }
 
-  if (temp_fresh()) {
+  if (!cards && temp_fresh()) {
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
     if (line) {
@@ -657,7 +746,9 @@ static void draw_sky(GContext *ctx) {
     else      draw_base(ctx, buf, F_VAL, MARGIN_L, b_val);
   }
 
-  // the pulse, always right-aligned with its label inboard of it
+  // the pulse, always right-aligned with its label inboard of it. In Cards it
+  // has already been drawn down the column, caption underneath.
+  if (cards) return;
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
   const char *lbl = NULL;
   if (bpm > 0) {
@@ -788,8 +879,64 @@ static void fill_corner(GContext *ctx, int cx, int cy, int qx, int qy,
   graphics_fill_circle(ctx, GPoint(cx, cy), SEP_R);
 }
 
+// Cards draws two panels instead of one L, which is a much easier shape: both
+// are convex, both run off a bezel, and only the corners that face the clock
+// need rounding. The step count keeps the top left, the column keeps the
+// right, and the clock has the corner between them to itself.
+//
+// The step panel is sized to the widest step count rather than to today's, so
+// it does not jump a few pixels wider the day you cross ten thousand.
+static int step_card_w(void) {
+  int w = MARGIN_L + tsz("88,888", F_VAL).w + SEP_R;
+  return w < SEP_X - SEP_R ? w : SEP_X - SEP_R;
+}
+
+static void draw_field_cards(GContext *ctx) {
+  const Palette *p = palette();
+  int hz = horizon_y();
+  int sw = step_card_w();
+
+  if (!gcolor_equal(p->info_bg, p->sky)) {
+    graphics_context_set_fill_color(ctx, p->info_bg);
+    graphics_fill_rect(ctx, GRect(0, 0, sw, SEP_Y), SEP_R, GCornerBottomRight);
+    graphics_fill_rect(ctx, GRect(SEP_X, SEP_Y, SCREEN_W - SEP_X, hz - SEP_Y),
+                       SEP_R, GCornerTopLeft | GCornerBottomLeft);
+  }
+
+  if (!g_cfg.show_sep) return;
+  graphics_context_set_stroke_color(ctx, p->sep);
+  graphics_context_set_stroke_width(ctx, 1);
+
+  // the step panel: down the right edge, round the bottom-right, out to the
+  // left bezel
+  graphics_draw_line(ctx, GPoint(sw, 0), GPoint(sw, SEP_Y - SEP_R));
+  graphics_draw_arc(ctx, GRect(sw - 2 * SEP_R, SEP_Y - 2 * SEP_R,
+                               2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 4,
+                    TRIG_MAX_ANGLE / 2);
+  graphics_draw_line(ctx, GPoint(0, SEP_Y), GPoint(sw - SEP_R, SEP_Y));
+
+  // the column: in from the right bezel, round down, and along to the horizon
+  graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, SEP_Y),
+                     GPoint(SCREEN_W - 1, SEP_Y));
+  graphics_draw_arc(ctx, GRect(SEP_X, SEP_Y, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE * 3 / 4,
+                    TRIG_MAX_ANGLE);
+  graphics_draw_line(ctx, GPoint(SEP_X, SEP_Y + SEP_R),
+                     GPoint(SEP_X, hz - SEP_R));
+  graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
+                    TRIG_MAX_ANGLE * 3 / 4);
+  // same hand-off as the L: the horizon closes the panel unless it is
+  // invisible, in which case the panel closes itself
+  if (gcolor_equal(p->horizon, p->sky))
+    graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, hz),
+                       GPoint(SCREEN_W - 1, hz));
+}
+
 static void draw_field(GContext *ctx) {
   const Palette *p = palette();
+  if (g_cfg.layout == LAY_CARDS) { draw_field_cards(ctx); return; }
   bool line = g_cfg.layout == LAY_LINE;
   int top = line ? SEP_Y_LINE : SEP_Y;
   int hz = horizon_y();

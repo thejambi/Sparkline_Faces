@@ -25,9 +25,14 @@ enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
 // tools/digitgrid.py for the drawing itself.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
        CF_DSEG, CF_MONO, CF_KODE, CF_MRTN, CF_JRSY, CF_GRID, CF_COUNT };
-// Two ways to set the same information. Stacked buys a much larger numeral;
-// the single line buys back the colon and a calmer header.
-enum { LAY_STACK, LAY_LINE, LAY_COUNT };
+// Three ways to set the same information. Stacked buys a much larger numeral;
+// the single line buys back the colon and a calmer header. Cards moves the
+// pulse into the right column with its caption underneath, which empties the
+// header down to the step count and lets the two survivors be drawn as two
+// separate cards rather than one continuous L.
+//
+// Append-only with the rest: LAY_CARDS goes last.
+enum { LAY_STACK, LAY_LINE, LAY_CARDS, LAY_COUNT };
 // The face used for everything that is not the clock. Append-only.
 enum { TF_MONT, TF_INTER, TF_SOURCE, TF_SYSTEM, TF_JRSY, TF_DSEG,
        TF_COUNT };
