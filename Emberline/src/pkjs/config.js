@@ -6,8 +6,8 @@
 // lines stops being read, so the long version does not belong here.
 //
 // Section order follows how often a setting gets touched. Custom colors is
-// seven rows most people never open, so it sits at the foot of the page rather
-// than between Theme and Layout.
+// fourteen rows most people never open, so it sits at the foot of the page
+// rather than between Theme and Layout.
 module.exports = [
   {
     type: 'heading',
@@ -26,15 +26,15 @@ module.exports = [
         messageKey: 'Theme',
         defaultValue: '0',
         label: 'Theme',
-        description: 'Paint the sky over land in shadow, let the step count be the terrain.',
+        description: 'Choose a built-in theme or customize it.',
         options: [
-          { label: 'Dusk — navy and amber', value: '0' },
-          { label: 'Phosphor — orange and green on black', value: '6' },
-          { label: 'Noir — no hue at all', value: '1' },
-          { label: 'Paper — light, and the best in sun', value: '2' },
-          { label: 'Moss — deep green and chartreuse', value: '3' },
-          { label: 'Tide — teal and cyan', value: '4' },
-          { label: 'Custom — set at the foot of this page', value: '5' }
+          { label: 'Dusk', value: '0' },
+          { label: 'Phosphor', value: '6' },
+          { label: 'Noir', value: '1' },
+          { label: 'Paper', value: '2' },
+          { label: 'Moss', value: '3' },
+          { label: 'Tide', value: '4' },
+          { label: 'Custom — configure down below', value: '5' }
         ]
       }
     ]
@@ -48,10 +48,10 @@ module.exports = [
         messageKey: 'Layout',
         defaultValue: '0',
         label: 'Layout',
-        description: 'Stacked gives the largest digits the screen allows, with everything else in two panels.',
+        description: 'Stack the clock digits or show them on one line.',
         options: [
-          { label: 'Stacked — hours over minutes', value: '0' },
-          { label: 'One line — with the colon', value: '1' }
+          { label: 'Stacked Clock', value: '0' },
+          { label: 'One line', value: '1' }
         ]
       },
       {
@@ -59,12 +59,12 @@ module.exports = [
         messageKey: 'ClockFont',
         defaultValue: '12',
         label: 'Clock face',
-        description: 'Customize your clock digit font. DSEG7 is a real seven-segment face and supports unlit segments behind the lit ones. Blocky Digits is drawn for this watchface rather than set in a typeface.',
+        description: 'Customize your clock digit font. DSEG7 supports unlit segments behind the lit ones.',
         options: [
-          { label: 'Montserrat — geometric', value: '0' },
-          { label: 'Inter — tall and clean', value: '4' },
-          { label: 'DSEG7 — seven-segment', value: '7' },
-          { label: 'Blocky Digits — drawn for this face', value: '12' }
+          { label: 'Blocky Digits', value: '12' },
+          { label: 'Montserrat', value: '0' },
+          { label: 'Inter', value: '4' },
+          { label: 'DSEG7', value: '7' }
         ]
       },
       {
@@ -75,8 +75,8 @@ module.exports = [
         description: 'The face used for the step count, the date column, the pulse and the labels.',
         options: [
           { label: 'Montserrat', value: '0' },
-          { label: 'DSEG14 — fourteen-segment', value: '5' },
-          { label: 'Gothic — the system face', value: '3' }
+          { label: 'DSEG14', value: '5' },
+          { label: 'Gothic', value: '3' }
         ]
       },
       {
@@ -98,7 +98,7 @@ module.exports = [
         messageKey: 'GrowClock',
         defaultValue: true,
         label: 'Grow the clock',
-        description: 'While the panels are hidden, Blocky Digits takes the freed width as size. Off, and the clock keeps its size and simply glides to the middle. Only Blocky Digits can grow.'
+        description: 'While the panels are hidden, Blocky Digits grows to fill the sky. Other faces keep their size and rise into the middle either way.'
       }
     ]
   },
@@ -111,7 +111,7 @@ module.exports = [
         messageKey: 'DateFormat',
         defaultValue: '0',
         label: 'Date',
-        description: 'For one-line layout. Stacked layout shows weekday and month.',
+        description: 'For one-line layout. Stacked shows weekday, day and month whatever you pick here.',
         options: [
           { label: 'Weekday + day', value: '0' },
           { label: 'Month + day', value: '1' },
@@ -130,14 +130,14 @@ module.exports = [
         messageKey: 'ShowBpm',
         defaultValue: true,
         label: 'Heart rate',
-        description: 'When off, or whenever there is no reading, that slot shows your walking distance instead.'
+        description: 'Stacked puts your pulse in the side panel, and closes the gap when there is no reading. One line hands that slot to your distance instead.'
       },
       {
         type: 'select',
         messageKey: 'DistUnit',
         defaultValue: '0',
         label: 'Distance units',
-        description: 'Automatic follows the units set in the Pebble app.',
+        description: 'Stacked shows the day’s distance in the header; one line shows it only in place of a missing pulse. Automatic follows the Pebble app.',
         options: [
           { label: 'Automatic', value: '0' },
           { label: 'Kilometers', value: '1' },
@@ -149,7 +149,7 @@ module.exports = [
         messageKey: 'ShowBattery',
         defaultValue: true,
         label: 'Battery bar',
-        description: 'Two pixels along the very top edge, red below 20%.'
+        description: 'Shown along the top edge, red below 20%.'
       }
     ]
   },
@@ -250,8 +250,8 @@ module.exports = [
       { type: 'color', messageKey: 'ColSky', label: 'Sky', defaultValue: 0x000055, sunlight: false },
       { type: 'color', messageKey: 'ColGround', label: 'Ground', defaultValue: 0x000000, sunlight: false },
       { type: 'color', messageKey: 'ColHorizon', label: 'Horizon line', defaultValue: 0xFFAA00, sunlight: false },
-      { type: 'color', messageKey: 'ColInfoBg', label: 'Behind the info', defaultValue: 0x000055, sunlight: false },
-      { type: 'color', messageKey: 'ColSep', label: 'Separator rule', defaultValue: 0x5555AA, sunlight: false },
+      { type: 'color', messageKey: 'ColInfoBg', label: 'Behind the panels', defaultValue: 0x0000AA, sunlight: false },
+      { type: 'color', messageKey: 'ColSep', label: 'Panel rule', defaultValue: 0x5555FF, sunlight: false },
 
       { type: 'heading', defaultValue: 'Time' },
       { type: 'color', messageKey: 'ColInk', label: 'Clock', defaultValue: 0xFFFFFF, sunlight: false },
