@@ -49,14 +49,21 @@ upload candidates. Only `store/screenshots/` goes to the store.
 | `screenshots/emery_3_one_line.png` | the other layout |
 | `screenshots/emery_4_phosphor.png` | theming |
 | `screenshots/emery_5_paper.png` | the light theme |
+| `screenshots/emery_6_hidden.png` | the panels parked, the clock grown into the space |
 | `screenshots/basalt_{1,2}_*.png` | the same two on a 144x168 color screen |
 | `screenshots/diorite_{1,2}_*.png`, `flint_{1,2}_*.png` | and in black and white |
 
-**Every shot in `store/screenshots/` predates the panels.** They were taken of
-the stacked layout as it was before the header and the column became two cards,
-while the clock was still pinned to the left margin and Montserrat was the
-default face. They need retaking before the next publish, and that is the one
-change that genuinely warrants passing `--screenshots` again.
+**The shots carry demo data, and it is patched in rather than real.** The
+emulator has no health history and its weather is live, so a straight capture
+is an empty face at whatever temperature the sky happens to be. The sweep
+patches steps, pulse, distance and terrain into `health.c`, pins the
+temperature and the clock, and restores every source on exit.
+
+Two things that cost a whole pass: `emu-set-time` takes its time as a
+*positional* `HH:MM:SS`, not `--time` with an ISO stamp, and fails silently
+otherwise — which is how the first sweep came back with twelve different clock
+times. And the walked distance has to be derived from the step count, or the
+sleep shot advertises seven and a half hours of sleep beside four miles walked.
 
 **`--screenshots` appends, it does not replace.** Every publish that passes
 them adds another full set to the listing, and the old ones have to be deleted
