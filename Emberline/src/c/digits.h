@@ -8,7 +8,7 @@
 #define DIGIT_COLON 10
 // The colon inks only these columns, so the one-line layout can give it
 // a slot of its own rather than a full digit width.
-#define DIGIT_COLON_L 3
+#define DIGIT_COLON_L 4
 #define DIGIT_COLON_R 6
 
 // One bitmask per row, bit (DIGIT_W-1) is the leftmost column.
