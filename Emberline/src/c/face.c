@@ -331,6 +331,11 @@ static int side_dx(void) {
 // edge sitting on row 0 as a hairline along the top of the screen.
 static int step_dy(void) { return (SEP_Y + 1) * (100 - reveal()) / 100; }
 
+// The header carries two values now, so it spans bezel to bezel and the
+// column drops clear of it. Touching, they would read as one inverted T; the
+// gap is what makes them two panels.
+static int side_top(void) { return SEP_Y + SEP_R; }
+
 // The clock only grows once the panels are more than half gone, because its
 // scale cannot be interpolated: whole-number scaling is what keeps the drawn
 // digits crisp, so the size has to snap. Snapping it mid-glide, while the eye
@@ -705,16 +710,15 @@ static void draw_side(GContext *ctx) {
   char buf[16], val[16];
   int dx = side_dx();   // the column carries its contents off with it
 
-  // what the pulse slot has to show, if anything
+  // The pulse, and only the pulse — the distance that used to stand in for it
+  // has its own slot in the header now. With no reading this group is simply
+  // absent, and the gaps below divide the space it is not using, so the column
+  // re-spaces instead of showing a hole where a heart rate would have been.
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
   const char *lbl = NULL;
   if (bpm > 0) {
     snprintf(val, sizeof val, "%d", bpm);
     lbl = "BPM";
-  } else if (!hl_sleeping()) {
-    fmt1(val, sizeof val, use_miles() ? hl_walked_m() / 1609.344
-                                      : hl_walked_m() / 1000.0);
-    lbl = use_miles() ? "MI" : "KM";
   }
   bool has_date = g_cfg.date_format != DATE_OFF;
   bool has_temp = temp_fresh();
@@ -724,7 +728,7 @@ static void draw_side(GContext *ctx) {
   int used = (lbl ? s_ink_val + LABEL_DROP : 0)
            + (has_date ? s_ink_caps + LABEL_RISE + LABEL_DROP : 0)
            + (has_temp ? s_ink_val : 0);
-  int top = SEP_Y, bot = horizon_y();
+  int top = side_top(), bot = horizon_y();
   int gap = n > 1 ? (bot - top - 2 * SEP_R - used) / (n - 1) : 0;
   if (gap < 4) gap = 4;
   // a lone group has nothing to be evenly spaced against, so it centers
@@ -868,9 +872,21 @@ static void draw_sky(GContext *ctx) {
     else      draw_base(ctx, buf, F_VAL, MARGIN_L, b_val);
   }
 
-  // the pulse, always right-aligned with its label inboard of it. In Cards it
-  // has already been drawn down the column, caption underneath.
-  if (cards) return;
+  // Cards spends the top right on the day's distance. It used to stand in for
+  // the pulse when there was no reading, which meant it appeared and vanished
+  // according to a sensor it has nothing to do with; here it is simply always
+  // there, and the pulse keeps its own place down the column.
+  if (cards) {
+    fmt1(buf, sizeof buf, use_miles() ? hl_walked_m() / 1609.344
+                                      : hl_walked_m() / 1000.0);
+    const char *u = use_miles() ? "MI" : "KM";
+    graphics_context_set_text_color(ctx, p->muted);
+    int vw = draw_right(ctx, buf, F_VAL, MARGIN_R, b_val);
+    graphics_context_set_text_color(ctx, p->label);
+    draw_tracked(ctx, u, F_CAPS_S,
+                 MARGIN_R - vw - 8 - tracked_w(u, F_CAPS_S), b_val);
+    return;
+  }
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
   const char *lbl = NULL;
   if (bpm > 0) {
@@ -1003,26 +1019,19 @@ static void fill_corner(GContext *ctx, int cx, int cy, int qx, int qy,
 
 // Cards draws two panels instead of one L, which is a much easier shape: both
 // are convex, both run off a bezel, and only the corners that face the clock
-// need rounding. The step count keeps the top left, the column keeps the
-// right, and the clock has the corner between them to itself.
+// need rounding. The header keeps the top, the column keeps the right, and the
+// clock has the corner between them to itself.
 //
-// The step panel is sized to the widest step count rather than to today's, so
-// it does not jump a few pixels wider the day you cross ten thousand.
-static int step_card_w(void) {
-  int w = MARGIN_L + tsz("88,888", F_VAL).w + SEP_R;
-  return w < SEP_X - SEP_R ? w : SEP_X - SEP_R;
-}
-
 static void draw_field_cards(GContext *ctx) {
   const Palette *p = palette();
   int hz = horizon_y();
-  int sw = step_card_w();
   int dx = side_dx(), dy = step_dy();
+  int top = side_top();
 
   if (!gcolor_equal(p->info_bg, p->sky)) {
     graphics_context_set_fill_color(ctx, p->info_bg);
-    graphics_fill_rect(ctx, GRect(0, -dy, sw, SEP_Y), SEP_R, GCornerBottomRight);
-    graphics_fill_rect(ctx, GRect(SEP_X + dx, SEP_Y, SCREEN_W - SEP_X, hz - SEP_Y),
+    graphics_fill_rect(ctx, GRect(0, -dy, SCREEN_W, SEP_Y), 0, GCornerNone);
+    graphics_fill_rect(ctx, GRect(SEP_X + dx, top, SCREEN_W - SEP_X, hz - top),
                        SEP_R, GCornerTopLeft | GCornerBottomLeft);
   }
 
@@ -1030,26 +1039,18 @@ static void draw_field_cards(GContext *ctx) {
   graphics_context_set_stroke_color(ctx, p->sep);
   graphics_context_set_stroke_width(ctx, 1);
 
-  // the step panel: down the right edge, round the bottom-right, out to the
-  // left bezel
-  graphics_draw_line(ctx, GPoint(sw, -dy), GPoint(sw, SEP_Y - SEP_R - dy));
-  graphics_draw_arc(ctx, GRect(sw - 2 * SEP_R, SEP_Y - 2 * SEP_R - dy,
-                               2 * SEP_R, 2 * SEP_R),
-                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 4,
-                    TRIG_MAX_ANGLE / 2);
-  graphics_draw_line(ctx, GPoint(0, SEP_Y - dy), GPoint(sw - SEP_R, SEP_Y - dy));
+  // the header: bezel to bezel, so only its bottom edge is ever on screen
+  graphics_draw_line(ctx, GPoint(0, SEP_Y - dy),
+                     GPoint(SCREEN_W - 1, SEP_Y - dy));
 
   // the column: in from the right bezel, round down, and along to the horizon
-  // Once the column is most of the way out these run right-to-left, and
-  // graphics_draw_line happily draws them backwards — as a stripe down the
-  // right bezel that has nothing to do with the panel.
   if (SEP_X + dx + SEP_R < SCREEN_W - 1)
-    graphics_draw_line(ctx, GPoint(SEP_X + dx + SEP_R, SEP_Y),
-                       GPoint(SCREEN_W - 1, SEP_Y));
-  graphics_draw_arc(ctx, GRect(SEP_X + dx, SEP_Y, 2 * SEP_R, 2 * SEP_R),
+    graphics_draw_line(ctx, GPoint(SEP_X + dx + SEP_R, top),
+                       GPoint(SCREEN_W - 1, top));
+  graphics_draw_arc(ctx, GRect(SEP_X + dx, top, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE * 3 / 4,
                     TRIG_MAX_ANGLE);
-  graphics_draw_line(ctx, GPoint(SEP_X + dx, SEP_Y + SEP_R),
+  graphics_draw_line(ctx, GPoint(SEP_X + dx, top + SEP_R),
                      GPoint(SEP_X + dx, hz - SEP_R));
   graphics_draw_arc(ctx, GRect(SEP_X + dx, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
