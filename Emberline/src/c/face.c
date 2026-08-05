@@ -728,17 +728,22 @@ static void draw_side(GContext *ctx) {
   int used = (lbl ? s_ink_val + LABEL_DROP : 0)
            + (has_date ? s_ink_caps + LABEL_RISE + LABEL_DROP : 0)
            + (has_temp ? s_ink_val : 0);
-  // Every opening in the column is the same size — the margin above the first
-  // group, the margin below the last, and the gaps in between. The slack is
-  // divided among all of them, so losing the pulse widens the margins instead
-  // of opening one cavern in the middle of the panel.
+  // The margins are half-spaces. A gap between two groups has to carry the eye
+  // across and read as a division; a margin only has to hold the group off the
+  // panel edge, and giving it the same room as a gap crowds the middle and
+  // pushes the groups together. Two halves plus the gaps between them is n
+  // units of slack for n groups.
   //
-  // This also handles a lone group without a special case: two openings, one
-  // above and one below, which is what centering is.
+  // The top margin then takes whatever the division left over, so the column
+  // is exactly symmetric rather than drifting a pixel or two low — and a lone
+  // group needs no special case, since two half-margins and no gap is what
+  // centering is.
   int top = side_top(), bot = horizon_y();
-  int gap = (bot - top - used) / (n + 1);
+  int slack = bot - top - used;
+  int gap = slack / n;
   if (gap < 4) gap = 4;
-  int y = top + gap;
+  int y = top + (slack - gap * (n - 1)) / 2;
+  if (y < top + 2) y = top + 2;
 
   if (lbl) {
     int b = y + s_ink_val;
