@@ -408,9 +408,19 @@ void face_fonts_changed(void) { text_load(); clock_resolve(); reveal_sync(); }
 static void clock_glyph(GContext *ctx, char c, int x, int slot_w, int baseline,
                         GColor col) {
   if (s_clock_scale) {
-    int idx = (c == ':') ? DIGIT_COLON : c - '0';
+    bool colon = c == ':';
+    int idx = colon ? DIGIT_COLON : c - '0';
+    // Center the ink in the slot, not the box. The drawing carries a blank
+    // column down one side — which is where the gap between digits comes
+    // from — and centering the box counts that blank as glyph, shoving the
+    // whole clock half a column across. Taken from the drawing rather than
+    // hard-coded, so redrawing the glyphs cannot put it back.
+    int l = colon ? DIGIT_COLON_L : DIGIT_INK_L;
+    int r = colon ? DIGIT_COLON_R : DIGIT_INK_R;
     graphics_context_set_fill_color(ctx, col);
-    digit_draw(ctx, idx, x + (slot_w - DIGIT_W * s_clock_scale) / 2,
+    digit_draw(ctx, idx,
+               x + (slot_w - (r - l + 1) * s_clock_scale) / 2
+                 - l * s_clock_scale,
                baseline - s_clock_asc, s_clock_scale);
     return;
   }
@@ -1044,11 +1054,6 @@ static void draw_field_cards(GContext *ctx) {
   graphics_draw_arc(ctx, GRect(SEP_X + dx, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
                     TRIG_MAX_ANGLE * 3 / 4);
-  // same hand-off as the L: the horizon closes the panel unless it is
-  // invisible, in which case the panel closes itself
-  if (gcolor_equal(p->horizon, p->sky) && SEP_X + dx + SEP_R < SCREEN_W - 1)
-    graphics_draw_line(ctx, GPoint(SEP_X + dx + SEP_R, hz),
-                       GPoint(SCREEN_W - 1, hz));
 }
 
 static void draw_field(GContext *ctx) {
@@ -1095,14 +1100,26 @@ static void draw_field(GContext *ctx) {
   graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
                     TRIG_MAX_ANGLE * 3 / 4);
-  // The free end lands on the horizon and stops, because the horizon takes
-  // over from there: two lines meeting is one edge, and drawing both would
-  // thicken it. Set the horizon to the sky and there is nothing to hand off
-  // to — the card is left hanging open under the temperature. So it closes
-  // itself, running on to the right bezel.
-  if (gcolor_equal(p->horizon, p->sky))
-    graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, hz),
-                       GPoint(SCREEN_W - 1, hz));
+}
+
+// The card's free end lands on the horizon and stops, because the horizon
+// closes it: two lines meeting is one edge, and drawing both would thicken it.
+// Painted the same color as the sky the horizon closes nothing, and the card
+// hangs open under the temperature — so the rule runs on to the bezel itself.
+//
+// This has to happen after the ground. draw_ground fills the horizon band
+// across the full width, so anything drawn at that row beforehand is painted
+// over in the exact case this exists to handle.
+static void draw_field_close(GContext *ctx) {
+  const Palette *p = palette();
+  if (!g_cfg.show_sep || g_cfg.layout == LAY_LINE) return;
+  if (!gcolor_equal(p->horizon, p->sky)) return;
+  int x = SEP_X + SEP_R + (g_cfg.layout == LAY_CARDS ? side_dx() : 0);
+  if (x >= SCREEN_W - 1) return;
+  graphics_context_set_stroke_color(ctx, p->sep);
+  graphics_context_set_stroke_width(ctx, 1);
+  graphics_draw_line(ctx, GPoint(x, horizon_y()),
+                     GPoint(SCREEN_W - 1, horizon_y()));
 }
 
 static void draw(Layer *layer, GContext *ctx) {
@@ -1117,6 +1134,7 @@ static void draw(Layer *layer, GContext *ctx) {
   draw_field(ctx);
   draw_sky(ctx);
   draw_ground(ctx);
+  draw_field_close(ctx);
   draw_status(ctx);
 }
 

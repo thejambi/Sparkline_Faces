@@ -10,6 +10,11 @@
 // a slot of its own rather than a full digit width.
 #define DIGIT_COLON_L 4
 #define DIGIT_COLON_R 6
+// ...and these are the columns the digits ink. A drawing with a blank
+// column down one side is centered by its ink, not by its box, or the
+// blank counts as part of the glyph and pushes the whole clock over.
+#define DIGIT_INK_L 1
+#define DIGIT_INK_R 9
 
 // One bitmask per row, bit (DIGIT_W-1) is the leftmost column.
 extern const uint16_t DIGIT_ROWS[11][DIGIT_H];
