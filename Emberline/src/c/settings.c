@@ -19,10 +19,11 @@ static void defaults(void) {
   g_cfg.sleep_terrain = true;
   g_cfg.weather_on = true;
   g_cfg.wake_threshold = 350;
-  g_cfg.clock_font = CF_MONT;
+  g_cfg.clock_font = CF_GRID;
   g_cfg.bold_clock = true;
   g_cfg.layout = LAY_STACK;
-  g_cfg.auto_hide = false;
+  g_cfg.auto_hide = true;
+  g_cfg.grow_clock = true;
   g_cfg.c_sky = 0x000055;
   g_cfg.c_ground = 0x000000;
   g_cfg.c_horizon = 0xFFAA00;
@@ -60,29 +61,33 @@ static void defaults(void) {
 // ---------------------------------------------------------------------------
 typedef struct {
   uint32_t sky, ground, horizon, ink, accent, muted, scale, unlit, sep;
+  uint32_t info_bg;   // behind the panels; equal to the sky leaves them untinted
 } Theme;
 
 static const Theme THEMES[TH_COUNT] = {
   // dusk — navy sky, black land, one amber line where they meet
-  [TH_DUSK]  = { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA , 0x000055 , 0x5555AA },
+  [TH_DUSK]  = { 0x000055, 0x000000, 0xFFAA00, 0xFFFFFF, 0xFFAA00, 0xAAAAFF, 0x5555AA , 0x000055 , 0x5555FF , 0x0000AA },
   // noir — no hue at all; the horizon is the only pure white shape
-  [TH_NOIR]  = { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 , 0x555555 , 0x555555 },
+  [TH_NOIR]  = { 0x000000, 0x000000, 0xFFFFFF, 0xFFFFFF, 0xAAAAAA, 0xAAAAAA, 0x555555 , 0x555555 , 0x555555 , 0x000000 },
   // paper — the light one, and the most readable in direct sun
-  [TH_PAPER] = { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA , 0xAAAAAA , 0xAAAAAA },
+  [TH_PAPER] = { 0xFFFFFF, 0xFFFFAA, 0xFF5500, 0x000000, 0xFF5500, 0x555555, 0xAAAAAA , 0xAAAAAA , 0xAAAAAA , 0xFFFFFF },
   // moss
-  [TH_MOSS]  = { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 , 0x00AA00 , 0x55AA55 },
+  [TH_MOSS]  = { 0x005500, 0x000000, 0xFFFF55, 0xFFFFFF, 0xAAFF00, 0xAAFFAA, 0x55AA55 , 0x00AA00 , 0x55AA55 , 0x005500 },
   // tide
-  [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA , 0x00AAAA , 0x55AAAA },
+  [TH_TIDE]  = { 0x005555, 0x000000, 0x00FFFF, 0xFFFFFF, 0x00FFFF, 0xAAFFFF, 0x55AAAA , 0x00AAAA , 0x55AAAA , 0x005555 },
   // TH_CUSTOM is a hole in this table: it comes from g_cfg instead
   // phosphor — two phosphors on a dead screen, orange for time, green for body
-  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 , 0x000000 , 0x005555 },
+  [TH_PHOSPHOR] = { 0x000000, 0x000000, 0xFF5500, 0xFF5500, 0x00AA55, 0x00AA55, 0x005555 , 0x000000 , 0x005555 , 0x000000 },
 };
 
 static void resolve(void) {
   Theme custom = { g_cfg.c_sky, g_cfg.c_ground, g_cfg.c_horizon, g_cfg.c_ink,
                    g_cfg.c_accent, g_cfg.c_muted, g_cfg.c_scale,
                    g_cfg.c_unlit == COL_INHERIT ? g_cfg.c_sky : g_cfg.c_unlit,
-                   g_cfg.c_sep == COL_INHERIT ? g_cfg.c_scale : g_cfg.c_sep };
+                   g_cfg.c_sep == COL_INHERIT ? g_cfg.c_scale : g_cfg.c_sep,
+                   // Custom's own inherit check runs below; this is only the
+                   // fallback for a save from before the panels existed.
+                   g_cfg.c_sky };
   const Theme *t = (g_cfg.theme == TH_CUSTOM) ? &custom
                  : &THEMES[g_cfg.theme < TH_COUNT ? g_cfg.theme : TH_DUSK];
   s_pal.sky     = GColorFromHEX(t->sky);
@@ -125,7 +130,7 @@ static void resolve(void) {
   s_pal.label   = GColorFromHEX(
       is_custom && g_cfg.c_label != COL_INHERIT ? g_cfg.c_label : t->scale);
   s_pal.info_bg = GColorFromHEX(
-      is_custom && g_cfg.c_info_bg != COL_INHERIT ? g_cfg.c_info_bg : t->sky);
+      is_custom && g_cfg.c_info_bg != COL_INHERIT ? g_cfg.c_info_bg : t->info_bg);
 }
 
 const Palette *palette(void) { return &s_pal; }
@@ -169,6 +174,7 @@ static void inbox(DictionaryIterator *it, void *ctx) {
   if (g_cfg.clock_font >= CF_COUNT) g_cfg.clock_font = CF_MONT;
   g_cfg.layout       = tup_int(it, MESSAGE_KEY_Layout, g_cfg.layout);
   g_cfg.auto_hide    = tup_int(it, MESSAGE_KEY_AutoHide, g_cfg.auto_hide);
+  g_cfg.grow_clock   = tup_int(it, MESSAGE_KEY_GrowClock, g_cfg.grow_clock);
   if (g_cfg.layout >= LAY_COUNT) g_cfg.layout = LAY_STACK;
   g_cfg.c_sky     = tup_col(it, MESSAGE_KEY_ColSky, g_cfg.c_sky);
   g_cfg.c_ground  = tup_col(it, MESSAGE_KEY_ColGround, g_cfg.c_ground);
@@ -202,7 +208,16 @@ void settings_init(void (*cb)(void)) {
   if (n > 0 && n <= (int)sizeof g_cfg) {
     Settings tmp = g_cfg;
     persist_read_data(KEY_SETTINGS, &tmp, n);
-    if (tmp.version == SETTINGS_VERSION) g_cfg = tmp;
+    if (tmp.version == SETTINGS_VERSION) {
+      g_cfg = tmp;
+      // A save from before the panels existed stops short of auto_hide, so
+      // that field keeps the default set above — which is now on. Switching it
+      // on for somebody who never asked would hide the face they have been
+      // wearing until they happened to shake it, so a short save means off.
+      // New installs, which have no save at all, still get it on.
+      if (n < (int)(offsetof(Settings, auto_hide) + sizeof g_cfg.auto_hide))
+        g_cfg.auto_hide = false;
+    }
   }
   resolve();
   app_message_register_inbox_received(inbox);

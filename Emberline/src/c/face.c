@@ -210,14 +210,6 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     // than the 5 the stacked layout gets. x5 would not fit at all.
     [CF_GRID]    = { 4, 4, 0, 0, 130, 156 },
   },
-  // Cards keeps the stacked numerals and horizon exactly. It rearranges what
-  // is around the clock, not the clock.
-  [LAY_CARDS] = {
-    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_94, RESOURCE_ID_FONT_CLOCK_B_94, 106, 182, 0, 188 },
-    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_91,  RESOURCE_ID_FONT_INTR_B_91,  106, 182, 0, 188 },
-    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_68,  RESOURCE_ID_FONT_DSEG_B_68,  106, 182, 0, 188 },
-    [CF_GRID]    = { 5, 5, 106, 182, 0, 188 },
-  },
 };
 #else   // 144x168: width binds here, not height
 static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
@@ -237,12 +229,6 @@ static const ClockGrid GRID[LAY_COUNT][CF_COUNT] = {
     [CF_LECO]    = { 0, 0, 0, 0, 0, 0 },
     [CF_GRID]    = { 2, 2, 0, 0, 94, 114 },
   },
-  [LAY_CARDS] = {
-    [CF_MONT]    = { RESOURCE_ID_FONT_CLOCK_58, RESOURCE_ID_FONT_CLOCK_B_58, 75, 122, 0, 128 },
-    [CF_INTER]   = { RESOURCE_ID_FONT_INTR_56,  RESOURCE_ID_FONT_INTR_B_56,  74, 122, 0, 128 },
-    [CF_DSEG]    = { RESOURCE_ID_FONT_DSEG_43,  RESOURCE_ID_FONT_DSEG_B_43,  74, 122, 0, 128 },
-    [CF_GRID]    = { 3, 3, 75, 122, 0, 128 },
-  },
 };
 #endif
 
@@ -256,21 +242,6 @@ static const ClockGrid *grid(void) {
   int face = g_cfg.clock_font < CF_COUNT ? g_cfg.clock_font : CF_MONT;
   if (GRID[lay][face].horizon == 0) face = CF_MONT;
   return &GRID[lay][face];
-}
-
-// Where the day column's last line sits. It floats rather than tying to the
-// hour's baseline: as a three-line block, its own rhythm down the right margin
-// matters more than an alignment nothing else in that column shares. Placed so
-// the gap up to the header equals the gap down to the temperature —
-//
-//   (foot - DATE_BLOCK_H) - BASE_ROW1 == (b_min - INK_VAL) - foot
-//
-// which is 113 against Montserrat's 174 minutes — eleven rows below where the
-// hour's baseline would have put it, and 45 of clear sky on either side of the
-// block instead of 34 above and 56 below.
-static int date_foot(void) {
-  int block = LABEL_RISE + LABEL_DROP + s_ink_caps;
-  return (grid()->b_min - s_ink_val + block + BASE_ROW1) / 2;
 }
 
 static int horizon_y(void) { return grid()->horizon; }
@@ -315,7 +286,7 @@ static bool s_reveal_in;
 static AppTimer *s_reveal_timer, *s_hold_timer;
 
 static bool cards_hiding(void) {
-  return g_cfg.layout == LAY_CARDS && g_cfg.auto_hide;
+  return g_cfg.layout == LAY_STACK && g_cfg.auto_hide;
 }
 // Defined down with the timers it owns, but face_fonts_changed needs it here.
 static void reveal_sync(void);
@@ -341,7 +312,8 @@ static int side_top(void) { return SEP_Y + SEP_R; }
 // digits crisp, so the size has to snap. Snapping it mid-glide, while the eye
 // is following the panels, is the least conspicuous moment available.
 static bool clock_big(void) {
-  return cards_hiding() && s_reveal < 50 && g_cfg.clock_font == CF_GRID;
+  return cards_hiding() && g_cfg.grow_clock && s_reveal < 50
+      && g_cfg.clock_font == CF_GRID;
 }
 static int clock_b_hour(void) {
   return clock_big() ? CARDS_BIG_HOUR : grid()->b_hour;
@@ -488,7 +460,7 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   // leaves, and the left margin closes to nothing at the same rate, so the
   // clock stays centered in whatever space it actually has at that instant.
   int fr = SEP_X, fl = MARGIN_L;
-  if (g_cfg.layout == LAY_CARDS) {
+  if (g_cfg.layout == LAY_STACK) {
     int t = reveal();
     fr = SEP_X + (SCREEN_W - SEP_X) * (100 - t) / 100;
     fl = MARGIN_L * t / 100;
@@ -791,46 +763,26 @@ static void draw_sky(GContext *ctx) {
   // ignores the weekday-or-month setting entirely; on one line the two would
   // crowd the row, which is what the setting is there to choose between.
   bool line = g_cfg.layout == LAY_LINE;
-  bool cards = g_cfg.layout == LAY_CARDS;
+  bool cards = !line;
 
-  // Cards puts the date, the temperature and the pulse in one column, spaced
+  // Stacked puts the date, the temperature and the pulse in one column, spaced
   // against each other rather than against the rows they used to share.
   if (cards) draw_side(ctx);
 
-  if (!cards && g_cfg.date_format != DATE_OFF) {
-    if (line) {
-      const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
-      snprintf(buf, sizeof buf, "%s %d", l, s_mday);
-      graphics_context_set_text_color(ctx, p->muted);
-      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW1);
-    } else {
-      int b_mon = date_foot();
-      int b_day = b_mon - LABEL_DROP;
-      snprintf(buf, sizeof buf, "%d", s_mday);
-      graphics_context_set_text_color(ctx, p->muted);
-      draw_right(ctx, buf, F_VAL, MARGIN_R, b_day);
-      graphics_context_set_text_color(ctx, p->label);
-      const char *wd = WD[s_wday], *mo = MO[s_mon];
-      draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R - tracked_w(wd, F_CAPS_S),
-                   b_day - LABEL_RISE);
-      draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R - tracked_w(mo, F_CAPS_S),
-                   b_mon);
-    }
+  if (line && g_cfg.date_format != DATE_OFF) {
+    const char *l = g_cfg.date_format == DATE_DAYNUM ? WD[s_wday] : MO[s_mon];
+    snprintf(buf, sizeof buf, "%s %d", l, s_mday);
+    graphics_context_set_text_color(ctx, p->muted);
+    draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW1);
   }
 
-  if (!cards && temp_fresh()) {
+  if (line && temp_fresh()) {
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
-    if (line) {
-      int w = tracked_w(buf, F_CAPS);
-      draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW2);
-      draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - s_ink_caps - 3,
-                  DEG_SIZE_S, p->muted);
-    } else {
-      draw_right(ctx, buf, F_VAL, MARGIN_R, grid()->b_min);
-      draw_degree(ctx, MARGIN_R + 3, grid()->b_min - s_ink_val, DEG_SIZE,
-                  p->muted);
-    }
+    int w = tracked_w(buf, F_CAPS);
+    draw_tracked(ctx, buf, F_CAPS, MARGIN_L, BASE_ROW2);
+    draw_degree(ctx, MARGIN_L + w + 3, BASE_ROW2 - s_ink_caps - 3,
+                DEG_SIZE_S, p->muted);
   }
 
   int h = s_hour;
@@ -1083,49 +1035,33 @@ static void draw_field_cards(GContext *ctx) {
 
 static void draw_field(GContext *ctx) {
   const Palette *p = palette();
-  if (g_cfg.layout == LAY_CARDS) { draw_field_cards(ctx); return; }
-  bool line = g_cfg.layout == LAY_LINE;
-  int top = line ? SEP_Y_LINE : SEP_Y;
-  int hz = horizon_y();
-  bool tinted = !gcolor_equal(p->info_bg, p->sky);
+  if (g_cfg.layout != LAY_LINE) { draw_field_cards(ctx); return; }
 
-  if (tinted) {
+  // One line has no column to divide, so its card is the header strip alone —
+  // and it lifts off both bezels for the same reason the stacked one does: the
+  // horizon should be the only rule that crosses the whole screen.
+  int top = SEP_Y_LINE;
+  if (!gcolor_equal(p->info_bg, p->sky)) {
     graphics_context_set_fill_color(ctx, p->info_bg);
     graphics_fill_rect(ctx, GRect(0, 0, SCREEN_W, top), 0, GCornerNone);
-    if (!line)
-      graphics_fill_rect(ctx, GRect(SEP_X, top, SCREEN_W - SEP_X, hz - top), 0,
-                         GCornerNone);
-    // the strip lifts off the left bezel
     fill_corner(ctx, SEP_R, top - SEP_R, 0, top - SEP_R, p->sky, p->info_bg);
-    if (!line) {
-      // the elbow turns toward the clock
-      fill_corner(ctx, SEP_X - SEP_R, top + SEP_R, SEP_X - SEP_R, top,
-                  p->info_bg, p->sky);
-      // and the column lifts off the horizon
-      fill_corner(ctx, SEP_X + SEP_R, hz - SEP_R, SEP_X, hz - SEP_R,
-                  p->sky, p->info_bg);
-    }
+    fill_corner(ctx, SCREEN_W - 1 - SEP_R, top - SEP_R, SCREEN_W - SEP_R,
+                top - SEP_R, p->sky, p->info_bg);
   }
 
   if (!g_cfg.show_sep) return;
   graphics_context_set_stroke_color(ctx, p->sep);
   graphics_context_set_stroke_width(ctx, 1);
-  int right = line ? SCREEN_W : SEP_X;
-
-  graphics_draw_line(ctx, GPoint(SEP_R, top), GPoint(right - SEP_R, top));
+  graphics_draw_line(ctx, GPoint(SEP_R, top), GPoint(SCREEN_W - 1 - SEP_R, top));
   graphics_draw_arc(ctx, GRect(0, top - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
                     TRIG_MAX_ANGLE * 3 / 4);
-  if (line) return;
-
-  graphics_draw_arc(ctx, GRect(SEP_X - 2 * SEP_R, top, 2 * SEP_R, 2 * SEP_R),
-                    GOvalScaleModeFitCircle, 0, TRIG_MAX_ANGLE / 4);
-  graphics_draw_line(ctx, GPoint(SEP_X, top + SEP_R),
-                    GPoint(SEP_X, hz - SEP_R));
-  graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
-                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
-                    TRIG_MAX_ANGLE * 3 / 4);
+  graphics_draw_arc(ctx, GRect(SCREEN_W - 1 - 2 * SEP_R, top - 2 * SEP_R,
+                               2 * SEP_R, 2 * SEP_R),
+                    GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 4,
+                    TRIG_MAX_ANGLE / 2);
 }
+
 
 // The card's free end lands on the horizon and stops, because the horizon
 // closes it: two lines meeting is one edge, and drawing both would thicken it.
@@ -1139,7 +1075,7 @@ static void draw_field_close(GContext *ctx) {
   const Palette *p = palette();
   if (!g_cfg.show_sep || g_cfg.layout == LAY_LINE) return;
   if (!gcolor_equal(p->horizon, p->sky)) return;
-  int x = SEP_X + SEP_R + (g_cfg.layout == LAY_CARDS ? side_dx() : 0);
+  int x = SEP_X + SEP_R + (g_cfg.layout == LAY_STACK ? side_dx() : 0);
   if (x >= SCREEN_W - 1) return;
   graphics_context_set_stroke_color(ctx, p->sep);
   graphics_context_set_stroke_width(ctx, 1);

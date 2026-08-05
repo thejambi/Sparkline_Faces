@@ -59,6 +59,7 @@
       "ColSep",
       "ColInfoBg",
       "AutoHide",
+      "GrowClock",
       "ColorMode"
     ],
     "resources": {

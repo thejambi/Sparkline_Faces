@@ -25,14 +25,13 @@ enum { TH_DUSK, TH_NOIR, TH_PAPER, TH_MOSS, TH_TIDE, TH_CUSTOM, TH_PHOSPHOR,
 // tools/digitgrid.py for the drawing itself.
 enum { CF_MONT, CF_LECO, CF_ROBOTO, CF_GROTESK, CF_INTER, CF_SOURCE, CF_PLEX,
        CF_DSEG, CF_MONO, CF_KODE, CF_MRTN, CF_JRSY, CF_GRID, CF_COUNT };
-// Three ways to set the same information. Stacked buys a much larger numeral;
-// the single line buys back the colon and a calmer header. Cards moves the
-// pulse into the right column with its caption underneath, which empties the
-// header down to the step count and lets the two survivors be drawn as two
-// separate cards rather than one continuous L.
+// Two ways to set the same information. Stacked buys a much larger numeral and
+// draws everything else as two panels; the single line buys back the colon and
+// a calmer header.
 //
-// Append-only with the rest: LAY_CARDS goes last.
-enum { LAY_STACK, LAY_LINE, LAY_CARDS, LAY_COUNT };
+// LAY_STACK was redrawn rather than replaced — the panels are what stacked is
+// now — so a persisted 0 lands on the new design with nothing to migrate.
+enum { LAY_STACK, LAY_LINE, LAY_COUNT };
 // The face used for everything that is not the clock. Append-only.
 enum { TF_MONT, TF_INTER, TF_SOURCE, TF_SYSTEM, TF_JRSY, TF_DSEG,
        TF_COUNT };
@@ -69,10 +68,15 @@ typedef struct {
   uint32_t c_unlit;              // DSEG's dark segments; COL_INHERIT = the sky
   bool show_sep;                 // the rule around the clock's field
   uint32_t c_label, c_sep, c_info_bg;
-  // Cards only: the panels sit off-screen until you shake, then slide in and
+  // Stacked only: the panels sit off-screen until you shake, then slide in and
   // hold. With them gone the clock has the whole width, which is the actual
-  // reason to want this — see CARDS_BIG_* in face.c.
+  // reason to want this — see CARDS_BIG_* in ui.h.
   bool auto_hide;
+  // Whether the clock takes that freed width as size. Only Blocky Digits can:
+  // whole-number scaling is what keeps it crisp, and the bundled faces have
+  // one size each. Off, and every face simply glides to the middle of the sky
+  // and back, which is the same animation minus the step in scale.
+  bool grow_clock;
 } Settings;
 
 #define COL_INHERIT 0xFF000000u

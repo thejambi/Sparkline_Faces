@@ -48,17 +48,16 @@ module.exports = [
         messageKey: 'Layout',
         defaultValue: '0',
         label: 'Layout',
-        description: 'Stacked gives the largest digits the screen allows and a shorter terrain.',
+        description: 'Stacked gives the largest digits the screen allows, with everything else in two panels.',
         options: [
           { label: 'Stacked — hours over minutes', value: '0' },
-          { label: 'One line — with the colon', value: '1' },
-          { label: 'Cards — the info in its own panels', value: '2' }
+          { label: 'One line — with the colon', value: '1' }
         ]
       },
       {
         type: 'select',
         messageKey: 'ClockFont',
-        defaultValue: '0',
+        defaultValue: '12',
         label: 'Clock face',
         description: 'Customize your clock digit font. DSEG7 is a real seven-segment face and supports unlit segments behind the lit ones. Blocky Digits is drawn for this watchface rather than set in a typeface.',
         options: [
@@ -90,9 +89,16 @@ module.exports = [
       {
         type: 'toggle',
         messageKey: 'AutoHide',
-        defaultValue: false,
+        defaultValue: true,
         label: 'Hide the panels',
-        description: 'Cards layout only. The panels stay off screen and the clock takes the whole width; shake your wrist to bring them back for seven seconds.'
+        description: 'Stacked layout only. The panels stay off screen; shake your wrist to bring them back for seven seconds.'
+      },
+      {
+        type: 'toggle',
+        messageKey: 'GrowClock',
+        defaultValue: true,
+        label: 'Grow the clock',
+        description: 'While the panels are hidden, Blocky Digits takes the freed width as size. Off, and the clock keeps its size and simply glides to the middle. Only Blocky Digits can grow.'
       }
     ]
   },
