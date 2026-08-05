@@ -86,6 +86,13 @@ module.exports = [
         defaultValue: true,
         label: 'Separator rule',
         description: 'A rule line separating the clock from the rest of the face info.'
+      },
+      {
+        type: 'toggle',
+        messageKey: 'AutoHide',
+        defaultValue: false,
+        label: 'Hide the panels',
+        description: 'Cards layout only. The panels stay off screen and the clock takes the whole width; shake your wrist to bring them back for seven seconds.'
       }
     ]
   },

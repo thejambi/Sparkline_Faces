@@ -64,6 +64,14 @@
 #define SEP_X         152
 #define SEP_R         8
 #define SEP_Y_LINE    62
+// Cards with the panels parked: the clock has the whole screen, so Blocky
+// Digits steps up a whole scale. x6 is cap 78 against the 76 the shown
+// baselines allow, which is why the baselines move too — the hour comes up to
+// clear the top edge and the minutes stay on the horizon. x7 would be cap 91,
+// and two of those leave no gap between the rows at all.
+#define CARDS_BIG_SCALE 6
+#define CARDS_BIG_HOUR  88
+#define CARDS_BIG_MIN   182
 
 #else   // basalt, diorite, flint — 144x168
 
@@ -87,6 +95,9 @@
 #define SEP_X         99
 #define SEP_R         6
 #define SEP_Y_LINE    46
+#define CARDS_BIG_SCALE 4
+#define CARDS_BIG_HOUR  60
+#define CARDS_BIG_MIN   122
 
 #endif
 

@@ -277,6 +277,74 @@ static int horizon_y(void) { return grid()->horizon; }
 static int ground_y(void) { return horizon_y() + HORIZON_H; }
 static int bar_max(void) { return PLOT_BOT - ground_y() - 3; }
 
+// Blocky Digits' metrics are pure arithmetic — no resource to load, nothing to
+// measure — so they can be recomputed every frame. That is what lets the clock
+// change size as the panels come and go.
+//
+// The gap between slots is one grid column, so the digits breathe by the
+// design's own unit. A fixed pixel count cannot: two pixels beside a 50px
+// digit is not the same gap as two beside a 20px one, and the drawn face spans
+// both. The one line has to hold four of these plus the colon inside the
+// screen, so there it takes whatever is left over instead.
+static void grid_metrics(int scale) {
+  s_clock_scale = scale;
+  s_clock_asc = DIGIT_H * scale;
+  int ink = DIGIT_W * scale;
+  int cw = (DIGIT_COLON_R - DIGIT_COLON_L + 1) * scale;
+  s_clock_air = scale;
+  if (g_cfg.layout == LAY_LINE) {
+    int fit = (SCREEN_W - 8 - 4 * ink - cw) / 5;
+    if (fit < 1) fit = 1;
+    if (fit < s_clock_air) s_clock_air = fit;
+  }
+  s_clock_slot = ink + s_clock_air;
+}
+
+// Cards' auto-hide. `s_reveal` is 0 with the panels parked off-screen and 100
+// with them fully in; every moving thing is drawn from it, so there is one
+// number to reason about rather than a position per panel.
+//
+// A shake brings them in, they hold, then they leave. The frame timer only
+// runs while something is actually travelling — at rest there is no timer at
+// all, which is the difference between this and a battery complaint.
+#define REVEAL_STEP_MS 33
+#define REVEAL_SPAN_MS 260
+#define REVEAL_HOLD_MS 7000
+static int s_reveal = 100;
+static bool s_reveal_in;
+static AppTimer *s_reveal_timer, *s_hold_timer;
+
+static bool cards_hiding(void) {
+  return g_cfg.layout == LAY_CARDS && g_cfg.auto_hide;
+}
+// Defined down with the timers it owns, but face_fonts_changed needs it here.
+static void reveal_sync(void);
+static int reveal(void) { return cards_hiding() ? s_reveal : 100; }
+
+// How far each panel has left to travel. The step panel is at the top so it
+// leaves upward; the column is at the right so it leaves rightward. Each one
+// parks exactly its own size away, so nothing is left peeking at the bezel.
+static int side_dx(void) {
+  return (SCREEN_W - SEP_X) * (100 - reveal()) / 100;
+}
+// One past its own height: parking at exactly SEP_Y leaves the panel's bottom
+// edge sitting on row 0 as a hairline along the top of the screen.
+static int step_dy(void) { return (SEP_Y + 1) * (100 - reveal()) / 100; }
+
+// The clock only grows once the panels are more than half gone, because its
+// scale cannot be interpolated: whole-number scaling is what keeps the drawn
+// digits crisp, so the size has to snap. Snapping it mid-glide, while the eye
+// is following the panels, is the least conspicuous moment available.
+static bool clock_big(void) {
+  return cards_hiding() && s_reveal < 50 && g_cfg.clock_font == CF_GRID;
+}
+static int clock_b_hour(void) {
+  return clock_big() ? CARDS_BIG_HOUR : grid()->b_hour;
+}
+static int clock_b_min(void) {
+  return clock_big() ? CARDS_BIG_MIN : grid()->b_min;
+}
+
 static void clock_resolve(void) {
   const ClockGrid *g = grid();
   // The drawn face takes this before the resource machinery gets a look in:
@@ -290,22 +358,7 @@ static void clock_resolve(void) {
       s_clock_res = 0;
     }
     s_clock = NULL;
-    s_clock_scale = (int)g->light;
-    s_clock_asc = DIGIT_H * s_clock_scale;
-    // The gap between slots is one grid column, so the digits breathe by the
-    // design's own unit. A fixed pixel count cannot: two pixels beside a 50px
-    // digit is not the same gap as two beside a 20px one, and the drawn face
-    // spans both. The one line has to hold four of these plus the colon
-    // inside the screen, so there it takes whatever is left over instead.
-    int ink = DIGIT_W * s_clock_scale;
-    int cw = (DIGIT_COLON_R - DIGIT_COLON_L + 1) * s_clock_scale;
-    s_clock_air = s_clock_scale;
-    if (g_cfg.layout == LAY_LINE) {
-      int fit = (SCREEN_W - 8 - 4 * ink - cw) / 5;
-      if (fit < 1) fit = 1;
-      if (fit < s_clock_air) s_clock_air = fit;
-    }
-    s_clock_slot = ink + s_clock_air;
+    grid_metrics((int)g->light);
     return;
   }
   // Always the bold cut. It is what survives bright sun, it is what every
@@ -338,7 +391,7 @@ static void clock_resolve(void) {
   s_clock_slot += 2;                 // a hair of air between the slots
 }
 
-void face_fonts_changed(void) { text_load(); clock_resolve(); }
+void face_fonts_changed(void) { text_load(); clock_resolve(); reveal_sync(); }
 
 // A seven-segment display shows the segments it is *not* lighting, and that is
 // most of what makes one read as a display rather than as a typeface. DSEG
@@ -416,8 +469,17 @@ static void draw_clock_num(GContext *ctx, const char *s, int baseline) {
   GColor ink = palette()->ink;
   int n = strlen(s);
   int block = 2 * s_clock_slot;
-  int left = MARGIN_L + (SEP_X - MARGIN_L - block) / 2;
-  if (left < MARGIN_L) left = MARGIN_L;
+  // In Cards the field's right edge glides out to the bezel as the column
+  // leaves, and the left margin closes to nothing at the same rate, so the
+  // clock stays centered in whatever space it actually has at that instant.
+  int fr = SEP_X, fl = MARGIN_L;
+  if (g_cfg.layout == LAY_CARDS) {
+    int t = reveal();
+    fr = SEP_X + (SCREEN_W - SEP_X) * (100 - t) / 100;
+    fl = MARGIN_L * t / 100;
+  }
+  int left = fl + (fr - fl - block) / 2;
+  if (left < fl) left = fl;
   int right = left + block;
   // Both slots get their unlit 8, even the one no digit lands in — a real
   // display does not go dark where the hour happens to be one digit.
@@ -542,6 +604,55 @@ static void weather_load(void) {
 
 void face_poke(void) { if (s_layer) layer_mark_dirty(s_layer); }
 
+static void reveal_step(void *unused);
+
+static void reveal_go(bool in) {
+  s_reveal_in = in;
+  if (!s_reveal_timer)
+    s_reveal_timer = app_timer_register(REVEAL_STEP_MS, reveal_step, NULL);
+}
+
+static void reveal_leave(void *unused) { s_hold_timer = NULL; reveal_go(false); }
+
+static void reveal_step(void *unused) {
+  s_reveal_timer = NULL;
+  int d = 100 * REVEAL_STEP_MS / REVEAL_SPAN_MS;
+  s_reveal += s_reveal_in ? (d < 1 ? 1 : d) : -(d < 1 ? 1 : d);
+  if (s_reveal > 100) s_reveal = 100;
+  if (s_reveal < 0) s_reveal = 0;
+  if (s_reveal_in ? s_reveal < 100 : s_reveal > 0)
+    s_reveal_timer = app_timer_register(REVEAL_STEP_MS, reveal_step, NULL);
+  else if (s_reveal_in)
+    s_hold_timer = app_timer_register(REVEAL_HOLD_MS, reveal_leave, NULL);
+  face_poke();
+}
+
+// A shake while they are already up re-arms the hold rather than starting a
+// second animation, so shaking twice does not make them leave early.
+static void tap_handler(AccelAxisType axis, int32_t direction) {
+  if (!cards_hiding()) return;
+  if (s_hold_timer) { app_timer_cancel(s_hold_timer); s_hold_timer = NULL; }
+  reveal_go(true);
+}
+
+// The tap service costs power, so it is only subscribed while a layout is
+// actually using it. Settings changes run through here, which is also where
+// the panels get put back on screen when auto-hide is switched off — otherwise
+// turning it off would leave them parked with nothing left to summon them.
+static void reveal_sync(void) {
+  static bool on;
+  bool want = cards_hiding();
+  if (want == on) return;
+  on = want;
+  if (want) { accel_tap_service_subscribe(tap_handler); s_reveal = 0; }
+  else {
+    accel_tap_service_unsubscribe();
+    s_reveal = 100;
+    if (s_reveal_timer) { app_timer_cancel(s_reveal_timer); s_reveal_timer = NULL; }
+    if (s_hold_timer) { app_timer_cancel(s_hold_timer); s_hold_timer = NULL; }
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Drawing
 // ---------------------------------------------------------------------------
@@ -582,6 +693,7 @@ static void draw_degree(GContext *ctx, int x, int top, int size, GColor col) {
 static void draw_side(GContext *ctx) {
   const Palette *p = palette();
   char buf[16], val[16];
+  int dx = side_dx();   // the column carries its contents off with it
 
   // what the pulse slot has to show, if anything
   int bpm = g_cfg.show_bpm ? hl_bpm() : 0;
@@ -611,9 +723,9 @@ static void draw_side(GContext *ctx) {
   if (lbl) {
     int b = y + s_ink_val;
     graphics_context_set_text_color(ctx, p->muted);
-    draw_right(ctx, val, F_VAL, MARGIN_R, b);
+    draw_right(ctx, val, F_VAL, MARGIN_R + dx, b);
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, lbl, F_CAPS_S, MARGIN_R - tracked_w(lbl, F_CAPS_S),
+    draw_tracked(ctx, lbl, F_CAPS_S, MARGIN_R + dx - tracked_w(lbl, F_CAPS_S),
                  b + LABEL_DROP);
     y = b + LABEL_DROP + gap;
   }
@@ -623,20 +735,20 @@ static void draw_side(GContext *ctx) {
     int b_day = b_wd + LABEL_RISE;
     int b_mo = b_day + LABEL_DROP;
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R - tracked_w(wd, F_CAPS_S), b_wd);
+    draw_tracked(ctx, wd, F_CAPS_S, MARGIN_R + dx - tracked_w(wd, F_CAPS_S), b_wd);
     graphics_context_set_text_color(ctx, p->muted);
     snprintf(buf, sizeof buf, "%d", s_mday);
-    draw_right(ctx, buf, F_VAL, MARGIN_R, b_day);
+    draw_right(ctx, buf, F_VAL, MARGIN_R + dx, b_day);
     graphics_context_set_text_color(ctx, p->label);
-    draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R - tracked_w(mo, F_CAPS_S), b_mo);
+    draw_tracked(ctx, mo, F_CAPS_S, MARGIN_R + dx - tracked_w(mo, F_CAPS_S), b_mo);
     y = b_mo + gap;
   }
   if (has_temp) {
     int b = y + s_ink_val;
     snprintf(buf, sizeof buf, "%d", (int)s_temp);
     graphics_context_set_text_color(ctx, p->muted);
-    draw_right(ctx, buf, F_VAL, MARGIN_R, b);
-    draw_degree(ctx, MARGIN_R + 3, b - s_ink_val, DEG_SIZE, p->muted);
+    draw_right(ctx, buf, F_VAL, MARGIN_R + dx, b);
+    draw_degree(ctx, MARGIN_R + dx + 3, b - s_ink_val, DEG_SIZE, p->muted);
   }
 }
 
@@ -708,8 +820,8 @@ static void draw_sky(GContext *ctx) {
   if (line) {
     draw_clock_line(ctx, buf, mmbuf, grid()->b_clock);
   } else {
-    draw_clock_num(ctx, buf, grid()->b_hour);
-    draw_clock_num(ctx, mmbuf, grid()->b_min);
+    draw_clock_num(ctx, buf, clock_b_hour());
+    draw_clock_num(ctx, mmbuf, clock_b_min());
   }
 
   // the value slot: steps, or last night's sleep until you are up. Stacked it
@@ -718,7 +830,7 @@ static void draw_sky(GContext *ctx) {
   // the pulse carries its label inboard of the value and the step count
   // carries none — an accent-colored number with a comma in it needs no
   // telling, and the two labels will not fit on one row with the two values.
-  int b_val = BASE_ROW1;
+  int b_val = BASE_ROW1 - (cards ? step_dy() : 0);
   int b_bpm = line ? BASE_ROW2 : BASE_ROW1;
   if (hl_sleeping()) {
     int ss = hl_sleep_secs();
@@ -895,11 +1007,12 @@ static void draw_field_cards(GContext *ctx) {
   const Palette *p = palette();
   int hz = horizon_y();
   int sw = step_card_w();
+  int dx = side_dx(), dy = step_dy();
 
   if (!gcolor_equal(p->info_bg, p->sky)) {
     graphics_context_set_fill_color(ctx, p->info_bg);
-    graphics_fill_rect(ctx, GRect(0, 0, sw, SEP_Y), SEP_R, GCornerBottomRight);
-    graphics_fill_rect(ctx, GRect(SEP_X, SEP_Y, SCREEN_W - SEP_X, hz - SEP_Y),
+    graphics_fill_rect(ctx, GRect(0, -dy, sw, SEP_Y), SEP_R, GCornerBottomRight);
+    graphics_fill_rect(ctx, GRect(SEP_X + dx, SEP_Y, SCREEN_W - SEP_X, hz - SEP_Y),
                        SEP_R, GCornerTopLeft | GCornerBottomLeft);
   }
 
@@ -909,28 +1022,32 @@ static void draw_field_cards(GContext *ctx) {
 
   // the step panel: down the right edge, round the bottom-right, out to the
   // left bezel
-  graphics_draw_line(ctx, GPoint(sw, 0), GPoint(sw, SEP_Y - SEP_R));
-  graphics_draw_arc(ctx, GRect(sw - 2 * SEP_R, SEP_Y - 2 * SEP_R,
+  graphics_draw_line(ctx, GPoint(sw, -dy), GPoint(sw, SEP_Y - SEP_R - dy));
+  graphics_draw_arc(ctx, GRect(sw - 2 * SEP_R, SEP_Y - 2 * SEP_R - dy,
                                2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 4,
                     TRIG_MAX_ANGLE / 2);
-  graphics_draw_line(ctx, GPoint(0, SEP_Y), GPoint(sw - SEP_R, SEP_Y));
+  graphics_draw_line(ctx, GPoint(0, SEP_Y - dy), GPoint(sw - SEP_R, SEP_Y - dy));
 
   // the column: in from the right bezel, round down, and along to the horizon
-  graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, SEP_Y),
-                     GPoint(SCREEN_W - 1, SEP_Y));
-  graphics_draw_arc(ctx, GRect(SEP_X, SEP_Y, 2 * SEP_R, 2 * SEP_R),
+  // Once the column is most of the way out these run right-to-left, and
+  // graphics_draw_line happily draws them backwards — as a stripe down the
+  // right bezel that has nothing to do with the panel.
+  if (SEP_X + dx + SEP_R < SCREEN_W - 1)
+    graphics_draw_line(ctx, GPoint(SEP_X + dx + SEP_R, SEP_Y),
+                       GPoint(SCREEN_W - 1, SEP_Y));
+  graphics_draw_arc(ctx, GRect(SEP_X + dx, SEP_Y, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE * 3 / 4,
                     TRIG_MAX_ANGLE);
-  graphics_draw_line(ctx, GPoint(SEP_X, SEP_Y + SEP_R),
-                     GPoint(SEP_X, hz - SEP_R));
-  graphics_draw_arc(ctx, GRect(SEP_X, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
+  graphics_draw_line(ctx, GPoint(SEP_X + dx, SEP_Y + SEP_R),
+                     GPoint(SEP_X + dx, hz - SEP_R));
+  graphics_draw_arc(ctx, GRect(SEP_X + dx, hz - 2 * SEP_R, 2 * SEP_R, 2 * SEP_R),
                     GOvalScaleModeFitCircle, TRIG_MAX_ANGLE / 2,
                     TRIG_MAX_ANGLE * 3 / 4);
   // same hand-off as the L: the horizon closes the panel unless it is
   // invisible, in which case the panel closes itself
-  if (gcolor_equal(p->horizon, p->sky))
-    graphics_draw_line(ctx, GPoint(SEP_X + SEP_R, hz),
+  if (gcolor_equal(p->horizon, p->sky) && SEP_X + dx + SEP_R < SCREEN_W - 1)
+    graphics_draw_line(ctx, GPoint(SEP_X + dx + SEP_R, hz),
                        GPoint(SCREEN_W - 1, hz));
 }
 
@@ -990,6 +1107,11 @@ static void draw_field(GContext *ctx) {
 
 static void draw(Layer *layer, GContext *ctx) {
   const Palette *p = palette();
+  // Blocky Digits is the only face that can take the freed width crisply, and
+  // its metrics are arithmetic, so they are settled here each frame rather
+  // than in clock_resolve.
+  if (s_clock_scale)
+    grid_metrics(clock_big() ? CARDS_BIG_SCALE : (int)grid()->light);
   graphics_context_set_fill_color(ctx, p->sky);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
   draw_field(ctx);
@@ -1055,6 +1177,7 @@ void face_init(void) {
   connection_service_subscribe((ConnectionHandlers){
     .pebble_app_connection_handler = bt_handler });
   battery_state_service_subscribe(batt_handler);
+  reveal_sync();
   health_init();
 }
 
@@ -1062,6 +1185,7 @@ void face_deinit(void) {
   tick_timer_service_unsubscribe();
   connection_service_unsubscribe();
   battery_state_service_unsubscribe();
+  if (cards_hiding()) accel_tap_service_unsubscribe();
   health_deinit();
   fonts_unload();
   window_destroy(s_win);

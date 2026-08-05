@@ -69,6 +69,10 @@ typedef struct {
   uint32_t c_unlit;              // DSEG's dark segments; COL_INHERIT = the sky
   bool show_sep;                 // the rule around the clock's field
   uint32_t c_label, c_sep, c_info_bg;
+  // Cards only: the panels sit off-screen until you shake, then slide in and
+  // hold. With them gone the clock has the whole width, which is the actual
+  // reason to want this — see CARDS_BIG_* in face.c.
+  bool auto_hide;
 } Settings;
 
 #define COL_INHERIT 0xFF000000u

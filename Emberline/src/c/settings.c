@@ -22,6 +22,7 @@ static void defaults(void) {
   g_cfg.clock_font = CF_MONT;
   g_cfg.bold_clock = true;
   g_cfg.layout = LAY_STACK;
+  g_cfg.auto_hide = false;
   g_cfg.c_sky = 0x000055;
   g_cfg.c_ground = 0x000000;
   g_cfg.c_horizon = 0xFFAA00;
@@ -167,6 +168,7 @@ static void inbox(DictionaryIterator *it, void *ctx) {
   g_cfg.clock_font   = tup_int(it, MESSAGE_KEY_ClockFont, g_cfg.clock_font);
   if (g_cfg.clock_font >= CF_COUNT) g_cfg.clock_font = CF_MONT;
   g_cfg.layout       = tup_int(it, MESSAGE_KEY_Layout, g_cfg.layout);
+  g_cfg.auto_hide    = tup_int(it, MESSAGE_KEY_AutoHide, g_cfg.auto_hide);
   if (g_cfg.layout >= LAY_COUNT) g_cfg.layout = LAY_STACK;
   g_cfg.c_sky     = tup_col(it, MESSAGE_KEY_ColSky, g_cfg.c_sky);
   g_cfg.c_ground  = tup_col(it, MESSAGE_KEY_ColGround, g_cfg.c_ground);

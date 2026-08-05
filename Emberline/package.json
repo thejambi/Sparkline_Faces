@@ -58,6 +58,7 @@
       "ColLabel",
       "ColSep",
       "ColInfoBg",
+      "AutoHide",
       "ColorMode"
     ],
     "resources": {
