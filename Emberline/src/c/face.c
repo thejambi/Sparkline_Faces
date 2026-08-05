@@ -315,11 +315,28 @@ static bool clock_big(void) {
   return cards_hiding() && g_cfg.grow_clock && s_reveal < 50
       && g_cfg.clock_font == CF_GRID;
 }
+// With the panels gone the clock has the whole sky, not the band it was given
+// between the header and the horizon. A face that is not taking that as size
+// takes it as position: the block rises until the gap above it matches the gap
+// down to the horizon. Animated with everything else, so it lifts as the
+// panels leave and settles back as they return.
+//
+// The grown face needs none of this — CARDS_BIG_HOUR already places it for the
+// height it grew into.
+static int clock_lift(void) {
+  if (g_cfg.layout != LAY_STACK || clock_big()) return 0;
+  const ClockGrid *g = grid();
+  int h = g->b_min - g->b_hour + s_clock_asc;   // hours' cap to minutes' foot
+  int lift = (g->b_hour - s_clock_asc) - (horizon_y() - h) / 2;
+  if (lift < 0) lift = 0;
+  return lift * (100 - reveal()) / 100;
+}
+
 static int clock_b_hour(void) {
-  return clock_big() ? CARDS_BIG_HOUR : grid()->b_hour;
+  return clock_big() ? CARDS_BIG_HOUR : grid()->b_hour - clock_lift();
 }
 static int clock_b_min(void) {
-  return clock_big() ? CARDS_BIG_MIN : grid()->b_min;
+  return clock_big() ? CARDS_BIG_MIN : grid()->b_min - clock_lift();
 }
 
 static void clock_resolve(void) {
