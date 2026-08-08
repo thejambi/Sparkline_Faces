@@ -298,13 +298,10 @@ static void grid_metrics(int scale) {
 // A shake brings them in, they hold, then they leave. The frame timer only
 // runs while something is actually travelling — at rest there is no timer at
 // all, which is the difference between this and a battery complaint.
-// A frame costs about 55ms on Basalt, so asking for one every 33 only queues
-// work that cannot be done. The cadence is per-platform; the duration is not.
-#if defined(PBL_PLATFORM_EMERY)
+// A frame costs about 20ms on Basalt once the health reads are cached, so a
+// 33ms cadence is comfortably inside budget on every platform. It was 55ms and
+// this was 50 here; caching is what bought the frames back.
 #define REVEAL_STEP_MS 33
-#else
-#define REVEAL_STEP_MS 50
-#endif
 #define REVEAL_SPAN_MS 260
 #define REVEAL_HOLD_MS 7000
 static int s_reveal = 100;

@@ -7,24 +7,39 @@ static Terrain s_terrain;
 static bool s_terrain_valid;
 static bool s_was_sleeping;
 
+// The health service is not a cheap read, and this face asks it a lot: a
+// single frame took nine or ten calls, because hl_sleeping() needs two of them
+// on its own and three separate draw paths ask it. Profiling a reveal frame on
+// Basalt put that at 35ms of a 55ms frame — two thirds of the frame spent
+// re-fetching numbers that change once a minute, which is why the animation
+// stayed choppy however much drawing was trimmed out of it.
+//
+// So they are read once and held. Same discipline as s_terrain_valid, cleared
+// in the same two places: a movement event, and the minute rolling over.
+static int s_hv[4];
+static uint8_t s_hv_have;
+enum { HV_STEPS, HV_WALK, HV_SLEEP, HV_BPM };
+
+static void hl_stale(void) { s_hv_have = 0; }
+
 // ---------------------------------------------------------------------------
 #if defined(PBL_HEALTH)
 
-int hl_steps(void) {
+static int hl_steps_raw(void) {
 #ifdef DEV_FAKE_HEALTH
   return 8842;
 #endif
   return (int)health_service_sum_today(HealthMetricStepCount);
 }
 
-int hl_walked_m(void) {
+static int hl_walked_m_raw(void) {
 #ifdef DEV_FAKE_HEALTH
   return 6300;
 #endif
   return (int)health_service_sum_today(HealthMetricWalkedDistanceMeters);
 }
 
-int hl_sleep_secs(void) {
+static int hl_sleep_secs_raw(void) {
 #ifdef DEV_FAKE_HEALTH
   return 6 * 3600 + 32 * 60;
 #endif
@@ -35,7 +50,7 @@ int hl_sleep_secs(void) {
   return (int)health_service_sum_today(HealthMetricSleepSeconds);
 }
 
-int hl_bpm(void) {
+static int hl_bpm_raw(void) {
 #ifdef DEV_FAKE_HEALTH
   return 68;
 #endif
@@ -168,6 +183,7 @@ static bool build_night(Terrain *t) {
 static void health_evt(HealthEventType e, void *ctx) {
   if (e == HealthEventMovementUpdate) {
     s_terrain_valid = false;
+    hl_stale();
     face_poke();
   }
 }
@@ -183,28 +199,43 @@ void health_deinit(void) { health_service_events_unsubscribe(); }
 
 void health_minute(struct tm *t) {
   s_minsteps[t->tm_min] = 0;
+  hl_stale();                      // a new minute: whatever was held is old
   s_step_snap = hl_steps();
   if (s_refetch_pending && t->tm_min % 15 == 1) {
     fetch_hour();
     s_refetch_pending = false;
   }
   s_terrain_valid = false;
+  hl_stale();
 }
 
 #else   // no health on this platform
-int hl_steps(void) { return 0; }
-int hl_walked_m(void) { return 0; }
-int hl_sleep_secs(void) { return 0; }
-int hl_bpm(void) { return 0; }
+static int hl_steps_raw(void) { return 0; }
+static int hl_walked_m_raw(void) { return 0; }
+static int hl_sleep_secs_raw(void) { return 0; }
+static int hl_bpm_raw(void) { return 0; }
 static uint8_t s_minsteps[60];
 static int live_minute_steps(void) { return 0; }
 static bool build_night(Terrain *t) { (void)t; return false; }
 void health_init(void) {}
 void health_deinit(void) {}
-void health_minute(struct tm *t) { (void)t; s_terrain_valid = false; }
+void health_minute(struct tm *t) { (void)t; s_terrain_valid = false; hl_stale(); }
 #endif
 
 // ---------------------------------------------------------------------------
+#define HL_CACHED(name, slot)                        \
+  int name(void) {                                   \
+    if (!(s_hv_have & (1u << (slot)))) {              \
+      s_hv[slot] = name##_raw();                     \
+      s_hv_have |= 1u << (slot);                     \
+    }                                                \
+    return s_hv[slot];                               \
+  }
+HL_CACHED(hl_steps, HV_STEPS)
+HL_CACHED(hl_walked_m, HV_WALK)
+HL_CACHED(hl_sleep_secs, HV_SLEEP)
+HL_CACHED(hl_bpm, HV_BPM)
+
 bool hl_sleeping(void) {
   return g_cfg.show_sleep && hl_steps() <= (int)g_cfg.wake_threshold &&
          hl_sleep_secs() > 0;
