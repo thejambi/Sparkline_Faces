@@ -78,10 +78,29 @@ static const char *TEXT_SYS[TF_COUNT][F_COUNT] = {
 // true of every charset here (digits, caps, and h/m).
 static const char *FONT_PROBE[F_COUNT] = { "8", "h", "8", "B" };
 
+// graphics_text_layout_get_content_size is a full layout pass, and the tracked
+// paths ask for one per character — twice over, once to measure the string and
+// again inside the draw. That was around thirty layout calls a frame, which
+// profiling put at most of the cost of a reveal frame on Basalt.
+//
+// Single glyphs are a closed set and their widths never change while a face is
+// loaded, so they are memoized. Cleared by text_load when the family changes.
+// Stored +1 so that zero can mean "not measured yet".
+static uint8_t s_gw[F_COUNT][96];
+static uint8_t s_gh[F_COUNT];
+
 static GSize tsz(const char *s, FontId f) {
-  return graphics_text_layout_get_content_size(s, s_font[f],
+  bool one = s[0] && !s[1] && (uint8_t)s[0] >= 32 && (uint8_t)s[0] < 128;
+  if (one && s_gw[f][s[0] - 32])
+    return (GSize){ .w = s_gw[f][s[0] - 32] - 1, .h = s_gh[f] };
+  GSize sz = graphics_text_layout_get_content_size(s, s_font[f],
       GRect(0, 0, 240, 120), GTextOverflowModeTrailingEllipsis,
       GTextAlignmentLeft);
+  if (one && sz.w < 255 && sz.h < 256) {
+    s_gw[f][s[0] - 32] = (uint8_t)sz.w + 1;
+    s_gh[f] = (uint8_t)sz.h;
+  }
+  return sz;
 }
 
 static void clock_resolve(void);
@@ -147,6 +166,7 @@ static void text_load(void) {
     }
     s_ascent[i] = tsz(FONT_PROBE[i], (FontId)i).h;
   }
+  memset(s_gw, 0, sizeof s_gw);   // widths belong to the old family
   s_ink_val = TEXT_INK[want].val_ink;
   s_ink_caps = TEXT_INK[want].caps_ink;
   s_track = TEXT_INK[want].track;
@@ -278,12 +298,27 @@ static void grid_metrics(int scale) {
 // A shake brings them in, they hold, then they leave. The frame timer only
 // runs while something is actually travelling — at rest there is no timer at
 // all, which is the difference between this and a battery complaint.
+// A frame costs about 55ms on Basalt, so asking for one every 33 only queues
+// work that cannot be done. The cadence is per-platform; the duration is not.
+#if defined(PBL_PLATFORM_EMERY)
 #define REVEAL_STEP_MS 33
+#else
+#define REVEAL_STEP_MS 50
+#endif
 #define REVEAL_SPAN_MS 260
 #define REVEAL_HOLD_MS 7000
 static int s_reveal = 100;
 static bool s_reveal_in;
+static int s_reveal_from;         // where this travel started
+static uint32_t s_reveal_t0;      // and when
 static AppTimer *s_reveal_timer, *s_hold_timer;
+
+// Wraps every 49 days, which is harmless: only differences are ever taken.
+static uint32_t now_ms(void) {
+  time_t sec; uint16_t ms;
+  time_ms(&sec, &ms);
+  return (uint32_t)sec * 1000u + ms;
+}
 
 static bool cards_hiding(void) {
   return g_cfg.layout == LAY_STACK && g_cfg.auto_hide;
@@ -612,19 +647,35 @@ static void reveal_step(void *unused);
 
 static void reveal_go(bool in) {
   s_reveal_in = in;
+  s_reveal_from = s_reveal;
+  s_reveal_t0 = now_ms();
   if (!s_reveal_timer)
     s_reveal_timer = app_timer_register(REVEAL_STEP_MS, reveal_step, NULL);
 }
 
 static void reveal_leave(void *unused) { s_hold_timer = NULL; reveal_go(false); }
 
+// Progress comes from elapsed time, not from how many times this has run. A
+// frame that overruns its slot then costs a frame rather than costing duration
+// — which is the whole difference between "fewer steps" and "slow". Adding a
+// fixed amount per tick meant Basalt, at 55ms a frame against a 33ms timer,
+// took about 500ms to travel a distance declared as 260.
 static void reveal_step(void *unused) {
   s_reveal_timer = NULL;
-  int d = 100 * REVEAL_STEP_MS / REVEAL_SPAN_MS;
-  s_reveal += s_reveal_in ? (d < 1 ? 1 : d) : -(d < 1 ? 1 : d);
-  if (s_reveal > 100) s_reveal = 100;
-  if (s_reveal < 0) s_reveal = 0;
-  if (s_reveal_in ? s_reveal < 100 : s_reveal > 0)
+  int target = s_reveal_in ? 100 : 0;
+  uint32_t el = now_ms() - s_reveal_t0;
+  if (el >= REVEAL_SPAN_MS) {
+    s_reveal = target;
+  } else {
+    // Ease out. At four or five frames a linear ramp reads as dropped frames,
+    // because the eye tracks the settle and a constant velocity has none. The
+    // same frames spent mostly early and slowing into the stop read as motion.
+    // 1-(1-t)^2 in thousandths, which is exact in integers at this range.
+    int32_t f = (int32_t)el * 1000 / REVEAL_SPAN_MS;
+    int32_t e = f * (2000 - f) / 1000;
+    s_reveal = s_reveal_from + (int)((target - s_reveal_from) * e / 1000);
+  }
+  if (s_reveal != target)
     s_reveal_timer = app_timer_register(REVEAL_STEP_MS, reveal_step, NULL);
   else if (s_reveal_in)
     s_hold_timer = app_timer_register(REVEAL_HOLD_MS, reveal_leave, NULL);
