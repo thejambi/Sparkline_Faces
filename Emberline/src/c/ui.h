@@ -99,7 +99,12 @@
 #define DEG_SIZE_S    3
 #define CARD_R        138
 #define SEP_Y         25
-#define SEP_X         99
+// 99 gave the column 45px of a 144px screen — 31% of the width, against the
+// 24% the same card takes on Emery, and eleven of those pixels were slack
+// around the widest thing Montserrat puts in it. 107 brings the proportion
+// back and hands the difference to the clock, whose field goes from 87px to
+// 95 and was the tighter of the two all along.
+#define SEP_X         107
 #define SEP_R         6
 #define SEP_Y_LINE    46
 #define CARDS_BIG_SCALE 4
