@@ -263,10 +263,28 @@ no room for it set it to their own sky, where it quietly draws nothing:
 Black and white gets nothing either: two colours have no third tone to ghost
 with. Custom exposes it as its own role, defaulting to the sky.
 
-Blocky Digits does not draw them, and its own geometry is why. It is laid out
-on the same seven segments but does not separate them — its bars run together
-at the corners — so an `8` behind it is not a row of dark segments, it is a lit
-rectangle with a few notches in it.
+**Blocky Digits spends the same role on an outline instead.** It is laid out on
+the same seven segments but does not separate them — its bars run together at
+the corners — so an `8` behind it is not a row of dark segments, it is a lit
+rectangle with a few notches. What it can do is wear the second ink as a
+border, which decouples the clock's colour from whatever is behind it: white
+numerals survive a white sky, which without an outline they do not.
+
+The two can never collide despite sharing a role, because only one clock face
+is ever active. `unlit` means "the second ink" and each face spends it its own
+way. Like the ghosts it is opt-in, and off by default for the same reason —
+a theme whose unlit is its own sky draws neither.
+
+It costs nothing: the same runs drawn twice, once inflated and once not, and
+the union of inflated runs is a dilation. The clock measures 0ms either way.
+
+**Stacked only.** The outline grows the glyph outward, so the air between slots
+has to grow with it — one grid column of gap is exactly what a 2px outline on
+each of two neighbours eats at x5, and at x3 it would merge them into one
+shape. Widening the air fits every stacked role. One line has no width to give:
+Emery at x4 would need 212px of a 200px screen before the colon is counted, and
+even a 1px outline needs 202. It would have to drop a scale step, cap 52 to 39,
+which is a worse trade than going without.
 
 **Phosphor was the theme this was built for, and it is the one where it
 failed.** `550000` against black read correctly in the emulator and vanished on

@@ -15,7 +15,8 @@ const uint16_t DIGIT_ROWS[11][DIGIT_H] = {
   { 0x000, 0x000, 0x000, 0x038, 0x038, 0x000, 0x000, 0x000, 0x038, 0x038, 0x000, 0x000, 0x000 },   // :
 };
 
-void digit_draw(GContext *ctx, int idx, int x, int top, int scale) {
+void digit_draw(GContext *ctx, int idx, int x, int top, int scale,
+                int grow) {
   for (int r = 0; r < DIGIT_H; r++) {
     uint16_t row = DIGIT_ROWS[idx][r];
     int c = 0;
@@ -24,9 +25,10 @@ void digit_draw(GContext *ctx, int idx, int x, int top, int scale) {
         int run = 0;
         while (c + run < DIGIT_W &&
                (row & (1 << (DIGIT_W - 1 - c - run)))) run++;
-        graphics_fill_rect(ctx, GRect(x + c * scale, top + r * scale,
-                                      run * scale, scale), 0,
-                           GCornerNone);
+        graphics_fill_rect(ctx,
+            GRect(x + c * scale - grow, top + r * scale - grow,
+                  run * scale + 2 * grow, scale + 2 * grow), 0,
+            GCornerNone);
         c += run;
       } else {
         c++;

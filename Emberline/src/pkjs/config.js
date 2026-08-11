@@ -256,7 +256,7 @@ module.exports = [
       { type: 'heading', defaultValue: 'Time' },
       { type: 'color', messageKey: 'ColInk', label: 'Clock', defaultValue: 0xFFFFFF, sunlight: false },
       { type: 'color', messageKey: 'ColNow', label: 'The newest bar', defaultValue: 0xFFFFFF, sunlight: false },
-      { type: 'color', messageKey: 'ColUnlit', label: 'Unlit segments (DSEG7)', defaultValue: 0x000055, sunlight: false },
+      { type: 'color', messageKey: 'ColUnlit', label: 'DSEG7 unlit, Blocky outline', defaultValue: 0x000055, sunlight: false },
 
       { type: 'heading', defaultValue: 'Movement' },
       { type: 'color', messageKey: 'ColAccent', label: 'Step count', defaultValue: 0xFFAA00, sunlight: false },

@@ -21,4 +21,9 @@ extern const uint16_t DIGIT_ROWS[11][DIGIT_H];
 
 // Every set pixel as a `scale` x `scale` box, top-left at (x, top),
 // in the context fill color. Runs are one rectangle, not one per pixel.
-void digit_draw(GContext *ctx, int idx, int x, int top, int scale);
+//
+// `grow` inflates every run by that many pixels on all four sides. The
+// union of inflated runs is a dilation of the glyph, so drawing once
+// grown in one color and again flat in another leaves an outline.
+void digit_draw(GContext *ctx, int idx, int x, int top, int scale,
+                int grow);

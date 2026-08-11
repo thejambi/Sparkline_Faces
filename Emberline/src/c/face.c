@@ -268,6 +268,20 @@ static int horizon_y(void) { return grid()->horizon; }
 static int ground_y(void) { return horizon_y() + HORIZON_H; }
 static int bar_max(void) { return PLOT_BOT - ground_y() - 3; }
 
+// The outline is drawn in the `unlit` role, which DSEG7 uses for its ghost
+// segments. They can never collide: only one clock face is active at a time,
+// so the role means "the second ink" and each face spends it its own way. Like
+// DSEG's ghosts it is opt-in — a theme whose unlit is its own sky draws none.
+//
+// Stacked only. The outline grows the glyph outward, so the air between slots
+// has to grow with it, and one line has no width to give: Emery at x4 would
+// need 212px of a 200px screen even before the colon.
+static int outline_w(int scale) {
+  if (g_cfg.clock_font != CF_GRID || g_cfg.layout == LAY_LINE) return 0;
+  if (gcolor_equal(palette()->unlit, palette()->sky)) return 0;
+  return scale >= 5 ? 2 : 1;
+}
+
 // Blocky Digits' metrics are pure arithmetic — no resource to load, nothing to
 // measure — so they can be recomputed every frame. That is what lets the clock
 // change size as the panels come and go.
@@ -282,7 +296,7 @@ static void grid_metrics(int scale) {
   s_clock_asc = DIGIT_H * scale;
   int ink = DIGIT_W * scale;
   int cw = (DIGIT_COLON_R - DIGIT_COLON_L + 1) * scale;
-  s_clock_air = scale;
+  s_clock_air = scale + 2 * outline_w(scale);
   if (g_cfg.layout == LAY_LINE) {
     int fit = (SCREEN_W - 8 - 4 * ink - cw) / 5;
     if (fit < 1) fit = 1;
@@ -443,11 +457,16 @@ static void clock_glyph(GContext *ctx, char c, int x, int slot_w, int baseline,
     // hard-coded, so redrawing the glyphs cannot put it back.
     int l = colon ? DIGIT_COLON_L : DIGIT_INK_L;
     int r = colon ? DIGIT_COLON_R : DIGIT_INK_R;
+    int gx = x + (slot_w - (r - l + 1) * s_clock_scale) / 2
+               - l * s_clock_scale;
+    int gy = baseline - s_clock_asc;
+    int ow = outline_w(s_clock_scale);
+    if (ow) {
+      graphics_context_set_fill_color(ctx, palette()->unlit);
+      digit_draw(ctx, idx, gx, gy, s_clock_scale, ow);
+    }
     graphics_context_set_fill_color(ctx, col);
-    digit_draw(ctx, idx,
-               x + (slot_w - (r - l + 1) * s_clock_scale) / 2
-                 - l * s_clock_scale,
-               baseline - s_clock_asc, s_clock_scale);
+    digit_draw(ctx, idx, gx, gy, s_clock_scale, 0);
     return;
   }
   char one[2] = { c, 0 };
