@@ -462,8 +462,14 @@ static void clock_glyph(GContext *ctx, char c, int x, int slot_w, int baseline,
     int gy = baseline - s_clock_asc;
     int ow = outline_w(s_clock_scale);
     if (ow) {
+      // Dilated in the second ink, then the ink eroded by the same amount on
+      // top. The border thickens inward as well as out, which costs the stroke
+      // rather than the gap — so neither the silhouette nor the spacing moves.
       graphics_context_set_fill_color(ctx, palette()->unlit);
       digit_draw(ctx, idx, gx, gy, s_clock_scale, ow);
+      graphics_context_set_fill_color(ctx, col);
+      digit_draw_inset(ctx, idx, gx, gy, s_clock_scale, ow);
+      return;
     }
     graphics_context_set_fill_color(ctx, col);
     digit_draw(ctx, idx, gx, gy, s_clock_scale, 0);

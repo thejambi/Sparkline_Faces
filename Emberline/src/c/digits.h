@@ -27,3 +27,10 @@ extern const uint16_t DIGIT_ROWS[11][DIGIT_H];
 // grown in one color and again flat in another leaves an outline.
 void digit_draw(GContext *ctx, int idx, int x, int top, int scale,
                 int grow);
+
+// The same glyph eroded by `in` pixels: every cell keeps its edges where
+// a neighbouring cell is ink and pulls them in where none is. Drawing it
+// over a dilated pass leaves a border that has grown inward as well as
+// out, so the silhouette and the spacing do not move.
+void digit_draw_inset(GContext *ctx, int idx, int x, int top, int scale,
+                      int in);

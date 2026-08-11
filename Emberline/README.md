@@ -275,8 +275,18 @@ is ever active. `unlit` means "the second ink" and each face spends it its own
 way. Like the ghosts it is opt-in, and off by default for the same reason —
 a theme whose unlit is its own sky draws neither.
 
-It costs nothing: the same runs drawn twice, once inflated and once not, and
-the union of inflated runs is a dilation. The clock measures 0ms either way.
+It grows inward as well as out: the border pass is the glyph dilated, and the
+ink pass is the same glyph *eroded* by the same amount, so the band is twice
+the nominal width — 4px at x5 — while the silhouette and the spacing stay
+exactly where they were. Thickening it costs the stroke rather than the gap,
+which is the only budget with room in it.
+
+Dilation is exact on runs, since the union of inflated rectangles is a
+dilation. Erosion is not, so that pass walks cells instead of runs and pulls in
+each edge only where no neighbouring cell is ink. It is a cell-accurate
+approximation rather than a true erosion — at a concave junction it leaves a
+square of `in` by `in` that a real one would remove, which is 2px at x5 and has
+never been visible. The clock measures 0ms either way.
 
 **Stacked only.** The outline grows the glyph outward, so the air between slots
 has to grow with it — one grid column of gap is exactly what a 2px outline on

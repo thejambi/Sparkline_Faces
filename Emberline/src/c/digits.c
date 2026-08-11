@@ -36,3 +36,25 @@ void digit_draw(GContext *ctx, int idx, int x, int top, int scale,
     }
   }
 }
+
+void digit_draw_inset(GContext *ctx, int idx, int x, int top,
+                      int scale, int in) {
+  for (int r = 0; r < DIGIT_H; r++) {
+    uint16_t row = DIGIT_ROWS[idx][r];
+    uint16_t up = r ? DIGIT_ROWS[idx][r - 1] : 0;
+    uint16_t dn = r < DIGIT_H - 1 ? DIGIT_ROWS[idx][r + 1] : 0;
+    for (int c = 0; c < DIGIT_W; c++) {
+      uint16_t bit = 1 << (DIGIT_W - 1 - c);
+      if (!(row & bit)) continue;
+      int l = (c && (row & (bit << 1))) ? 0 : in;
+      int rt = (c < DIGIT_W - 1 && (row & (bit >> 1))) ? 0 : in;
+      int t = (up & bit) ? 0 : in;
+      int b = (dn & bit) ? 0 : in;
+      int w = scale - l - rt, h = scale - t - b;
+      if (w > 0 && h > 0)
+        graphics_fill_rect(ctx, GRect(x + c * scale + l,
+                                      top + r * scale + t, w, h),
+                           0, GCornerNone);
+    }
+  }
+}
