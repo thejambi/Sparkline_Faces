@@ -54,9 +54,18 @@ static int hl_bpm_raw(void) {
 #ifdef DEV_FAKE_HEALTH
   return 68;
 #endif
+// PBL_API_EXISTS is defined by the SDK as `defined(_PBL_API_EXISTS_##x)`, and
+// a `defined` arriving from a macro expansion is what -Wexpansion-to-defined
+// objects to. The construct is the SDK's, not ours, and it is the documented
+// way to ask this question — so the warning is silenced here rather than
+// worked around by reaching for the underscore-prefixed name it expands to.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wexpansion-to-defined"
 #if PBL_API_EXISTS(health_service_peek_current_value)
+#pragma GCC diagnostic pop
   return (int)health_service_peek_current_value(HealthMetricHeartRateBPM);
 #else
+#pragma GCC diagnostic pop
   return 0;
 #endif
 }
